@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ProductFlow — מנהל מוצרים</title>
+  <title>MerchPilot — מנהל מוצרים</title>
   <meta name="theme-color" content="#f8fafc" />
   <style>
     :root {
@@ -140,10 +140,12 @@
 
     .app-shell { min-height: 100vh; display: grid; grid-template-columns: 320px 1fr; }
     .sidebar {
-      position: sticky; top: 0; height: 100vh; overflow-y: auto;
+      position: sticky; top: 0; height: 100vh; overflow-y: auto; scrollbar-width: none;
       padding: 24px 18px; border-left: 1px solid var(--line);
       background: rgba(255,255,255,0.86); backdrop-filter: blur(20px);
     }
+    .sidebar::-webkit-scrollbar { display:none; }
+    .sidebar-close { display:none; width:42px; height:42px; border-radius:14px; }
     .side-group { margin-top: 18px; }
     .side-title {
       font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-inline: 8px; margin: 0 0 10px;
@@ -175,7 +177,8 @@
     .panel { background: var(--surface-grad); border-radius: 24px; padding: 18px; margin-bottom: 18px; }
 
     .toolbar { display:grid; grid-template-columns: 1.4fr 180px 180px auto; gap:12px; margin-bottom:16px; }
-    .grid-products { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .toolbar.compact { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .grid-products { display:grid; grid-template-columns: repeat(var(--desktop-columns, 4), minmax(0, 1fr)); gap: 16px; }
     .product-card {
       border-radius: 22px; overflow:hidden; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
       display:flex; flex-direction:column;
@@ -200,20 +203,8 @@
     }
     .card-actions { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
     .card-editor { display:grid; gap:12px; }
-    .inline-field { display:grid; gap:6px; }
-    .inline-field label { font-size:.78rem; color: var(--muted); font-weight:700; }
-    .inline-input, .inline-textarea {
-      width:100%; border:1px solid rgba(148,163,184,.22); background: rgba(255,255,255,.94); color: var(--text);
-      border-radius: 14px; padding: 10px 12px; outline:none;
-    }
-    .inline-textarea { min-height: 88px; resize: vertical; }
-    .inline-input:focus, .inline-textarea:focus {
-      border-color: rgba(96,165,250,.56); box-shadow: 0 0 0 4px rgba(96,165,250,.12);
-    }
-    .price-tag { cursor:pointer; border:0; }
-    .price-editor { display:none; align-items:center; gap:8px; }
-    .price-editor.open { display:flex; }
-    .price-editor .inline-input { text-align:center; font-weight:800; }
+    .product-desc { min-height: 52px; }
+    .price-tag { cursor:default; border:0; }
     .addon-inline-list { display:flex; gap:8px; flex-wrap:wrap; }
     .addon-inline-pill {
       border:1px solid rgba(148,163,184,.22); background: rgba(255,255,255,.9); border-radius:999px; padding:8px 12px; cursor:pointer;
@@ -286,7 +277,7 @@
       border:1px solid var(--line); border-radius: 22px; padding: 18px; background: rgba(255,255,255,.02);
     }
     .product-preview-shell {
-      padding: 18px; border-radius: 24px; background: var(--preview-bg);
+      padding: 18px; border-radius: 24px; background: var(--preview-bg); max-width: 420px; margin-inline: auto;
     }
     .product-preview-shell[data-template="classic"] .store-card {
       display:grid; gap: 12px;
@@ -333,8 +324,12 @@
     .full { grid-column: 1 / -1; }
     .preview-box { min-height: 120px; border:1px dashed rgba(148,163,184,.26); border-radius: 18px; padding: 14px; display:grid; place-items:center; background: rgba(255,255,255,.02); color: var(--muted); }
     .preview-box img { max-width:100%; max-height:240px; border-radius: 16px; object-fit: cover; }
-    .addon-box { border:1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.84); margin-bottom: 12px; }
+    .addon-box, .variant-box { border:1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.84); margin-bottom: 12px; }
     .addon-row { display:grid; grid-template-columns: 1.1fr .9fr .8fr auto; gap: 10px; margin-bottom: 10px; }
+    .variant-head, .variant-option-row { display:grid; grid-template-columns: 1.1fr .9fr .8fr auto; gap:10px; margin-bottom:10px; }
+    .variant-options { margin-top:10px; }
+    .subtle-banner { display:flex; gap:10px; flex-wrap:wrap; margin-bottom:14px; }
+    .lang-flag { min-width: 110px; justify-content:flex-start; }
 
     .toast {
       position: fixed; left:20px; bottom:20px; z-index: 90; display:none; max-width:360px;
@@ -343,20 +338,21 @@
     .toast.show { display:block; }
 
     @media (max-width: 1180px) {
-      .grid-products, .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .hero, .auth-layout, .embed-grid { grid-template-columns: 1fr; }
     }
     @media (max-width: 960px) {
       .app-shell { grid-template-columns: 1fr; }
-      .embed-runtime-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .embed-runtime-grid { grid-template-columns: repeat(var(--mobile-columns, 2), minmax(0, 1fr)); }
       .sidebar {
         position: fixed; top: 0; right: 0; width: min(92vw, 340px); height:100vh; z-index: 80;
         transform: translateX(100%); transition:.24s ease;
       }
       .sidebar.open { transform: translateX(0); }
+      .sidebar-close { display:inline-flex; }
       .mobile-topbar { display:flex; align-items:center; justify-content:space-between; }
       .main { padding: 16px; }
-      .toolbar, .settings-grid, .modal-grid, .addon-row, .template-grid, .grid-products { grid-template-columns: 1fr; }
+      .toolbar, .toolbar.compact, .settings-grid, .modal-grid, .addon-row, .template-grid, .variant-head, .variant-option-row { grid-template-columns: 1fr; }
       .topbar { flex-direction: column; align-items: stretch; }
       .stats { grid-template-columns: 1fr 1fr; }
       .product-preview-shell[data-template="split"] .store-card,
@@ -364,7 +360,7 @@
     }
     @media (max-width: 640px) {
       .auth-screen { padding: 14px; }
-      .embed-runtime-grid { grid-template-columns: 1fr; }
+      .embed-runtime-grid, .grid-products { grid-template-columns: repeat(var(--mobile-columns, 2), minmax(0, 1fr)); }
       .auth-showcase, .auth-card, .panel, .modal-card { padding: 18px; border-radius: 24px; }
       .feature-list, .stats { grid-template-columns: 1fr; }
       .card-actions { grid-template-columns: 1fr; }
@@ -388,7 +384,7 @@
             </svg>
           </div>
           <div>
-            <h1 data-i18n="brand.title">ProductFlow</h1>
+            <h1 data-i18n="brand.title">MerchPilot</h1>
             <p data-i18n="brand.subtitle">ניהול מוצרים, תוספות ומבצעים במקום אחד</p>
           </div>
         </div>
@@ -408,9 +404,9 @@
             <p data-i18n="auth.subtitle">התחל עם גוגל או עם מייל וסיסמה.</p>
           </div>
           <div class="lang-switch">
-            <button class="lang-btn active" data-lang="he">עברית</button>
-            <button class="lang-btn" data-lang="en">EN</button>
-            <button class="lang-btn" data-lang="fr">FR</button>
+            <button class="lang-btn lang-flag active" data-lang="he">🇮🇱 עברית</button>
+            <button class="lang-btn lang-flag" data-lang="en">🇺🇸 English</button>
+            <button class="lang-btn lang-flag" data-lang="fr">🇫🇷 Français</button>
           </div>
         </div>
         <div class="tabs">
@@ -421,7 +417,7 @@
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.24 36 24 36c-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 16.108 19.001 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.144 35.091 26.671 36 24 36c-5.219 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.05 12.05 0 0 1-4.084 5.57h.003l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
           <span data-i18n="auth.google">המשך עם Google</span>
         </button>
-        <div class="helper" id="googleAuthStatus" data-i18n="auth.googleHint">אם חלון קופץ נחסם, נבצע מעבר מאובטח דרך Redirect.</div>
+        <div class="helper" id="googleAuthStatus" data-i18n="auth.googleHint">החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.</div>
         <div class="helper" data-i18n="auth.or">או התחבר עם פרטי משתמש</div>
         <form id="authForm" class="form-grid">
           <input class="input hidden" id="authName" placeholder="שם מלא" />
@@ -437,38 +433,41 @@
   <section id="appScreen" class="hidden">
     <div class="app-shell">
       <aside class="sidebar" id="sidebar">
+        <div style="display:flex; justify-content:flex-start; margin-bottom:10px;">
+          <button class="btn btn-outline sidebar-close" id="closeSidebarBtn" type="button">✕</button>
+        </div>
         <div class="brand">
           <div class="logo-wrap">
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo"><defs><linearGradient id="g2" x1="10" y1="8" x2="54" y2="56" gradientUnits="userSpaceOnUse"><stop stop-color="#60A5FA"/><stop offset="1" stop-color="#818CF8"/></linearGradient></defs><rect x="6" y="6" width="52" height="52" rx="16" fill="url(#g2)"/><rect x="14" y="16" width="36" height="8" rx="4" fill="white" fill-opacity="0.95"/><rect x="14" y="28" width="22" height="8" rx="4" fill="white" fill-opacity="0.8"/><rect x="14" y="40" width="28" height="8" rx="4" fill="white" fill-opacity="0.65"/></svg>
           </div>
           <div>
-            <h1 data-i18n="brand.title">ProductFlow</h1>
+            <h1 data-i18n="brand.title">MerchPilot</h1>
             <p data-i18n="brand.subtitle">ניהול מוצרים, תוספות ומבצעים במקום אחד</p>
           </div>
         </div>
 
         <div class="side-group">
           <div class="side-title" data-i18n="nav.main">ראשי</div>
-          <button class="nav-btn active" data-view="products"><span class="left"><span>📦</span><span data-i18n="nav.products">ניהול מוצרים</span></span><span>›</span></button>
-          <button class="nav-btn" data-view="embed"><span class="left"><span>🔗</span><span data-i18n="nav.embed">חיבור לאתר</span></span><span>›</span></button>
-          <button class="nav-btn" data-view="designer"><span class="left"><span>🎨</span><span data-i18n="nav.designer">עיצוב ותבניות</span></span><span>›</span></button>
-          <button class="nav-btn" data-view="settings"><span class="left"><span>⚙️</span><span data-i18n="nav.settings">הגדרות</span></span><span>›</span></button>
+          <button class="nav-btn active" data-view="products"><span class="left"><span>📦</span><span data-i18n="nav.products">ניהול מוצרים</span></span></button>
+          <button class="nav-btn" data-view="embed"><span class="left"><span>🔗</span><span data-i18n="nav.embed">חיבור לאתר</span></span></button>
+          <button class="nav-btn" data-view="designer"><span class="left"><span>🧩</span><span data-i18n="nav.collection">אוסף מוצר</span></span></button>
+          <button class="nav-btn" data-view="settings"><span class="left"><span>⚙️</span><span data-i18n="nav.settings">הגדרות</span></span></button>
         </div>
 
         <div class="side-group">
           <div class="side-title" data-i18n="nav.shortcuts">קיצורים</div>
-          <button class="nav-btn" id="quickAddBtn"><span class="left"><span>✨</span><span data-i18n="nav.addProduct">הוסף מוצר</span></span><span>+</span></button>
-          <button class="nav-btn" id="exportJsonBtn"><span class="left"><span>🧾</span><span data-i18n="nav.export">ייצוא JSON</span></span><span>↓</span></button>
-          <button class="nav-btn" id="copyEmbedBtn"><span class="left"><span>📋</span><span data-i18n="nav.copyEmbed">העתק קוד חיבור</span></span><span>↗</span></button>
+          <button class="nav-btn" id="quickAddBtn"><span class="left"><span>✨</span><span data-i18n="nav.addProduct">הוסף מוצר</span></span></button>
+          <button class="nav-btn" id="exportJsonBtn"><span class="left"><span>🧾</span><span data-i18n="nav.export">ייצוא JSON</span></span></button>
+          <button class="nav-btn" id="copyEmbedBtn"><span class="left"><span>📋</span><span data-i18n="nav.copyEmbed">העתק קוד חיבור</span></span></button>
         </div>
 
         <div class="sidebar-foot">
           <strong data-i18n="tips.title">סביבת העבודה שלך</strong>
           <p data-i18n="tips.desc">כל שינוי נשמר בחשבון שלך ויכול להופיע מיד גם בהטמעה החיצונית.</p>
           <div class="lang-switch">
-            <button class="lang-btn active" data-lang="he">עברית</button>
-            <button class="lang-btn" data-lang="en">EN</button>
-            <button class="lang-btn" data-lang="fr">FR</button>
+            <button class="lang-btn lang-flag active" data-lang="he">🇮🇱 עברית</button>
+            <button class="lang-btn lang-flag" data-lang="en">🇺🇸 English</button>
+            <button class="lang-btn lang-flag" data-lang="fr">🇫🇷 Français</button>
           </div>
         </div>
       </aside>
@@ -484,6 +483,11 @@
             <div class="badge" data-i18n="app.badge">ממשק ניהול מעוצב</div>
             <h2 style="margin:10px 0 6px;" data-i18n="app.welcome">ברוך הבא למנהל המוצרים שלך</h2>
             <div class="mini" data-i18n="app.sub">נהל מוצרים, תבניות, עיצוב, Google auth וחיבור לאתר לקוח ממקום אחד.</div>
+            <div class="subtle-banner">
+              <button class="lang-btn lang-flag active" data-lang="he">🇮🇱 עברית</button>
+              <button class="lang-btn lang-flag" data-lang="en">🇺🇸 English</button>
+              <button class="lang-btn lang-flag" data-lang="fr">🇫🇷 Français</button>
+            </div>
           </div>
           <div style="display:flex; gap:10px; flex-wrap:wrap; align-items:center;">
             <div class="user-pill">
@@ -529,6 +533,24 @@
               <select class="select" id="filterPromo"><option value="all" data-i18n="filters.all">כל המוצרים</option><option value="active" data-i18n="filters.active">רק פעילים</option><option value="inactive" data-i18n="filters.inactive">מושבתים</option><option value="promo" data-i18n="filters.promo">עם מבצע</option><option value="regular" data-i18n="filters.regular">ללא מבצע</option></select>
               <select class="select" id="sortSelect"><option value="newest" data-i18n="sort.newest">החדש ביותר</option><option value="name" data-i18n="sort.name">לפי שם</option><option value="priceAsc" data-i18n="sort.priceAsc">מחיר עולה</option><option value="priceDesc" data-i18n="sort.priceDesc">מחיר יורד</option></select>
               <button class="btn btn-outline" id="refreshBtn" data-i18n="products.refresh">רענן</button>
+            </div>
+            <div class="toolbar compact">
+              <div class="field">
+                <label for="desktopColumns" data-i18n="products.desktopColumns">כמות כרטיסים בשורה במחשב</label>
+                <select class="select" id="desktopColumns"><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option></select>
+              </div>
+              <div class="field">
+                <label for="mobileColumns" data-i18n="products.mobileColumns">כמות כרטיסים בשורה בטלפון</label>
+                <select class="select" id="mobileColumns"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select>
+              </div>
+              <div class="field">
+                <label for="themeMode" data-i18n="products.themeMode">תצוגה באתר הלקוח</label>
+                <select class="select" id="themeMode"><option value="system">העיצובים שלנו</option><option value="site">רק נתונים לפי עיצוב האתר</option></select>
+              </div>
+              <div class="field">
+                <label for="platformNameInput" data-i18n="settings.platformName">שם הפלטפורמה</label>
+                <input class="input" id="platformNameInput" placeholder="MerchPilot" />
+              </div>
             </div>
             <div id="productsContainer" class="grid-products"></div>
             <div id="emptyState" class="empty hidden" data-i18n="products.empty">עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.</div>
@@ -588,7 +610,7 @@
                   </ol>
                   <pre class="code-block" id="embedDataCodeBlock"></pre>
                 </div>
-                <iframe class="embed-frame" id="embedLiveFrame" title="ProductFlow live embed preview"></iframe>
+                <iframe class="embed-frame" id="embedLiveFrame" title="MerchPilot live embed preview"></iframe>
               </div>
             </div>
           </div>
@@ -670,7 +692,7 @@
             </div>
             <div class="settings-grid">
               <div>
-                <div class="switch-row"><div><strong data-i18n="settings.multiLang">מצב רב-לשוני</strong><div class="mini" data-i18n="settings.multiLangDesc">כפתורי השפה פעילים בכל המסכים.</div></div><div class="toggle active" id="toggleLang"></div></div>
+                <div class="switch-row"><div><strong data-i18n="settings.multiLang">מצב רב-לשוני</strong><div class="mini" data-i18n="settings.multiLangDesc">כפתורי השפה מופיעים כבאנר קטן עם דגלים.</div></div><div class="toggle active" id="toggleLang"></div></div>
                 <div class="switch-row"><div><strong data-i18n="settings.promos">הצגת מבצעים מודגשת</strong><div class="mini" data-i18n="settings.promosDesc">מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.</div></div><div class="toggle active" id="togglePromos"></div></div>
                 <div class="switch-row"><div><strong data-i18n="settings.mobile">התאמה למובייל</strong><div class="mini" data-i18n="settings.mobileDesc">הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.</div></div><div class="toggle active" id="toggleMobile"></div></div>
                 <div class="switch-row"><div><strong data-i18n="settings.authMode">Google Auth חלק</strong><div class="mini" data-i18n="settings.authModeDesc">Popup עם Redirect fallback וטיפול בשגיאות נפוצות.</div></div><div class="toggle active" id="toggleGoogleAuthInfo"></div></div>
@@ -724,6 +746,11 @@
           <button class="btn btn-outline" type="button" id="addAddonBtn" data-i18n="addons.add">הוסף תוספת</button>
         </div>
         <div id="addonsContainer"></div>
+        <div class="section-head" style="margin-top:18px;">
+          <div><h3 style="margin:0;">קטגוריות בחירה ללקוח</h3><p>צבע, מידה או כל קטגוריה אחרת עם כמה אפשרויות לבחירה ושמירה לסל.</p></div>
+          <button class="btn btn-outline" type="button" id="addVariantBtn">הוסף קטגוריה</button>
+        </div>
+        <div id="variantsContainer"></div>
         <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap;">
           <button class="btn btn-outline" type="button" id="cancelModalBtn" data-i18n="modal.cancel">ביטול</button>
           <button class="btn btn-primary" type="submit" id="saveProductBtn" data-i18n="modal.save">שמור מוצר</button>
@@ -795,7 +822,11 @@
       cardPadding: 18,
       borderRadius: 24,
       imageHeight: 220,
-      textAlign: 'right'
+      textAlign: 'right',
+      desktopColumns: 4,
+      mobileColumns: 2,
+      platformName: 'MerchPilot',
+      logoText: 'MP'
     };
 
     const TEMPLATE_DEFS = {
@@ -826,14 +857,15 @@
       embedUid: '',
       previewObjectUrl: '',
       cart: {},
-      selectedAddons: {}
+      selectedAddons: {},
+      selectedVariants: {}
     };
 
     const translations = {
       he: {
-        'brand.title': 'ProductFlow','brand.subtitle': 'ניהול מוצרים, תוספות ומבצעים במקום אחד','showcase.badge': 'מערכת ניהול מוצרים חכמה','showcase.title': 'דשבורד יפה, מהיר ומוכן לעבודה אמיתית','showcase.desc': 'התחברות עם גוגל או מייל וסיסמה, שמירת מוצרים ב-Firebase, יצירת קוד הטמעה לפי מזהה החשבון, שליטה בעיצוב כרטיסי מוצר ותצוגות שונות לאתר הלקוח.',
+        'brand.title': 'MerchPilot','brand.subtitle': 'ניהול מוצרים, תוספות ומבצעים במקום אחד','showcase.badge': 'מערכת ניהול מוצרים חכמה','showcase.title': 'דשבורד יפה, מהיר ומוכן לעבודה אמיתית','showcase.desc': 'התחברות עם גוגל או מייל וסיסמה, שמירת מוצרים ב-Firebase, יצירת קוד הטמעה לפי מזהה החשבון, שליטה בעיצוב כרטיסי מוצר ותצוגות שונות לאתר הלקוח.',
         'f1.t': 'התחברות חכמה','f1.d': 'Google popup + redirect fallback','f2.t': 'סנכרון מוצרים','f2.d': 'קוד Embed לפי מזהה חשבון','f3.t': 'עיצוב גמיש','f3.d': '3 תבניות מוצר + צבעים + כפתור','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
-        'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'אם חלון קופץ נחסם, נבצע מעבר מאובטח דרך Redirect.','auth.or': 'או התחבר עם פרטי משתמש','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.',
+        'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.','auth.or': 'או התחבר עם פרטי משתמש','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.',
         'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב ותבניות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.export': 'ייצוא JSON','nav.copyEmbed': 'העתק קוד חיבור',
         'tips.title': 'סביבת העבודה שלך','tips.desc': 'כל שינוי נשמר בחשבון שלך ויכול להופיע מיד גם בהטמעה החיצונית.',
         'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא למנהל המוצרים שלך','app.sub': 'נהל מוצרים, תבניות, עיצוב, Google auth וחיבור לאתר לקוח ממקום אחד.','app.logout': 'התנתק',
@@ -844,7 +876,7 @@
         'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'קבל מזהה חשבון וקוד הטמעה מוכן. הקוד שואב אוטומטית את המוצרים והעיצוב מהמערכת שלך.','embed.copyId': 'העתק מזהה חשבון','embed.copyCode': 'העתק קוד הטמעה','embed.accountTitle': 'מזהה החשבון שלך','embed.accountHelp': 'זהו מזהה החשבון שמשויך לנתונים שלך בענן ומשמש גם להטמעה האישית.','embed.mountLabel': 'מזהה אלמנט באתר היעד','embed.columnsLabel': 'מספר עמודות בדסקטופ','embed.titleLabel': 'כותרת אזור המוצרים','embed.howto': 'לכל חשבון נוצר קוד הטמעה אישי שמושך אוטומטית את המוצרים, הסגנון והתמונות מהענן.','embed.note': 'אפשר לשלב את הקוד באתר, בדף נחיתה או במערכת צד שלישי שתומכת ב-HTML מותאם.','embed.optionsTitle': 'שתי אפשרויות חיבור ברורות','embed.optionManualTitle': '1. עיצוב ידני מתוך המערכת','embed.optionManualDesc': 'השתמשו ב-iframe המוכן כשהמערכת אחראית על עיצוב הכרטיסים, כפתור הסל והתוספות.','embed.optionThemeTitle': '2. עיצוב לפי הקוד של אתר הלקוח','embed.optionThemeDesc': 'האתר של הלקוח אחראי על ה-HTML/CSS שלו, והמערכת הזו מספקת רק את הנתונים המעודכנים.','embed.integrationTitle': 'איך מחברים באתר רגיל','embed.integrationStep1': 'העתיקו את מזהה החשבון או את קוד ה-iframe מהמסך הזה.','embed.integrationStep2': 'להטמעה מהירה: הדביקו את ה-iframe באזור HTML באתר.','embed.integrationStep3': 'להטמעת נתונים בלבד: העתיקו את אובייקט הנתונים והלבישו עליו את העיצוב הקיים של האתר.','embed.integrationStep4': 'בכל מוצר אפשר לבחור בין עיצוב מותאם במערכת לבין עיצוב שמגיע מהאתר.',
         'designer.title': 'עיצוב האתר ותבניות מוצר','designer.desc': 'בחר תבנית ברירת מחדל, הצג/הסתר כפתור סל, שנה צבעים וצפה מיד בתוצאה שתופיע גם באתר המחובר.','designer.styleTitle': 'עיצוב גלובלי','designer.templateLabel': 'תבנית ברירת מחדל','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.palette': 'פלטת צבעים מהירה','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
         'templates.title': '3 צורות מוצר מוכנות','templates.desc': 'אתה שולט איפה התמונה מופיעה, איפה הטקסט, והאם יוצג כפתור הוספה לסל. התבנית נשמרת ומשותפת גם לקוד ההטמעה.','template.classic': 'כרטיס קלאסי','template.split': 'כרטיס מפוצל','template.minimal': 'כרטיס מינימלי',
-        'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה פעילים בכל המסכים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
+        'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה מופיעים כבאנר קטן עם דגלים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
         'ideas.title': 'מצב המערכת','ideas.1': '• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.','ideas.2': '• תמונות יישמרו ב-Storage ואם אין הרשאה הן יישמרו ישירות במסמך המוצר כדי לא לחסום שמירה.','ideas.3': '• קוד ההטמעה משתמש במזהה החשבון בלבד.','ideas.4': '• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.','ideas.5': '• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.','ideas.6': '• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.',
         'modal.addTitle': 'הוספת מוצר','modal.editTitle': 'עריכת מוצר','modal.desc': 'מלא את הפרטים, בחר תבנית או עיצוב מותאם, והוסף תוספות.','modal.cancel': 'ביטול','modal.save': 'שמור מוצר',
         'form.name': 'שם המוצר','form.price': 'מחיר','form.desc': 'תיאור','form.tags': 'תגים','form.colors': 'צבעים','form.freeText': 'טקסט חופשי לעיצוב/הדגשה','form.image': 'תמונת מוצר','form.font': 'סגנון גופן','form.template': 'תבנית מוצר','form.cart': 'כפתור הוסף לסל','form.cartDefault': 'לפי ברירת מחדל של האתר','form.cartShow': 'להציג','form.cartHide': 'להסתיר','form.accent': 'צבע הדגשה','form.cardBg': 'רקע כרטיס','form.status': 'סטטוס מוצר','form.useSiteTheme': 'שימוש בעיצוב האתר','form.sitePreview': 'איך המוצר יראה באתר','form.sitePreviewDesc': 'התצוגה מתעדכנת מיד לפי התבנית והעיצוב שבחרת.','form.preview': 'תצוגה מקדימה',
@@ -909,19 +941,12 @@
 
     async function signInGoogle() {
       $('#googleLoginBtn').disabled = true;
-      $('#googleAuthStatus').textContent = 'Google popup…';
+      $('#googleAuthStatus').textContent = 'מעביר ל-Google בצורה מאובטחת…';
       try {
         await setPersistence(auth, browserLocalPersistence);
-        await signInWithPopup(auth, provider, browserPopupRedirectResolver);
-        showToast('התחברת בהצלחה עם גוגל');
+        await signInWithRedirect(auth, provider);
       } catch (err) {
-        if (['auth/popup-blocked', 'auth/cancelled-popup-request', 'auth/operation-not-supported-in-this-environment'].includes(err.code)) {
-          $('#googleAuthStatus').textContent = 'הפופאפ נחסם — מבצע Redirect מאובטח…';
-          await signInWithRedirect(auth, provider);
-          return;
-        }
         showToast(formatFirebaseError(err), true);
-      } finally {
         $('#googleLoginBtn').disabled = false;
       }
     }
@@ -937,6 +962,8 @@
         }
       } catch (err) {
         showToast(formatFirebaseError(err), true);
+      } finally {
+        $('#googleLoginBtn').disabled = false;
       }
     }
 
@@ -1001,6 +1028,12 @@
       $('#themeBorderRadius').value = Number(state.theme.borderRadius || 24);
       $('#themeImageHeight').value = Number(state.theme.imageHeight || 220);
       $('#themeTextAlign').value = state.theme.textAlign || 'right';
+      if ($('#desktopColumns')) $('#desktopColumns').value = String(state.theme.desktopColumns || 4);
+      if ($('#mobileColumns')) $('#mobileColumns').value = String(state.theme.mobileColumns || 2);
+      if ($('#themeMode')) $('#themeMode').value = state.theme.renderMode === 'site' ? 'site' : 'system';
+      if ($('#platformNameInput')) $('#platformNameInput').value = state.theme.platformName || 'MerchPilot';
+      document.documentElement.style.setProperty('--desktop-columns', Number(state.theme.desktopColumns || 4));
+      document.documentElement.style.setProperty('--mobile-columns', Number(state.theme.mobileColumns || 2));
       $('#themeCardPaddingValue').textContent = `${Number(state.theme.cardPadding || 18)}px`;
       $('#themeBorderRadiusValue').textContent = `${Number(state.theme.borderRadius || 24)}px`;
       $('#themeImageHeightValue').textContent = `${Number(state.theme.imageHeight || 220)}px`;
@@ -1047,6 +1080,13 @@
     function setSelectedAddon(productId, value) {
       state.selectedAddons[productId] = value || '';
     }
+    function getSelectedVariant(productId, groupName) {
+      return state.selectedVariants?.[productId]?.[groupName] || '';
+    }
+    function setSelectedVariant(productId, groupName, value) {
+      state.selectedVariants[productId] ||= {};
+      state.selectedVariants[productId][groupName] = value || '';
+    }
 
     function getPreviewProduct() {
       return state.products[0] || {
@@ -1077,16 +1117,21 @@
       const showCart = productShowCart(item);
       const productId = item.id || item.productId || item.name || 'preview';
       const price = `₪${Number(item.price || 0).toLocaleString()}`;
-      const image = item.imageUrl ? `<img src="${esc(item.imageUrl)}" alt="${esc(item.name || '')}">` : `<img alt="placeholder" src="data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='600' height='420'><rect width='100%' height='100%' fill='${item.accentColor || theme.primaryColor}' opacity='0.18'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='32' fill='#334155'>ProductFlow</text></svg>`)}">`;
+      const image = item.imageUrl ? `<img src="${esc(item.imageUrl)}" alt="${esc(item.name || '')}">` : `<img alt="placeholder" src="data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='600' height='420'><rect width='100%' height='100%' fill='${item.accentColor || theme.primaryColor}' opacity='0.18'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='32' fill='#334155'>MerchPilot</text></svg>`)}">`;
       const chips = [...(item.tags || []).slice(0, 2), ...(item.colors || []).slice(0, 2).map(c => `🎨 ${c}`)].map(ch => `<span class="store-chip">${esc(ch)}</span>`).join('');
       const statusHtml = isPreview ? '' : `<div class="status-pill ${productIsActive(item) ? 'active' : 'inactive'}"><span class="status-dot"></span>${productIsActive(item) ? 'פעיל' : 'מושבת'}</div>`;
       const promoAddons = (item.addons || []).filter((addon) => addon.name || addon.value);
+      const variantGroups = (item.variants || []).filter((group) => group?.name && (group.options || []).length);
       const addonChoices = promoAddons.length ? `<div class="addon-inline-list">${promoAddons.map((addon, index) => {
         const addonLabel = addon.value || addon.name;
         const value = `${addon.name || 'addon'}::${addonLabel}`;
         const active = !isPreview && getSelectedAddon(productId) === value;
         return `<button class="addon-inline-pill ${active ? 'active' : ''}" type="button" data-action="select-addon" data-product-id="${esc(productId)}" data-addon="${esc(value)}">${esc(addon.name || 'תוספת')}: ${esc(addonLabel)}</button>`;
       }).join('')}</div>` : '';
+      const variantHtml = variantGroups.map((group) => `<div class="inline-field"><label>${esc(group.name)}</label><div class="addon-inline-list">${group.options.map((option) => {
+        const selected = !isPreview && getSelectedVariant(productId, group.name) === option.label;
+        return `<button class="addon-inline-pill ${selected ? 'active' : ''}" type="button" data-action="select-variant" data-product-id="${esc(productId)}" data-group="${esc(group.name)}" data-option="${esc(option.label)}">${esc(option.label)}</button>`;
+      }).join('')}</div></div>`).join('');
       const cartHtml = showCart ? `
         <div class="cart-inline-row">
           <div class="qty-stepper">
@@ -1107,6 +1152,7 @@
           <div class="store-price" style="color:${esc(item.accentColor || theme.primaryColor)};">${price}</div>
           <p class="store-meta">${esc(item.description || '')}</p>
           <div class="store-chips">${chips}</div>
+          ${variantHtml}
           ${addonChoices}
           ${cartHtml}
         </div>`;
@@ -1129,7 +1175,8 @@
         cardBackground: $('#productCardBg').value,
         active: $('#productStatus').value === 'active',
         status: $('#productStatus').value,
-        useSiteTheme: $('#productUseSiteTheme').value
+        useSiteTheme: $('#productUseSiteTheme').value,
+        variants: collectVariants()
       };
     }
 
@@ -1208,6 +1255,7 @@
       }
       $('#productForm').reset();
       $('#addonsContainer').innerHTML = '';
+      $('#variantsContainer').innerHTML = '';
       $('#imagePreview').innerHTML = state.currentImageUrl ? `<img src="${state.currentImageUrl}" alt="preview">` : 'עדיין לא נבחרה תמונה';
       $('#productTemplate').value = item?.template || state.theme.template;
       $('#productShowCart').value = item?.showCart || 'default';
@@ -1224,8 +1272,10 @@
         $('#productFreeText').value = item.freeText || '';
         $('#productFont').value = item.font || 'Inter';
         (item.addons || []).forEach(addAddon);
+        (item.variants || []).forEach(addVariantGroup);
       } else {
         addAddon();
+        addVariantGroup();
       }
       applyTranslations();
       renderModalProductPreview();
@@ -1252,6 +1302,34 @@
       box.querySelector('.remove-addon').addEventListener('click', () => box.remove());
       $('#addonsContainer').appendChild(box);
     }
+    function addVariantGroup(data = {}) {
+      const box = document.createElement('div');
+      box.className = 'variant-box';
+      box.innerHTML = `
+        <div class="variant-head">
+          <input class="input variant-name" placeholder="שם הקטגוריה - למשל צבע / מידה" value="${esc(data.name || '')}">
+          <input class="input variant-help" placeholder="טקסט עזר ללקוח" value="${esc(data.help || '')}">
+          <select class="select variant-type"><option value="choice" ${(data.type || 'choice') === 'choice' ? 'selected' : ''}>בחירה</option></select>
+          <button class="btn btn-danger remove-variant" type="button">✕</button>
+        </div>
+        <div class="variant-options"></div>
+        <button class="btn btn-outline add-variant-option" type="button">הוסף אפשרות</button>`;
+      box.querySelector('.remove-variant').addEventListener('click', () => box.remove());
+      box.querySelector('.add-variant-option').addEventListener('click', () => addVariantOption(box));
+      $('#variantsContainer').appendChild(box);
+      (data.options || [{ label:'', value:'', color:'' }]).forEach((option) => addVariantOption(box, option));
+    }
+    function addVariantOption(groupBox, data = {}) {
+      const row = document.createElement('div');
+      row.className = 'variant-option-row';
+      row.innerHTML = `
+        <input class="input variant-option-label" placeholder="טקסט בכרטיס הקטן" value="${esc(data.label || '')}">
+        <input class="input variant-option-value" placeholder="ערך שנשמר לסל" value="${esc(data.value || data.label || '')}">
+        <input class="input variant-option-color" placeholder="צבע / HEX (אופציונלי)" value="${esc(data.color || '')}">
+        <button class="btn btn-danger remove-variant-option" type="button">✕</button>`;
+      row.querySelector('.remove-variant-option').addEventListener('click', () => row.remove());
+      groupBox.querySelector('.variant-options').appendChild(row);
+    }
     function collectAddons() {
       return [...document.querySelectorAll('.addon-box')].map((box) => ({
         name: box.querySelector('.addon-name').value.trim(),
@@ -1261,6 +1339,18 @@
         color: box.querySelector('.addon-color').value.trim(),
         shape: box.querySelector('.addon-shape').value.trim()
       })).filter((item) => item.name || item.value || item.extra);
+    }
+    function collectVariants() {
+      return [...document.querySelectorAll('.variant-box')].map((box) => ({
+        name: box.querySelector('.variant-name').value.trim(),
+        help: box.querySelector('.variant-help').value.trim(),
+        type: box.querySelector('.variant-type').value,
+        options: [...box.querySelectorAll('.variant-option-row')].map((row) => ({
+          label: row.querySelector('.variant-option-label').value.trim(),
+          value: row.querySelector('.variant-option-value').value.trim(),
+          color: row.querySelector('.variant-option-color').value.trim()
+        })).filter((option) => option.label || option.value)
+      })).filter((group) => group.name && group.options.length);
     }
 
     async function fileToDataUrl(file) {
@@ -1318,6 +1408,7 @@
           active: $('#productStatus').value === 'active',
           status: $('#productStatus').value,
           useSiteTheme: $('#productUseSiteTheme').value,
+          variants: collectVariants(),
           updatedAt: serverTimestamp(),
           createdAt: serverTimestamp()
         };
@@ -1354,7 +1445,7 @@
       $('#emptyState').classList.toggle('hidden', items.length !== 0);
       items.forEach((item) => {
         const hasPromo = (item.addons || []).some(a => a.style === 'promo');
-        const chips = [...(item.tags || []).slice(0, 2), ...(item.colors || []).slice(0, 2).map(c => `🎨 ${c}`), ...(hasPromo ? ['🔥 Promo'] : []), productEffectiveTemplate(item)];
+        const chips = [...(item.tags || []).slice(0, 2), ...(item.colors || []).slice(0, 2).map(c => `🎨 ${c}`), ...(hasPromo ? ['🔥 Promo'] : []), ...((item.variants || []).slice(0, 2).map(group => `🧩 ${group.name}`)), productEffectiveTemplate(item)];
         const card = document.createElement('article');
         card.className = 'product-card';
         card.dataset.id = item.id;
@@ -1363,40 +1454,20 @@
           <div class="product-body card-editor" style="font-family:${esc(item.font || 'Inter')};">
             <div class="product-status-row">
               <div class="status-pill ${productIsActive(item) ? 'active' : 'inactive'}"><span class="status-dot"></span>${productIsActive(item) ? 'פעיל' : 'מושבת'}</div>
-              <div style="display:grid; gap:8px; justify-items:end;">
-                <button class="price-tag inline-price-trigger" type="button" data-action="toggle-price" style="background:${hexToRgba(item.accentColor || state.theme.primaryColor, .14)}; color:${esc(item.accentColor || state.theme.primaryColor)};">₪${Number(item.price || 0).toLocaleString()}</button>
-                <div class="price-editor">
-                  <input class="inline-input product-inline-price" type="number" min="0" step="0.01" value="${esc(String(item.price ?? 0))}">
-                </div>
-              </div>
+              <div class="price-tag" style="background:${hexToRgba(item.accentColor || state.theme.primaryColor, .14)}; color:${esc(item.accentColor || state.theme.primaryColor)};">₪${Number(item.price || 0).toLocaleString()}</div>
             </div>
             <div class="product-title-row"><h4 class="product-title">${esc(item.name || '')}</h4><div class="mini">${item.useSiteTheme === 'custom' ? 'עיצוב מותאם' : 'לפי עיצוב האתר'}</div></div>
-            <div class="inline-field"><label>שם המוצר</label><input class="inline-input product-inline-name" value="${esc(item.name || '')}"></div>
-            <div class="inline-field"><label>תיאור</label><textarea class="inline-textarea product-inline-description">${esc(item.description || '')}</textarea></div>
-            <div class="inline-field"><label>טקסט חופשי</label><input class="inline-input product-inline-free-text" value="${esc(item.freeText || '')}"></div>
+            <div class="product-desc">${esc(item.description || 'ללא תיאור')}</div>
             <div class="chip-row">${chips.map(ch => `<span class="chip">${esc(ch)}</span>`).join('')}</div>
-            <div class="inline-field"><label>בחירת תוספת לסל</label><div class="addon-inline-list">${(item.addons || []).filter(addon => addon.name || addon.value).map((addon) => `<button class="addon-inline-pill" type="button">${esc(addon.name || 'תוספת')}: ${esc(addon.value || addon.extra || '')}</button>`).join('') || '<span class="mini">אין תוספות מוגדרות למוצר הזה.</span>'}</div></div>
-            <div class="card-actions"><button class="btn btn-primary save-inline-btn">שמור</button><button class="btn btn-success toggle-btn">${productIsActive(item) ? 'השבת' : 'הפעל'}</button><button class="btn btn-danger delete-btn">מחק</button></div>
+            <div class="inline-field"><label>בחירת לקוח</label><div class="addon-inline-list">${(item.variants || []).flatMap(group => (group.options || []).slice(0, 4).map((option) => `<button class="addon-inline-pill" type="button">${esc(group.name)}: ${esc(option.label)}</button>`)).join('') || '<span class="mini">אין קטגוריות בחירה למוצר הזה.</span>'}</div></div>
+            <div class="card-actions"><button class="btn btn-primary manage-btn">ניהול מוצר</button><button class="btn btn-success toggle-btn">${productIsActive(item) ? 'השבת' : 'הפעל'}</button><button class="btn btn-danger delete-btn">מחק</button></div>
           </div>`;
-        card.querySelector('.inline-price-trigger').addEventListener('click', () => card.querySelector('.price-editor').classList.toggle('open'));
-        card.querySelector('.save-inline-btn').addEventListener('click', () => saveInlineProduct(card, item));
+        card.querySelector('.manage-btn').addEventListener('click', () => openModal(item));
         card.querySelector('.toggle-btn').addEventListener('click', () => toggleProductActive(item));
         card.querySelector('.delete-btn').addEventListener('click', () => removeProduct(item.id));
         container.appendChild(card);
       });
       renderStats();
-    }
-
-        async function saveInlineProduct(card, item) {
-      const payload = {
-        name: card.querySelector('.product-inline-name').value.trim(),
-        description: card.querySelector('.product-inline-description').value.trim(),
-        freeText: card.querySelector('.product-inline-free-text').value.trim(),
-        price: Number(card.querySelector('.product-inline-price').value || 0),
-        updatedAt: serverTimestamp()
-      };
-      await updateDoc(productDoc(item.id), payload);
-      showToast('השינויים בכרטיס נשמרו');
     }
 
     function renderStats() {
@@ -1518,6 +1589,7 @@
       $('#closeModalBtn').addEventListener('click', closeModal);
       $('#cancelModalBtn').addEventListener('click', closeModal);
       $('#addAddonBtn').addEventListener('click', () => addAddon());
+      $('#addVariantBtn').addEventListener('click', () => addVariantGroup());
       $('#productForm').addEventListener('submit', saveProduct);
       $('#seedDemoBtn').addEventListener('click', insertDemoProducts);
       $('#exportJsonBtn').addEventListener('click', exportProductsJson);
@@ -1526,6 +1598,8 @@
       $('#filterPromo').addEventListener('change', renderProducts);
       $('#sortSelect').addEventListener('change', renderProducts);
       $('#mobileMenuBtn').addEventListener('click', () => $('#sidebar').classList.toggle('open'));
+      $('#closeSidebarBtn').addEventListener('click', () => $('#sidebar').classList.remove('open'));
+      $('.main').addEventListener('click', () => $('#sidebar').classList.remove('open'));
       $('#jumpToEmbedBtn').addEventListener('click', () => goToView('embed'));
       $('#copyEmbedBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד החיבור הועתק'));
       $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד ההטמעה הועתק'));
@@ -1541,6 +1615,13 @@
         state.theme.borderRadius = Number($('#themeBorderRadius').value);
         state.theme.imageHeight = Number($('#themeImageHeight').value);
         state.theme.textAlign = $('#themeTextAlign').value;
+        applyThemeToPreview();
+      }));
+      ['desktopColumns','mobileColumns','themeMode','platformNameInput'].forEach((id) => $('#'+id).addEventListener(id === 'platformNameInput' ? 'input' : 'change', () => {
+        state.theme.desktopColumns = Number($('#desktopColumns').value);
+        state.theme.mobileColumns = Number($('#mobileColumns').value);
+        state.theme.renderMode = $('#themeMode').value;
+        state.theme.platformName = $('#platformNameInput').value.trim() || 'MerchPilot';
         applyThemeToPreview();
       }));
       $('#saveThemeBtn').addEventListener('click', async () => { await saveThemeToFirestore(); showToast('העיצוב נשמר'); });
@@ -1608,13 +1689,16 @@
         if (action === 'qty-up') setCartQuantity(productId, getCartQuantity(productId) + 1);
         if (action === 'qty-down') setCartQuantity(productId, Math.max(1, getCartQuantity(productId) - 1));
         if (action === 'select-addon') setSelectedAddon(productId, actionEl.dataset.addon || '');
+        if (action === 'select-variant') setSelectedVariant(productId, actionEl.dataset.group || '', actionEl.dataset.option || '');
         if (action === 'add-cart') {
           const addon = getSelectedAddon(productId);
-          showToast(`נוסף לסל: ${getCartQuantity(productId)} יח׳${addon ? ` + ${addon.split('::')[1]}` : ''}`);
+          const variants = Object.values(state.selectedVariants?.[productId] || {}).filter(Boolean);
+          showToast(`נוסף לסל: ${getCartQuantity(productId)} יח׳${addon ? ` + ${addon.split('::')[1]}` : ''}${variants.length ? ` + ${variants.join(', ')}` : ''}`);
         }
         const activeSnapshot = [...document.querySelectorAll(`[data-product-id="${CSS.escape(productId)}"]`)];
         activeSnapshot.forEach((el) => {
           if (el.dataset.action === 'select-addon') el.classList.toggle('active', (el.dataset.addon || '') === getSelectedAddon(productId));
+          if (el.dataset.action === 'select-variant') el.classList.toggle('active', (el.dataset.option || '') === getSelectedVariant(productId, el.dataset.group || ''));
           if (el.dataset.action === 'qty-up' || el.dataset.action === 'qty-down') {
             const valueEl = el.parentElement?.querySelector('.qty-value');
             if (valueEl) valueEl.textContent = String(getCartQuantity(productId));
