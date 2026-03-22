@@ -1311,7 +1311,7 @@
 
   const q = query(collection(db, 'users', ACCOUNT_UID, 'products'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snapshot) => render(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))));
-</script>`;
+<\/script>`;
       $('#embedCodeBlock').textContent = code;
     }
 
