@@ -1,0 +1,53 @@
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    function signedIn() {
+      return request.auth != null;
+    }
+
+    function isOwner(uid) {
+      return signedIn() && request.auth.uid == uid;
+    }
+
+    function isPublicProduct() {
+      return resource != null
+        && resource.data.active == true;
+    }
+
+    function validUserDoc(uid) {
+      return request.resource.data.uid == uid;
+    }
+
+    function validThemeDoc(uid) {
+      return request.resource.data.uid == uid;
+    }
+
+    function validProductDoc(uid, productId) {
+      return request.resource.data.uid == uid
+        && request.resource.data.productId == productId
+        && request.resource.data.ownerRef == "users/" + uid;
+    }
+
+    match /users/{uid} {
+      allow get, list: if isOwner(uid);
+      allow create, update: if isOwner(uid) && validUserDoc(uid);
+      allow delete: if isOwner(uid);
+
+      match /storefront/{docId} {
+        allow get, list: if docId == 'settings';
+        allow create, update: if docId == 'settings' && isOwner(uid) && validThemeDoc(uid);
+        allow delete: if docId == 'settings' && isOwner(uid);
+      }
+
+      match /products/{productId} {
+        allow get, list: if isOwner(uid) || isPublicProduct();
+        allow create, update: if isOwner(uid) && validProductDoc(uid, productId);
+        allow delete: if isOwner(uid);
+      }
+    }
+
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

@@ -1458,9 +1458,16 @@
       const themeSnap = await getDoc(themeDocRef(uid));
       const theme = themeSnap.exists() ? { ...DEFAULT_THEME, ...themeSnap.data() } : { ...DEFAULT_THEME };
       state.theme = { ...theme };
-      const qy = query(productsCollection(uid), orderBy('createdAt', 'desc'));
+      const qy = query(productsCollection(uid), where('active', '==', true));
       onSnapshot(qy, (snapshot) => {
-        const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).filter(productIsActive);
+        const items = snapshot.docs
+          .map((d) => ({ id: d.id, ...d.data() }))
+          .filter(productIsActive)
+          .sort((a, b) => {
+            const aSec = a?.createdAt?.seconds || 0;
+            const bSec = b?.createdAt?.seconds || 0;
+            return bSec - aSec;
+          });
         host.innerHTML = `<div style="font-family:Inter,Arial,sans-serif;display:grid;gap:16px;"><h2 style="margin:0">${esc(title)}</h2><div style="display:grid;grid-template-columns:repeat(${columns},minmax(0,1fr));gap:16px;">${items.map((item) => buildStoreCardHTML({ ...theme, ...item }, true)).join('')}</div></div>`;
       });
     }
