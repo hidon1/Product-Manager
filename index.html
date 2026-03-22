@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>ויטרינה — ניהול קטלוג חכם</title>
+  <title>מוצרלה — מערכת לניהול מוצרים</title>
   <meta name="theme-color" content="#f8fafc" />
   <style>
     :root {
@@ -99,10 +99,7 @@
       margin: 18px 0 22px;
     }
     .logo-wrap { width: 72px; height: 72px; display: grid; place-items: center; flex: 0 0 auto; }
-    .logo-mark { width: 72px; height: 72px; filter: drop-shadow(0 14px 26px rgba(37,99,235,.22)); }
-    .logo-mark .core { transform-origin: 36px 36px; animation: logoPulse 4.4s ease-in-out infinite; }
-    .logo-mark .ring { transform-origin: 36px 36px; animation: logoSpin 11s linear infinite; }
-    .logo-mark .spark { animation: logoBlink 2.8s ease-in-out infinite; }
+    .logo-mark { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 14px 26px rgba(37,99,235,.22)); }
     h1,h2,h3,h4,p { margin-top: 0; }
     .feature-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
     .feature-item {
@@ -470,18 +467,11 @@
         <span class="floating-orb orb-b"></span>
         <div class="brand">
           <div class="logo-wrap">
-            <svg class="logo-mark" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Vitrina logo">
-              <defs><linearGradient id="brandGlowA" x1="10" y1="8" x2="62" y2="64" gradientUnits="userSpaceOnUse"><stop stop-color="#2563EB"/><stop offset="0.5" stop-color="#7C3AED"/><stop offset="1" stop-color="#06B6D4"/></linearGradient></defs>
-              <circle class="ring" cx="36" cy="36" r="28" stroke="url(#brandGlowA)" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 8" opacity=".9"/>
-              <path d="M20 40C20 29.5066 28.5066 21 39 21H48C49.6569 21 51 22.3431 51 24V48C51 49.6569 49.6569 51 48 51H39C28.5066 51 20 42.4934 20 32V40Z" fill="url(#brandGlowA)" opacity=".16"/>
-              <path class="core" d="M24 24H42.5C47.7467 24 52 28.2533 52 33.5C52 38.7467 47.7467 43 42.5 43H31L24 50V24Z" fill="url(#brandGlowA)"/>
-              <circle class="spark" cx="35" cy="33.5" r="2.5" fill="white"/>
-              <circle class="spark" cx="42" cy="33.5" r="2.5" fill="white" style="animation-delay:.45s"/>
-            </svg>
+            <img class="logo-mark" src="./מוצרלה.png" alt="לוגו מוצרלה" />
           </div>
           <div>
-            <h1 data-i18n="brand.title">ויטרינה</h1>
-            <p data-i18n="brand.subtitle">קטלוג חי, חיבור חכם וחוויית מוצר מקצועית</p>
+            <h1 data-i18n="brand.title">מוצרלה</h1>
+            <p data-i18n="brand.subtitle">מוצרלה, מערכת לניהול מוצרים</p>
           </div>
         </div>
         <h2 data-i18n="showcase.title">קטלוג נע, חד ומוכן לעבודה מול לקוחות</h2>
@@ -529,11 +519,11 @@
         </div>
         <div class="brand">
           <div class="logo-wrap">
-            <svg class="logo-mark" viewBox="0 0 72 72" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Vitrina logo"><defs><linearGradient id="brandGlowB" x1="10" y1="8" x2="62" y2="64" gradientUnits="userSpaceOnUse"><stop stop-color="#2563EB"/><stop offset="0.5" stop-color="#7C3AED"/><stop offset="1" stop-color="#06B6D4"/></linearGradient></defs><circle class="ring" cx="36" cy="36" r="28" stroke="url(#brandGlowB)" stroke-width="4" stroke-linecap="round" stroke-dasharray="10 8" opacity=".9"/><path d="M20 40C20 29.5066 28.5066 21 39 21H48C49.6569 21 51 22.3431 51 24V48C51 49.6569 49.6569 51 48 51H39C28.5066 51 20 42.4934 20 32V40Z" fill="url(#brandGlowB)" opacity=".16"/><path class="core" d="M24 24H42.5C47.7467 24 52 28.2533 52 33.5C52 38.7467 47.7467 43 42.5 43H31L24 50V24Z" fill="url(#brandGlowB)"/><circle class="spark" cx="35" cy="33.5" r="2.5" fill="white"/><circle class="spark" cx="42" cy="33.5" r="2.5" fill="white" style="animation-delay:.45s"/></svg>
+            <img class="logo-mark" src="./מוצרלה.png" alt="לוגו מוצרלה" />
           </div>
           <div>
-            <h1 data-i18n="brand.title">ויטרינה</h1>
-            <p data-i18n="brand.subtitle">קטלוג חי, חיבור חכם וחוויית מוצר מקצועית</p>
+            <h1 data-i18n="brand.title">מוצרלה</h1>
+            <p data-i18n="brand.subtitle">מוצרלה, מערכת לניהול מוצרים</p>
           </div>
         </div>
 
@@ -612,7 +602,7 @@
               </div>
               <div class="field">
                 <label for="platformNameInput" data-i18n="settings.platformName">שם הפלטפורמה</label>
-                <input class="input" id="platformNameInput" placeholder="ויטרינה" />
+                <input class="input" id="platformNameInput" placeholder="מוצרלה" />
               </div>
             </div>
             <div id="productsContainer" class="grid-products"></div>
@@ -855,7 +845,7 @@
       textAlign: 'right',
       desktopColumns: 4,
       mobileColumns: 2,
-      platformName: 'ויטרינה',
+      platformName: 'מוצרלה',
       logoText: 'VT',
       bodyGradient: '',
       buttonStyle: 'rounded',
@@ -894,11 +884,11 @@
 
     const translations = {
       he: {
-        'brand.title': 'ויטרינה','brand.subtitle': 'קטלוג חי, חיבור חכם וחוויית מוצר מקצועית','showcase.badge': 'פלטפורמת קטלוג עברית חכמה','showcase.title': 'קטלוג נע, חד ומוכן לעבודה מול לקוחות','showcase.desc': 'התחברות מהירה, ניהול מוצרים ב-Firebase, חיבור אוטומטי לאתר הלקוח ותצוגת כרטיסים חדה שנשמרת גם במסך הניהול וגם באתר.',
+        'brand.title': 'מוצרלה','brand.subtitle': 'מוצרלה, מערכת לניהול מוצרים','showcase.badge': 'פלטפורמת קטלוג עברית חכמה','showcase.title': 'קטלוג נע, חד ומוכן לעבודה מול לקוחות','showcase.desc': 'התחברות מהירה, ניהול מוצרים ב-Firebase, חיבור אוטומטי לאתר הלקוח ותצוגת כרטיסים חדה שנשמרת גם במסך הניהול וגם באתר.',
         'f1.t': 'התחברות חכמה','f1.d': 'Google Redirect יציב ומאובטח','f2.t': 'סנכרון מוצרים','f2.d': 'חיבור לאתר לפי מזהה חשבון','f3.t': 'עיצוב חי','f3.d': 'כרטיסים חדים עם אנימציה נראית לעין','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
         'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.','auth.or': 'או התחבר עם פרטי משתמש','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.',
         'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב כרטיסיות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.export': 'ייצוא JSON','nav.copyEmbed': 'העתק קוד חיבור',
-        'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא לויטרינה שלך','app.sub': '','app.logout': 'התנתק',
+        'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא למוצרלה שלך','app.sub': '','app.logout': 'התנתק',
         'hero.title': '','hero.desc': '','hero.add': 'הוסף מוצר חדש','hero.demo': 'הכנס מוצרי דוגמה','hero.embed': 'צור קוד חיבור לאתר',
         'stats.activeProducts': 'סך הכל מוצרים פעילים','stats.products': 'סך הכל מוצרים פעילים','stats.productsSub': '','stats.promos': '','stats.promosSub': '','stats.templates': '','stats.templatesSub': '','stats.updated': '','stats.updatedSub': '',
         'products.title': 'המוצרים שלי','products.desc': 'חיפוש, סינון, עריכה, שכפול ומחיקה — עם סגנון כרטיס אחיד וגמיש.','products.add': 'הוסף מוצר','products.refresh': 'רענן','products.search': 'חפש לפי שם, תיאור או תג','products.empty': 'עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.','products.desktopColumns': 'כמות כרטיסים בשורה במחשב','products.mobileColumns': 'כמות כרטיסים בשורה בטלפון','products.connectionMode': 'אופן החיבור באתר',
@@ -1056,7 +1046,7 @@
       $('#themeTextAlign').value = state.theme.textAlign || 'right';
       if ($('#desktopColumns')) $('#desktopColumns').value = String(state.theme.desktopColumns || 4);
       if ($('#mobileColumns')) $('#mobileColumns').value = String(state.theme.mobileColumns || 2);
-            if ($('#platformNameInput')) $('#platformNameInput').value = state.theme.platformName || 'ויטרינה';
+            if ($('#platformNameInput')) $('#platformNameInput').value = state.theme.platformName || 'מוצרלה';
       document.documentElement.style.setProperty('--desktop-columns', Number(state.theme.desktopColumns || 4));
       document.documentElement.style.setProperty('--mobile-columns', Number(state.theme.mobileColumns || 2));
       $('#themeCardPaddingValue').textContent = `${Number(state.theme.cardPadding || 18)}px`;
@@ -1169,7 +1159,7 @@
       const showCart = productShowCart(item);
       const productId = item.id || item.productId || item.name || 'preview';
       const price = `₪${Number(item.price || 0).toLocaleString()}`;
-      const image = item.imageUrl ? `<img src="${esc(item.imageUrl)}" alt="${esc(item.name || '')}">` : `<img alt="placeholder" src="data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='600' height='420'><rect width='100%' height='100%' fill='${item.accentColor || theme.primaryColor}' opacity='0.18'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='32' fill='#334155'>ויטרינה</text></svg>`)}">`;
+      const image = item.imageUrl ? `<img src="${esc(item.imageUrl)}" alt="${esc(item.name || '')}">` : `<img alt="placeholder" src="data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='600' height='420'><rect width='100%' height='100%' fill='${item.accentColor || theme.primaryColor}' opacity='0.18'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='32' fill='#334155'>מוצרלה</text></svg>`)}">`;
       const chips = (item.tags || []).slice(0, 4).map((tag) => {
         const label = typeof tag === 'string' ? tag : tag?.label || '';
         const color = typeof tag === 'string' ? (item.tagStyles?.[label]?.color || theme.primaryColor) : (tag?.color || theme.primaryColor);
@@ -1196,7 +1186,7 @@
         ${template === 'split' ? image : ''}
         <div class="store-copy" style="font-family:${esc(item.font || 'Inter')}; text-align:${esc(theme.textAlign || 'right')};">
           ${template !== 'split' ? image : ''}
-          <div class="store-meta">${esc((item.freeText || 'קטלוג מחובר ומנוהל מתוך ויטרינה').slice(0, 80))}</div>
+          <div class="store-meta">${esc((item.freeText || 'קטלוג מחובר ומנוהל מתוך מוצרלה').slice(0, 80))}</div>
           <h4 style="margin:6px 0 4px;">${esc(item.name || '')}</h4>
           <div class="store-price" style="color:${esc(item.accentColor || theme.primaryColor)};">${price}</div>
           <p class="store-meta">${esc(item.description || '')}</p>
@@ -1662,7 +1652,7 @@
       ['desktopColumns','mobileColumns','platformNameInput'].forEach((id) => $('#'+id).addEventListener(id === 'platformNameInput' ? 'input' : 'change', () => {
         state.theme.desktopColumns = Number($('#desktopColumns').value);
         state.theme.mobileColumns = Number($('#mobileColumns').value);
-        state.theme.platformName = $('#platformNameInput').value.trim() || 'ויטרינה';
+        state.theme.platformName = $('#platformNameInput').value.trim() || 'מוצרלה';
         applyThemeToPreview();
       }));
       $('#designerApplyMode').addEventListener('change', () => { state.theme.applyMode = $('#designerApplyMode').value; toggleDesignerScopeFields(); renderPreviewProduct(); });
