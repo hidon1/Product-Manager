@@ -184,14 +184,14 @@
 
     .toolbar { display:grid; grid-template-columns: 1.4fr 180px 180px auto; gap:12px; margin-bottom:16px; }
     .toolbar.compact { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .grid-products { display:grid; grid-template-columns: repeat(var(--desktop-columns, 4), minmax(0, 1fr)); gap: 16px; }
+    .grid-products { display:grid; grid-template-columns: repeat(var(--desktop-columns, 4), minmax(0, 1fr)); gap: 16px; align-items: stretch; }
     .product-card {
       border-radius: 22px; overflow:hidden; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
-      display:flex; flex-direction:column;
+      display:flex; flex-direction:column; height:100%; min-height: 100%;
     }
     .product-cover { aspect-ratio: 16/10; background: var(--preview-bg); display:grid; place-items:center; overflow:hidden; }
     .product-cover img { width:100%; height:100%; object-fit:cover; }
-    .product-body { padding:16px; display:grid; gap: 12px; }
+    .product-body { padding:16px; display:grid; gap: 12px; flex:1; grid-template-rows:auto auto minmax(72px, auto) auto minmax(86px, auto) auto; }
     .product-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap: 10px; }
     .product-title { margin:0; font-size:1.06rem; font-weight:800; }
     .product-status-row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
@@ -207,9 +207,10 @@
     .chip {
       border-radius: 999px; padding: 7px 10px; background: var(--chip); border: 1px solid rgba(96,165,250,.18); color:#334155; font-size:.82rem;
     }
-    .card-actions { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
+    .card-actions { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:auto; }
+    .card-actions .btn { min-height: 40px; padding: 9px 10px; font-size: .88rem; }
     .card-editor { display:grid; gap:12px; }
-    .product-desc { min-height: 52px; }
+    .product-desc { min-height: 72px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
     .price-tag { cursor:default; border:0; }
     .addon-inline-list { display:flex; gap:8px; flex-wrap:wrap; }
     .addon-inline-pill {
@@ -327,7 +328,7 @@
 
     .swatches { display:flex; gap:8px; flex-wrap:wrap; }
     .swatch-btn {
-      width:34px; height:34px; border-radius:50%; border:2px solid rgba(255,255,255,.3); cursor:pointer;
+      width:26px; height:26px; border-radius:50%; border:2px solid rgba(255,255,255,.55); cursor:pointer;
       box-shadow: 0 0 0 0 transparent;
     }
     .swatch-btn.active { box-shadow: 0 0 0 3px rgba(255,255,255,.18); }
@@ -398,6 +399,9 @@
     .tag-shape-square { border-radius: 10px !important; }
     .tag-shape-triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); border-radius: 0 !important; padding: 10px 16px 12px !important; }
     .tag-shape-burst { clip-path: polygon(50% 0%, 61% 18%, 82% 8%, 76% 30%, 100% 50%, 76% 70%, 82% 92%, 61% 82%, 50% 100%, 39% 82%, 18% 92%, 24% 70%, 0 50%, 24% 30%, 18% 8%, 39% 18%); border-radius: 0 !important; padding: 12px 16px !important; }
+    .tag-shape-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); border-radius: 0 !important; padding: 10px 16px !important; }
+    .tag-shape-ticket { clip-path: polygon(0 0, 100% 0, 100% 30%, 92% 50%, 100% 70%, 100% 100%, 0 100%, 0 70%, 8% 50%, 0 30%); border-radius: 12px !important; }
+    .tag-shape-leaf { border-radius: 999px 24px 999px 24px !important; }
     .btn-style-rounded { border-radius: 16px !important; }
     .btn-style-pill { border-radius: 999px !important; }
     .btn-style-square { border-radius: 8px !important; }
@@ -433,7 +437,7 @@
     }
     @media (max-width: 960px) {
       .app-shell { grid-template-columns: 1fr; }
-      .embed-runtime-grid { grid-template-columns: repeat(var(--mobile-columns, 2), minmax(0, 1fr)); }
+      .grid-products, .embed-runtime-grid { grid-template-columns: repeat(var(--mobile-columns, 2), minmax(0, 1fr)); }
       .sidebar {
         position: fixed; top: 0; right: 0; width: min(92vw, 340px); height:100vh; z-index: 80;
         transform: translateX(100%); transition:.24s ease;
@@ -450,7 +454,7 @@
     }
     @media (max-width: 640px) {
       .auth-screen { padding: 14px; }
-      .embed-runtime-grid, .grid-products { grid-template-columns: repeat(var(--mobile-columns, 2), minmax(0, 1fr)); }
+      .embed-runtime-grid, .grid-products { grid-template-columns: repeat(var(--mobile-columns, 1), minmax(0, 1fr)); }
       .auth-showcase, .auth-card, .panel, .modal-card { padding: 18px; border-radius: 24px; }
       .feature-list, .stats { grid-template-columns: 1fr; }
       .card-actions { grid-template-columns: 1fr; }
@@ -758,7 +762,7 @@
           <div class="field"><label for="productName" data-i18n="form.name">שם המוצר</label><input class="input" id="productName" required /></div>
           <div class="field"><label for="productPrice" data-i18n="form.price">מחיר</label><input class="input" id="productPrice" type="number" min="0" step="0.01" required /></div>
           <div class="field full"><label for="productDesc" data-i18n="form.desc">תיאור</label><textarea class="textarea" id="productDesc"></textarea></div>
-          <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid" style="grid-template-columns: 2fr 1fr 1fr auto;"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><input class="input" id="productTagColor" type="color" value="#4f46e5" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
+          <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid" style="grid-template-columns: 2fr 1fr 1fr auto;"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><input class="input" id="productTagColor" type="color" value="#4f46e5" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
           <div class="field"><label for="productImage" data-i18n="form.image">תמונת מוצר</label><input class="input" id="productImage" type="file" accept="image/*" /></div>
           <div class="field"><label for="productAccentColor">צבע ראשי למוצר</label><input class="input" id="productAccentColor" type="color" value="#4f46e5" /></div>
           <div class="field"><label for="productBodyColor">צבע גוף הכרטיס</label><input class="input" id="productBodyColor" type="color" value="#ffffff" /></div>
@@ -862,7 +866,11 @@
       { name: 'שמים', primary: '#4f46e5', card: '#ffffff', text: '#172033', button: '#1d4ed8' },
       { name: 'אזמרגד', primary: '#10b981', card: '#ecfdf5', text: '#064e3b', button: '#047857' },
       { name: 'רוז', primary: '#f43f5e', card: '#fff1f2', text: '#4c0519', button: '#be123c' },
-      { name: 'שקיעה', primary: '#f97316', card: '#fff7ed', text: '#7c2d12', button: '#ea580c' }
+      { name: 'שקיעה', primary: '#f97316', card: '#fff7ed', text: '#7c2d12', button: '#ea580c' },
+      { name: 'אוקיינוס', primary: '#0f766e', card: '#ecfeff', text: '#134e4a', button: '#0f766e' },
+      { name: 'זהב', primary: '#ca8a04', card: '#fefce8', text: '#713f12', button: '#a16207' },
+      { name: 'לילה', primary: '#1e293b', card: '#f8fafc', text: '#0f172a', button: '#334155' },
+      { name: 'לילך', primary: '#a855f7', card: '#faf5ff', text: '#581c87', button: '#9333ea' }
     ];
 
     const state = {
@@ -1181,9 +1189,9 @@
             <span class="qty-value">${isPreview ? 1 : getCartQuantity(productId)}</span>
             <button type="button" data-action="qty-up" data-product-id="${esc(productId)}">+</button>
           </div>
-          <button class="store-btn btn-style-${esc(item.buttonStyle || theme.buttonStyle || 'rounded')}" type="button" data-action="add-cart" data-product-id="${esc(productId)}" style="background:${esc(theme.buttonColor)};color:${getContrastColor(theme.buttonColor)};">Add to cart</button>
+          <button class="store-btn btn-style-${esc(item.buttonStyle || theme.buttonStyle || 'rounded')}" type="button" data-action="add-cart" data-product-id="${esc(productId)}" style="background:${esc(theme.buttonColor)};color:${getContrastColor(theme.buttonColor)};">הוספה לסל</button>
         </div>
-        <div class="inline-note">Customers can choose options and add the product directly from the card.</div>` : '';
+        <div class="inline-note">הלקוחות יכולים לבחור אפשרויות ולהוסיף את המוצר ישירות מהכרטיס.</div>` : '';
       const content = `
         ${template === 'split' ? image : ''}
         <div class="store-copy" style="font-family:${esc(item.font || 'Inter')}; text-align:${esc(theme.textAlign || 'right')};">
@@ -1447,7 +1455,9 @@
       const promoFilter = $('#filterPromo').value;
       const sortBy = $('#sortSelect').value;
       let items = [...state.products].filter((item) => {
-        const blob = [item.name, item.description, ...(item.tags || [])].join(' ').toLowerCase();
+        const tagLabels = (item.tags || []).map((tag) => typeof tag === 'string' ? tag : (tag?.label || ''));
+        const variantLabels = (item.variants || []).flatMap((group) => [group?.name || '', ...((group?.options || []).map((option) => option?.label || option?.value || ''))]);
+        const blob = [item.name, item.description, ...tagLabels, ...variantLabels].join(' ').toLowerCase();
         const hasPromo = (item.addons || []).some(a => a.style === 'promo');
         const isActive = productIsActive(item);
         const promoMatch = promoFilter === 'all' || (promoFilter === 'promo' ? hasPromo : promoFilter === 'regular' ? !hasPromo : promoFilter === 'active' ? isActive : !isActive);
@@ -1472,7 +1482,7 @@
             <div class="product-desc">${esc(item.description || 'ללא תיאור')}</div>
             <div class="chip-row">${chips.map(ch => `<span class="chip">${esc(ch)}</span>`).join('')}</div>
             <div class="inline-field"><label>בחירת לקוח</label><div class="addon-inline-list">${(item.variants || []).flatMap(group => (group.options || []).slice(0, 4).map((option) => `<button class="addon-inline-pill" type="button">${esc(group.name)}: ${esc(option.label)}</button>`)).join('') || '<span class="mini">אין קטגוריות בחירה למוצר הזה.</span>'}</div></div>
-            <div class="card-actions"><button class="btn btn-primary manage-btn">עריכת מוצר</button><button class="btn btn-success toggle-btn">${productIsActive(item) ? 'השבת' : 'הפעל'}</button><button class="btn btn-danger delete-btn">מחק</button></div>
+            <div class="card-actions"><button class="btn btn-primary manage-btn">עריכה</button><button class="btn btn-success toggle-btn">${productIsActive(item) ? 'השבתה' : 'הפעלה'}</button><button class="btn btn-danger delete-btn">מחיקה</button></div>
           </div>`;
         card.querySelector('.manage-btn').addEventListener('click', () => openModal(item));
         card.querySelector('.toggle-btn').addEventListener('click', () => toggleProductActive(item));
@@ -1505,7 +1515,7 @@
 
     function subscribeProducts(uid) {
       if (state.unsubscribeProducts) state.unsubscribeProducts();
-      const qy = query(productsCollection(uid), orderBy('createdAt', 'desc'));
+      const qy = query(productsCollection(uid));
       state.unsubscribeProducts = onSnapshot(qy, (snapshot) => {
         state.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         renderProducts();
@@ -1514,7 +1524,7 @@
         updateEmbedCode();
       }, (error) => {
         console.error(error);
-        showToast('בדוק הרשאות Firestore או אינדקסים של createdAt', true);
+        showToast('בדוק הרשאות Firestore וחיבור למסמכי המוצרים בענן', true);
       });
     }
 
@@ -1601,7 +1611,8 @@
         <div class="guide-step"><strong>שלב 1 — שתי דרכי חיבור, בלי להגדיר מצב במוצר</strong><span>אם הלקוח מטמיע <code>iframe</code>, הוא יקבל את הייצוג העיצובי המלא. אם הוא מושך את ה-<code>API</code>, הוא יקבל את הנתונים בלבד. אין צורך לבחור את זה במוצר או במערכת — שיטת החיבור היא זו שקובעת.</span></div>
         <div class="guide-step"><strong>שלב 2 — כל השדות כבר מופיעים כאן באתר</strong><span>לא רק ככפתור העתקה: כל שדה מוצג בטבלה, עם סוג הנתון, הסבר בעברית ודוגמה למה משתמשים בו. אפשר לראות, לסמן, ולהעתיק ישירות מהמסך.</span></div>
         <div class="guide-step"><strong>שלב 3 — טבלת שמות השדות המלאה</strong><span>כל השמות בטבלה נשארים באנגלית כדי שתוכלו להדביק אותם כמו שהם בקוד. השדות מופיעים כאן במלואם כדי שלא יהיה צורך לעבוד רק עם העתקה עיוורת.</span></div>
-        <div class="field-table"><div class="field-table-head"><div>${esc(t('embed.fieldLabel'))}</div><div>${esc(t('embed.fieldType'))}</div><div>${esc(t('embed.fieldMeaning'))}</div></div>${apiFields.map(([key,type,desc]) => `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${desc}</div></div>`).join('')}</div>
+        <div class="guide-step"><strong>שמות השדות המלאים על המסך</strong><span><strong>העתקה מהירה:</strong> אפשר ללחוץ על כפתור ההעתקה, אבל מיד מתחתיו כל השמות מופיעים גם על הדף עצמו כדי שיהיה קל לבדוק, להבין, ולהשוות בין השדות בלי לצאת מהעמוד.</span><pre class="code-block">${esc(allFieldNames)}</pre></div>
+        <div class="field-table"><div class="field-table-head"><div>${esc(text('embed.fieldLabel'))}</div><div>${esc(text('embed.fieldType'))}</div><div>${esc(text('embed.fieldMeaning'))}</div></div>${apiFields.map(([key,type,desc]) => `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${desc}</div></div>`).join('')}</div>
         <div class="guide-step"><strong>שלב 4 — איך להשתמש בשדות נכון</strong><span>להצגה בסיסית התחילו עם <code>id</code>, <code>name</code>, <code>price</code>, <code>imageUrl</code>, <code>variants</code> ו-<code>active</code>. אם רוצים חוויה עשירה יותר, הוסיפו גם <code>tags</code>, <code>accentColor</code>, <code>buttonStyle</code> ו-<code>animationStyle</code>.</span></div>
       `;
       $('#copyFieldNamesBtn').onclick = () => copyText(allFieldNames, 'כל שמות השדות הועתקו');
@@ -1709,12 +1720,12 @@
       const themeSnap = await getDoc(themeDocRef(uid));
       const theme = themeSnap.exists() ? { ...DEFAULT_THEME, ...themeSnap.data() } : { ...DEFAULT_THEME };
       state.theme = { ...theme };
-      const qy = query(productsCollection(uid), where('active', '==', true));
+      const qy = query(productsCollection(uid));
       if (view === 'data') {
         document.body.innerHTML = '<pre id="embedJsonRuntime" style="margin:0;padding:24px;font-family:ui-monospace,monospace;white-space:pre-wrap;"></pre>';
         const host = document.getElementById('embedJsonRuntime');
         onSnapshot(qy, (snapshot) => {
-          const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).filter(productIsActive);
+          const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).filter(productIsActive).sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
           host.textContent = JSON.stringify({ theme, products: items }, null, 2);
         });
         return;
