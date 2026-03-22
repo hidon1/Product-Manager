@@ -1100,7 +1100,7 @@
         const label = typeof tag === 'string' ? tag : tag?.label || '';
         return `<span class="store-chip">${esc(label)}</span>`;
       }).join('');
-      const statusHtml = isPreview ? '' : `<div class="status-pill ${productIsActive(item) ? 'active' : 'inactive'}"><span class="status-dot"></span>${productIsActive(item) ? 'פעיל' : 'מושבת'}</div>`;
+
       const variantGroups = (item.variants || []).filter((group) => group?.name && (group.options || []).length);
       const variantHtml = variantGroups.map((group) => `<div class="inline-field"><label>${esc(group.name)}</label><div class="addon-inline-list">${group.options.map((option) => {
         const selected = !isPreview && getSelectedVariant(productId, group.name) === option.label;
@@ -1120,7 +1120,6 @@
         ${template === 'split' ? image : ''}
         <div class="store-copy" style="font-family:${esc(item.font || 'Inter')}; text-align:${esc(theme.textAlign || 'right')};">
           ${template !== 'split' ? image : ''}
-          ${statusHtml}
           <div class="store-meta">${esc((item.freeText || 'קטלוג דינמי מחובר למנהל המוצרים').slice(0, 80))}</div>
           <h4 style="margin:6px 0 4px;">${esc(item.name || '')}</h4>
           <div class="store-price" style="color:${esc(item.accentColor || theme.primaryColor)};">${price}</div>
