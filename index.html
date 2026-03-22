@@ -4,29 +4,29 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>ProductFlow — מנהל מוצרים</title>
-  <meta name="theme-color" content="#0f172a" />
+  <meta name="theme-color" content="#f8fafc" />
   <style>
     :root {
-      --bg: #07111f;
-      --panel: rgba(12, 20, 36, 0.82);
-      --panel-strong: rgba(9, 16, 29, 0.94);
-      --line: rgba(148, 163, 184, 0.18);
-      --text: #eef4ff;
-      --muted: #a8b3c9;
-      --primary: #60a5fa;
-      --primary-2: #818cf8;
-      --accent: #22c55e;
-      --warning: #f59e0b;
-      --danger: #ef4444;
+      --bg: #f8fafc;
+      --panel: rgba(255, 255, 255, 0.94);
+      --panel-strong: rgba(255, 255, 255, 0.98);
+      --line: rgba(148, 163, 184, 0.26);
+      --text: #0f172a;
+      --muted: #64748b;
+      --primary: #2563eb;
+      --primary-2: #4f46e5;
+      --accent: #16a34a;
+      --warning: #d97706;
+      --danger: #dc2626;
       --radius: 24px;
       --radius-md: 18px;
       --radius-sm: 14px;
-      --shadow: 0 20px 60px rgba(0,0,0,.34);
-      --input: rgba(15, 23, 42, 0.72);
-      --chip: rgba(96, 165, 250, 0.15);
-      --surface-grad: linear-gradient(180deg, rgba(15,23,42,.94), rgba(15,23,42,.72));
-      --hero-grad: linear-gradient(135deg, rgba(15,23,42,.96), rgba(30,41,59,.75));
-      --preview-bg: linear-gradient(135deg, rgba(96,165,250,.16), rgba(129,140,248,.08));
+      --shadow: 0 18px 45px rgba(15,23,42,.08);
+      --input: #ffffff;
+      --chip: rgba(37, 99, 235, 0.08);
+      --surface-grad: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
+      --hero-grad: linear-gradient(135deg, rgba(255,255,255,.98), rgba(239,246,255,.95));
+      --preview-bg: linear-gradient(135deg, rgba(37,99,235,.12), rgba(79,70,229,.06));
       --preview-card: #ffffff;
       --preview-text: #111827;
       --preview-muted: #64748b;
@@ -41,9 +41,9 @@
       color: var(--text);
       font-family: Inter, "Heebo", "Assistant", "Segoe UI", Arial, sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(96,165,250,.18), transparent 25%),
-        radial-gradient(circle at bottom left, rgba(129,140,248,.16), transparent 24%),
-        linear-gradient(180deg, #020617, #08111d 38%, #0f172a 100%);
+        radial-gradient(circle at top right, rgba(96,165,250,.12), transparent 22%),
+        radial-gradient(circle at bottom left, rgba(79,70,229,.08), transparent 20%),
+        linear-gradient(180deg, #f8fafc, #eff6ff 42%, #e2e8f0 100%);
     }
     a { color: inherit; text-decoration: none; }
     button, input, select, textarea { font: inherit; }
@@ -91,14 +91,14 @@
     .brand {
       display: flex; align-items: center; gap: 14px; padding: 12px;
       border: 1px solid var(--line); border-radius: 22px;
-      background: linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.58));
+      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(239,246,255,.88));
       margin: 18px 0 22px;
     }
     .logo-wrap { width: 64px; height: 64px; display: grid; place-items: center; flex: 0 0 auto; }
     h1,h2,h3,h4,p { margin-top: 0; }
     .feature-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
     .feature-item {
-      border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(15,23,42,.38);
+      border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.72);
     }
     .feature-item span, .helper, .mini, .section-head p, .sidebar-foot p, .product-desc, .embed-help, .template-meta, .setting-card p, .code-note {
       color: var(--muted); line-height: 1.65;
@@ -134,15 +134,15 @@
     .btn:hover, .nav-btn:hover, .template-select:hover, .swatch-btn:hover { transform: translateY(-1px); }
     .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; }
     .btn-outline { border-color: rgba(148,163,184,.24); }
-    .btn-success { background: rgba(34,197,94,.14); border-color: rgba(34,197,94,.2); color: #bbf7d0; }
-    .btn-danger { background: rgba(239,68,68,.14); border-color: rgba(239,68,68,.22); color: #fecaca; }
+    .btn-success { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.22); color: #166534; }
+    .btn-danger { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.22); color: #991b1b; }
     .btn-google { background: white; color: #111827; }
 
     .app-shell { min-height: 100vh; display: grid; grid-template-columns: 320px 1fr; }
     .sidebar {
       position: sticky; top: 0; height: 100vh; overflow-y: auto;
       padding: 24px 18px; border-left: 1px solid var(--line);
-      background: rgba(2, 6, 23, 0.72); backdrop-filter: blur(20px);
+      background: rgba(255,255,255,0.86); backdrop-filter: blur(20px);
     }
     .side-group { margin-top: 18px; }
     .side-title {
@@ -157,7 +157,7 @@
     .nav-btn.active, .nav-btn:hover { background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.24); }
     .sidebar-foot {
       margin-top: 20px; border:1px solid var(--line); border-radius: 18px; padding: 14px;
-      background: linear-gradient(180deg, rgba(15,23,42,.85), rgba(30,41,59,.65));
+      background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(239,246,255,.92));
     }
 
     .main { min-width:0; padding: 24px; }
@@ -177,7 +177,7 @@
     .toolbar { display:grid; grid-template-columns: 1.4fr 180px 180px auto; gap:12px; margin-bottom:16px; }
     .grid-products { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
     .product-card {
-      border-radius: 22px; overflow:hidden; background: linear-gradient(180deg, rgba(15,23,42,.92), rgba(15,23,42,.64));
+      border-radius: 22px; overflow:hidden; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
       display:flex; flex-direction:column;
     }
     .product-cover { aspect-ratio: 16/10; background: var(--preview-bg); display:grid; place-items:center; overflow:hidden; }
@@ -186,7 +186,7 @@
     .product-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap: 10px; }
     .product-title { margin:0; font-size:1.06rem; font-weight:800; }
     .price-tag {
-      white-space: nowrap; border-radius: 999px; background: rgba(34,197,94,.14); color:#bbf7d0;
+      white-space: nowrap; border-radius: 999px; background: rgba(34,197,94,.12); color:#166534;
       padding: 8px 12px; font-weight: 700; font-size:.9rem;
     }
     .chip-row { display:flex; gap:8px; flex-wrap:wrap; }
@@ -196,22 +196,22 @@
     .card-actions { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; }
     .empty {
       text-align:center; padding: 44px 18px; border:1px dashed rgba(148,163,184,.28); border-radius:20px;
-      color: var(--muted); background: rgba(15,23,42,.32);
+      color: var(--muted); background: rgba(255,255,255,.72);
     }
     .user-pill {
       display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid var(--line);
-      border-radius:999px; background: rgba(15,23,42,.62);
+      border-radius:999px; background: rgba(255,255,255,.86);
     }
     .avatar { width:40px; height:40px; border-radius:50%; display:grid; place-items:center; background: linear-gradient(135deg, var(--primary), var(--primary-2)); overflow:hidden; font-weight:800; }
     .avatar img { width:100%; height:100%; object-fit:cover; }
 
     .settings-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px; }
     .setting-card, .template-card, .embed-card {
-      border: 1px solid var(--line); border-radius: 20px; padding: 16px; background: rgba(15,23,42,.44);
+      border: 1px solid var(--line); border-radius: 20px; padding: 16px; background: rgba(255,255,255,.78);
     }
     .switch-row {
       display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border:1px solid var(--line);
-      border-radius:16px; background: rgba(15,23,42,.45); margin-bottom: 10px;
+      border-radius:16px; background: rgba(255,255,255,.82); margin-bottom: 10px;
     }
     .toggle { width:52px; height:30px; background: rgba(148,163,184,.25); border-radius:999px; position:relative; cursor:pointer; }
     .toggle::after {
@@ -245,7 +245,7 @@
 
     .embed-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .code-block {
-      background: rgba(2,6,23,.86); border-radius: 18px; padding: 14px; overflow:auto; white-space: pre-wrap; word-break: break-word;
+      background: #e2e8f0; border-radius: 18px; padding: 14px; overflow:auto; white-space: pre-wrap; word-break: break-word;
       font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .88rem;
     }
     .account-box {
@@ -287,22 +287,22 @@
 
     .modal {
       position: fixed; inset: 0; display:none; align-items:center; justify-content:center; padding:20px; z-index:70;
-      background: rgba(2,6,23,.7); backdrop-filter: blur(12px);
+      background: rgba(148,163,184,.35); backdrop-filter: blur(12px);
     }
     .modal.open { display:flex; }
     .modal-card {
-      width: min(1080px, 100%); max-height: 92vh; overflow:auto; border-radius: 28px; padding: 20px; background: linear-gradient(180deg, rgba(15,23,42,.96), rgba(15,23,42,.82));
+      width: min(1080px, 100%); max-height: 92vh; overflow:auto; border-radius: 28px; padding: 20px; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
     }
     .modal-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     .full { grid-column: 1 / -1; }
     .preview-box { min-height: 120px; border:1px dashed rgba(148,163,184,.26); border-radius: 18px; padding: 14px; display:grid; place-items:center; background: rgba(255,255,255,.02); color: var(--muted); }
     .preview-box img { max-width:100%; max-height:240px; border-radius: 16px; object-fit: cover; }
-    .addon-box { border:1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(15,23,42,.45); margin-bottom: 12px; }
+    .addon-box { border:1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.84); margin-bottom: 12px; }
     .addon-row { display:grid; grid-template-columns: 1.1fr .9fr .8fr auto; gap: 10px; margin-bottom: 10px; }
 
     .toast {
       position: fixed; left:20px; bottom:20px; z-index: 90; display:none; max-width:360px;
-      padding:14px 16px; border-radius:16px; border:1px solid var(--line); background: rgba(15,23,42,.96); box-shadow: var(--shadow);
+      padding:14px 16px; border-radius:16px; border:1px solid var(--line); background: rgba(255,255,255,.96); box-shadow: var(--shadow);
     }
     .toast.show { display:block; }
 
@@ -425,8 +425,8 @@
         </div>
 
         <div class="sidebar-foot">
-          <strong data-i18n="tips.title">הצעות לשדרוג</strong>
-          <p data-i18n="tips.desc">כעת יש גם קוד הטמעה, תבניות כרטיס, שליטה בכפתור סל והתאמת צבעים. אפשר להרחיב בהמשך לקטלוג מלא או חנות.</p>
+          <strong data-i18n="tips.title">סביבת העבודה שלך</strong>
+          <p data-i18n="tips.desc">כל שינוי נשמר בחשבון שלך ויכול להופיע מיד גם בהטמעה החיצונית.</p>
           <div class="lang-switch">
             <button class="lang-btn active" data-lang="he">עברית</button>
             <button class="lang-btn" data-lang="en">EN</button>
@@ -530,9 +530,9 @@
                 </div>
               </div>
               <div>
-                <div class="code-note" data-i18n="embed.howto">הטמע את הבלוק הזה ב־HTML של האתר שלך. הוא משתמש ב־Firebase Web SDK, מושך את המוצרים לפי ה־UID שלך ומיישם את התבנית/הצבעים שנשמרו כאן.</div>
+                <div class="code-note" data-i18n="embed.howto">לכל חשבון נוצר קוד הטמעה אישי שמושך אוטומטית את המוצרים, הסגנון והתמונות מהענן.</div>
                 <pre class="code-block" id="embedCodeBlock"></pre>
-                <div class="code-note" style="margin-top:10px;" data-i18n="embed.note">אם יש לך Builder שמאפשר Custom HTML / Embed Code — פשוט הדבק את הקוד. אין צורך לעדכן ידנית את המוצרים באתר השני.</div>
+                <div class="code-note" style="margin-top:10px;" data-i18n="embed.note">אפשר לשלב את הקוד באתר, בדף נחיתה או במערכת צד שלישי שתומכת ב-HTML מותאם.</div>
               </div>
             </div>
           </div>
@@ -615,15 +615,15 @@
                 <div class="switch-row"><div><strong data-i18n="settings.mobile">התאמה למובייל</strong><div class="mini" data-i18n="settings.mobileDesc">הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.</div></div><div class="toggle active" id="toggleMobile"></div></div>
                 <div class="switch-row"><div><strong data-i18n="settings.authMode">Google Auth חלק</strong><div class="mini" data-i18n="settings.authModeDesc">Popup עם Redirect fallback וטיפול בשגיאות נפוצות.</div></div><div class="toggle active" id="toggleGoogleAuthInfo"></div></div>
               </div>
-              <div class="panel" style="margin:0; background:rgba(15,23,42,.45);">
-                <h3 style="margin-top:0;" data-i18n="ideas.title">רעיונות להמשך</h3>
+              <div class="panel" style="margin:0; background:rgba(255,255,255,.82);">
+                <h3 style="margin-top:0;" data-i18n="ideas.title">מצב המערכת</h3>
                 <div class="mini" style="line-height:1.8;">
-                  <div data-i18n="ideas.1">• הוספת קטגוריות ותתי-קטגוריות.</div>
-                  <div data-i18n="ideas.2">• ניהול מלאי, מק״ט וסטטוס מוצר.</div>
-                  <div data-i18n="ideas.3">• כמה תמונות לכל מוצר.</div>
-                  <div data-i18n="ideas.4">• דף הזמנות ולקוחות מחובר ל-Firebase.</div>
-                  <div data-i18n="ideas.5">• יצירת API ייעודי או Cloud Function ל־embed מתקדם.</div>
-                  <div data-i18n="ideas.6">• תבניות ייעודיות לפי קטגוריית מוצר.</div>
+                  <div data-i18n="ideas.1">• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.</div>
+                  <div data-i18n="ideas.2">• כל תמונה נשמרת ב-Firebase Storage עם שיוך למוצר.</div>
+                  <div data-i18n="ideas.3">• קוד ההטמעה משתמש במזהה החשבון בלבד.</div>
+                  <div data-i18n="ideas.4">• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.</div>
+                  <div data-i18n="ideas.5">• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.</div>
+                  <div data-i18n="ideas.6">• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.</div>
                 </div>
               </div>
             </div>
@@ -673,7 +673,6 @@
 
   <script type="module">
     import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-    import { getAnalytics } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-analytics.js";
     import {
       getAuth,
       GoogleAuthProvider,
@@ -717,7 +716,6 @@
     };
 
     const app = initializeApp(firebaseConfig);
-    try { getAnalytics(app); } catch (_) {}
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
@@ -765,17 +763,17 @@
         'f1.t': 'התחברות חכמה','f1.d': 'Google popup + redirect fallback','f2.t': 'סנכרון מוצרים','f2.d': 'קוד Embed לפי מזהה חשבון','f3.t': 'עיצוב גמיש','f3.d': '3 תבניות מוצר + צבעים + כפתור','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
         'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'אם חלון קופץ נחסם, נבצע מעבר מאובטח דרך Redirect.','auth.or': 'או התחבר עם פרטי משתמש','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.',
         'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב ותבניות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.export': 'ייצוא JSON','nav.copyEmbed': 'העתק קוד חיבור',
-        'tips.title': 'הצעות לשדרוג','tips.desc': 'כעת יש גם קוד הטמעה, תבניות כרטיס, שליטה בכפתור סל והתאמת צבעים. אפשר להרחיב בהמשך לקטלוג מלא או חנות.',
+        'tips.title': 'סביבת העבודה שלך','tips.desc': 'כל שינוי נשמר בחשבון שלך ויכול להופיע מיד גם בהטמעה החיצונית.',
         'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא למנהל המוצרים שלך','app.sub': 'נהל מוצרים, תבניות, עיצוב, Google auth וחיבור לאתר לקוח ממקום אחד.','app.logout': 'התנתק',
         'hero.title': 'מקום אחד לכל ניהול המוצרים','hero.desc': 'הוסף מוצרים, בחר תבנית תצוגה, שלוט על כפתור הסל, צבעי הכרטיס והפונטים, וקבל קוד הטמעה שמתאים לאתר שלך לפי מזהה החשבון.','hero.add': 'הוסף מוצר חדש','hero.demo': 'הכנס מוצרי דוגמה','hero.embed': 'צור קוד חיבור לאתר',
         'stats.products': 'סה״כ מוצרים','stats.productsSub': 'מתעדכן מהמסד','stats.promos': 'מוצרים עם מבצע','stats.promosSub': 'לפי התוספות','stats.templates': 'תבנית פעילה','stats.templatesSub': 'לפי הגדרות העיצוב','stats.updated': 'עדכון אחרון','stats.updatedSub': 'המוצר האחרון שנשמר',
         'products.title': 'המוצרים שלי','products.desc': 'חיפוש, סינון, עריכה, שכפול ומחיקה — עם תמיכה ב־3 תבניות תצוגה.','products.add': 'הוסף מוצר','products.refresh': 'רענן','products.search': 'חפש לפי שם, תיאור או תג','products.empty': 'עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.',
         'filters.all': 'כל המוצרים','filters.promo': 'עם מבצע','filters.regular': 'ללא מבצע','sort.newest': 'החדש ביותר','sort.name': 'לפי שם','sort.priceAsc': 'מחיר עולה','sort.priceDesc': 'מחיר יורד',
-        'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'קבל מזהה חשבון וקוד הטמעה מוכן. הקוד שואב אוטומטית את המוצרים והעיצוב מהמערכת שלך.','embed.copyId': 'העתק מזהה חשבון','embed.copyCode': 'העתק קוד הטמעה','embed.accountTitle': 'מזהה החשבון שלך','embed.accountHelp': 'הדבק את המזהה הזה או את קוד ההטמעה באתר הלקוח שלך. כל מוצר שתוסיף כאן יישאב לשם אוטומטית.','embed.mountLabel': 'מזהה אלמנט באתר היעד','embed.columnsLabel': 'מספר עמודות בדסקטופ','embed.titleLabel': 'כותרת אזור המוצרים','embed.howto': 'הטמע את הבלוק הזה ב־HTML של האתר שלך. הוא משתמש ב־Firebase Web SDK, מושך את המוצרים לפי ה־UID שלך ומיישם את התבנית/הצבעים שנשמרו כאן.','embed.note': 'אם יש לך Builder שמאפשר Custom HTML / Embed Code — פשוט הדבק את הקוד. אין צורך לעדכן ידנית את המוצרים באתר השני.',
+        'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'קבל מזהה חשבון וקוד הטמעה מוכן. הקוד שואב אוטומטית את המוצרים והעיצוב מהמערכת שלך.','embed.copyId': 'העתק מזהה חשבון','embed.copyCode': 'העתק קוד הטמעה','embed.accountTitle': 'מזהה החשבון שלך','embed.accountHelp': 'זהו מזהה החשבון שמשויך לנתונים שלך בענן ומשמש גם להטמעה האישית.','embed.mountLabel': 'מזהה אלמנט באתר היעד','embed.columnsLabel': 'מספר עמודות בדסקטופ','embed.titleLabel': 'כותרת אזור המוצרים','embed.howto': 'לכל חשבון נוצר קוד הטמעה אישי שמושך אוטומטית את המוצרים, הסגנון והתמונות מהענן.','embed.note': 'אפשר לשלב את הקוד באתר, בדף נחיתה או במערכת צד שלישי שתומכת ב-HTML מותאם.',
         'designer.title': 'עיצוב האתר ותבניות מוצר','designer.desc': 'בחר תבנית ברירת מחדל, הצג/הסתר כפתור סל, שנה צבעים וצפה מיד בתוצאה שתופיע גם באתר המחובר.','designer.styleTitle': 'עיצוב גלובלי','designer.templateLabel': 'תבנית ברירת מחדל','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.palette': 'פלטת צבעים מהירה','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
         'templates.title': '3 צורות מוצר מוכנות','templates.desc': 'אתה שולט איפה התמונה מופיעה, איפה הטקסט, והאם יוצג כפתור הוספה לסל. התבנית נשמרת ומשותפת גם לקוד ההטמעה.','template.classic': 'כרטיס קלאסי','template.split': 'כרטיס מפוצל','template.minimal': 'כרטיס מינימלי',
         'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה פעילים בכל המסכים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
-        'ideas.title': 'רעיונות להמשך','ideas.1': '• הוספת קטגוריות ותתי-קטגוריות.','ideas.2': '• ניהול מלאי, מק״ט וסטטוס מוצר.','ideas.3': '• כמה תמונות לכל מוצר.','ideas.4': '• דף הזמנות ולקוחות מחובר ל-Firebase.','ideas.5': '• יצירת API ייעודי או Cloud Function ל־embed מתקדם.','ideas.6': '• תבניות ייעודיות לפי קטגוריית מוצר.',
+        'ideas.title': 'מצב המערכת','ideas.1': '• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.','ideas.2': '• כל תמונה נשמרת ב-Firebase Storage עם שיוך למוצר.','ideas.3': '• קוד ההטמעה משתמש במזהה החשבון בלבד.','ideas.4': '• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.','ideas.5': '• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.','ideas.6': '• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.',
         'modal.addTitle': 'הוספת מוצר','modal.editTitle': 'עריכת מוצר','modal.desc': 'מלא את הפרטים, בחר תבנית או עיצוב מותאם, והוסף תוספות.','modal.cancel': 'ביטול','modal.save': 'שמור מוצר',
         'form.name': 'שם המוצר','form.price': 'מחיר','form.desc': 'תיאור','form.tags': 'תגים','form.colors': 'צבעים','form.freeText': 'טקסט חופשי לעיצוב/הדגשה','form.image': 'תמונת מוצר','form.font': 'סגנון גופן','form.template': 'תבנית מוצר','form.cart': 'כפתור הוסף לסל','form.cartDefault': 'לפי ברירת מחדל של האתר','form.cartShow': 'להציג','form.cartHide': 'להסתיר','form.accent': 'צבע הדגשה','form.cardBg': 'רקע כרטיס','form.preview': 'תצוגה מקדימה',
         'addons.title': 'תוספות למוצר','addons.desc': 'מבצעים, אפשרויות, בחירת צורה/צבע וטקסט מותאם.','addons.add': 'הוסף תוספת'
@@ -886,7 +884,10 @@
       }
     }
 
-    function themeDocRef(uid = state.currentUser?.uid) { return doc(db, 'storeThemes', uid); }
+    function userDoc(uid = state.currentUser?.uid) { return doc(db, 'users', uid); }
+    function themeDocRef(uid = state.currentUser?.uid) { return doc(db, 'users', uid, 'storefront', 'settings'); }
+    function productsCollection(uid = state.currentUser?.uid) { return collection(db, 'users', uid, 'products'); }
+    function productDoc(id, uid = state.currentUser?.uid) { return doc(db, 'users', uid, 'products', id); }
 
     async function saveThemeToFirestore(partialTheme = state.theme) {
       if (!state.currentUser) return;
@@ -896,6 +897,7 @@
         uid: state.currentUser.uid,
         updatedAt: serverTimestamp()
       };
+      await setDoc(userDoc(), { uid: state.currentUser.uid, email: state.currentUser.email || '', displayName: state.currentUser.displayName || '', updatedAt: serverTimestamp() }, { merge: true });
       await setDoc(themeDocRef(), payload, { merge: true });
     }
 
@@ -1098,11 +1100,12 @@
     }
 
     async function uploadProductImage(file) {
-      if (!file) return state.currentImageUrl || '';
-      const path = `products/${state.currentUser.uid}/${Date.now()}-${file.name}`;
+      if (!file) return { imageUrl: state.currentImageUrl || '', imagePath: '', productId: state.editId || '' };
+      const productId = state.editId || crypto.randomUUID();
+      const path = `users/${state.currentUser.uid}/products/${productId}/${Date.now()}-${file.name}`;
       const storageRef = ref(storage, path);
-      await uploadBytes(storageRef, file);
-      return getDownloadURL(storageRef);
+      await uploadBytes(storageRef, file, { contentType: file.type || 'image/jpeg', customMetadata: { uid: state.currentUser.uid, productId } });
+      return { imageUrl: await getDownloadURL(storageRef), imagePath: path, productId };
     }
 
     async function saveProduct(e) {
@@ -1110,9 +1113,12 @@
       if (!state.currentUser) return;
       try {
         $('#saveProductBtn').disabled = true;
-        const imageUrl = await uploadProductImage($('#productImage').files[0]);
+        const upload = await uploadProductImage($('#productImage').files[0]);
+        const productId = state.editId || upload.productId || crypto.randomUUID();
         const payload = {
           uid: state.currentUser.uid,
+          productId,
+          ownerRef: `users/${state.currentUser.uid}`,
           name: $('#productName').value.trim(),
           price: Number($('#productPrice').value || 0),
           description: $('#productDesc').value.trim(),
@@ -1120,7 +1126,8 @@
           colors: $('#productColors').value.split(',').map(v => v.trim()).filter(Boolean),
           freeText: $('#productFreeText').value.trim(),
           font: $('#productFont').value,
-          imageUrl,
+          imageUrl: upload.imageUrl || state.currentImageUrl || '',
+          imagePath: upload.imagePath || '',
           addons: collectAddons(),
           template: $('#productTemplate').value,
           showCart: $('#productShowCart').value,
@@ -1131,10 +1138,10 @@
         };
         if (state.editId) {
           delete payload.createdAt;
-          await updateDoc(doc(db, 'products', state.editId), payload);
+          await updateDoc(productDoc(state.editId), payload);
           showToast('המוצר עודכן');
         } else {
-          await addDoc(collection(db, 'products'), payload);
+          await setDoc(productDoc(productId), payload, { merge: true });
           showToast('המוצר נשמר');
         }
         closeModal();
@@ -1190,19 +1197,20 @@
 
     async function removeProduct(id) {
       if (!confirm('למחוק את המוצר?')) return;
-      await deleteDoc(doc(db, 'products', id));
+      await deleteDoc(productDoc(id));
       showToast('המוצר נמחק');
     }
     async function cloneProduct(item) {
-      const copy = { ...item, uid: state.currentUser.uid, name: `${item.name} Copy`, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
+      const cloneId = crypto.randomUUID();
+      const copy = { ...item, productId: cloneId, uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, name: `${item.name} Copy`, createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
       delete copy.id;
-      await addDoc(collection(db, 'products'), copy);
+      await setDoc(productDoc(cloneId), copy, { merge: true });
       showToast('המוצר שוכפל');
     }
 
     function subscribeProducts(uid) {
       if (state.unsubscribeProducts) state.unsubscribeProducts();
-      const qy = query(collection(db, 'products'), where('uid', '==', uid), orderBy('createdAt', 'desc'));
+      const qy = query(productsCollection(uid), orderBy('createdAt', 'desc'));
       state.unsubscribeProducts = onSnapshot(qy, (snapshot) => {
         state.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         renderProducts();
@@ -1210,7 +1218,7 @@
         updateEmbedCode();
       }, (error) => {
         console.error(error);
-        showToast('ייתכן שחסר Firestore index עבור uid + createdAt', true);
+        showToast('בדוק הרשאות Firestore או אינדקסים של createdAt', true);
       });
     }
 
@@ -1224,18 +1232,19 @@
     }
 
     async function ensureThemeDoc(uid) {
+      await setDoc(userDoc(uid), { uid, email: auth.currentUser?.email || '', displayName: auth.currentUser?.displayName || '', updatedAt: serverTimestamp() }, { merge: true });
       const snap = await getDoc(themeDocRef(uid));
-      if (!snap.exists()) await saveThemeToFirestore(DEFAULT_THEME);
+      if (!snap.exists()) await setDoc(themeDocRef(uid), { ...DEFAULT_THEME, uid, updatedAt: serverTimestamp() }, { merge: true });
     }
 
     async function insertDemoProducts() {
       if (!state.currentUser) return;
       const samples = [
-        { uid: state.currentUser.uid, name: 'מארז פרימיום', price: 129, description: 'תבנית קלאסית עם מבצע וצבעי מותג.', tags: ['חדש','פופולרי'], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, name: 'סט קלאסי', price: 89, description: 'מוצר עם תבנית מפוצלת לטאבלט ודסקטופ.', tags: ['קלאסי'], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'Best Seller', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'split', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, name: 'מוצר מינימלי', price: 59, description: 'כרטיס מינימלי ללא כפתור סל למי שרוצה רק קטלוג.', tags: ['minimal'], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'minimal', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מארז פרימיום', price: 129, description: 'תבנית קלאסית עם מבצע וצבעי מותג.', tags: ['חדש','פופולרי'], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, description: 'מוצר עם תבנית מפוצלת לטאבלט ודסקטופ.', tags: ['קלאסי'], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'Best Seller', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'split', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, description: 'כרטיס מינימלי ללא כפתור סל למי שרוצה רק קטלוג.', tags: ['minimal'], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'minimal', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
       ];
-      for (const sample of samples) await addDoc(collection(db, 'products'), sample);
+      for (const sample of samples) await setDoc(productDoc(sample.productId), sample, { merge: true });
       showToast('נוספו מוצרי דוגמה');
     }
 
@@ -1259,7 +1268,7 @@
       const code = `<div id="${mountId}"></div>
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
-  import { getFirestore, collection, query, where, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
+  import { getFirestore, collection, query, orderBy, onSnapshot, doc, getDoc } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
 
   const firebaseConfig = ${JSON.stringify(firebaseConfig, null, 2)};
   const ACCOUNT_UID = "${uid}";
@@ -1270,9 +1279,10 @@
   const app = initializeApp(firebaseConfig);
   const db = getFirestore(app);
   const mount = document.getElementById(MOUNT_ID);
-  mount.innerHTML = '<div style="padding:24px;border:1px solid #e5e7eb;border-radius:24px">טוען מוצרים…</div>';
+  if (!mount) throw new Error('Missing mount element for ProductFlow embed');
+  mount.innerHTML = '<div style="padding:24px;border:1px solid #e5e7eb;border-radius:24px;background:#fff">טוען מוצרים…</div>';
 
-  const themeSnap = await getDoc(doc(db, 'storeThemes', ACCOUNT_UID));
+  const themeSnap = await getDoc(doc(db, 'users', ACCOUNT_UID, 'storefront', 'settings'));
   const theme = themeSnap.exists() ? themeSnap.data() : { template: 'classic', showCart: true, primaryColor: '#60a5fa', cardBackground: '#ffffff', textColor: '#111827', buttonColor: '#111827' };
 
   const styles = document.createElement('style');
@@ -1299,7 +1309,7 @@
     }).join('') + '</div></div>';
   };
 
-  const q = query(collection(db, 'products'), where('uid', '==', ACCOUNT_UID), orderBy('createdAt', 'desc'));
+  const q = query(collection(db, 'users', ACCOUNT_UID, 'products'), orderBy('createdAt', 'desc'));
   onSnapshot(q, (snapshot) => render(snapshot.docs.map((d) => ({ id: d.id, ...d.data() }))));
 </script>`;
       $('#embedCodeBlock').textContent = code;
@@ -1383,8 +1393,12 @@
     applyTranslations();
     updateEmbedCode();
     handleRedirectResult();
-
-    console.log(`Required Firebase setup:\n1) Authentication -> enable Google and Email/Password.\n2) Add your current domain under Authentication > Settings > Authorized domains.\n3) Firestore Database -> create database.\n4) Storage -> enable file uploads.\n5) Firestore composite index may be needed for products(uid + createdAt).`);
+    console.log(`Firebase collections in use:
+- users/{uid}
+- users/{uid}/products/{productId}
+- users/{uid}/storefront/settings
+Storage path:
+- users/{uid}/products/{productId}/{filename}`);
   </script>
 </body>
 </html>
