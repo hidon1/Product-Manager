@@ -526,7 +526,7 @@
               </div>
               <div class="field">
                 <label for="platformNameInput" data-i18n="settings.platformName">שם הפלטפורמה</label>
-                <input class="input" id="platformNameInput" placeholder="MerchPilot" />
+                <input class="input" id="platformNameInput" placeholder="מנהל המוצרים" />
               </div>
             </div>
             <div id="productsContainer" class="grid-products"></div>
@@ -788,7 +788,7 @@
       textAlign: 'right',
       desktopColumns: 4,
       mobileColumns: 2,
-      platformName: 'MerchPilot',
+      platformName: 'מנהל המוצרים',
       logoText: 'MP'
     };
 
@@ -983,7 +983,7 @@
       if ($('#desktopColumns')) $('#desktopColumns').value = String(state.theme.desktopColumns || 4);
       if ($('#mobileColumns')) $('#mobileColumns').value = String(state.theme.mobileColumns || 2);
       if ($('#themeMode')) $('#themeMode').value = state.theme.renderMode === 'site' ? 'site' : 'system';
-      if ($('#platformNameInput')) $('#platformNameInput').value = state.theme.platformName || 'MerchPilot';
+      if ($('#platformNameInput')) $('#platformNameInput').value = state.theme.platformName || 'מנהל המוצרים';
       if ($('#embedColumns')) $('#embedColumns').value = String(state.theme.embedColumns || 3);
       if ($('#embedTitle')) $('#embedTitle').value = state.theme.embedTitle || 'המוצרים שלנו';
       document.documentElement.style.setProperty('--desktop-columns', Number(state.theme.desktopColumns || 4));
@@ -1539,7 +1539,7 @@
         state.theme.desktopColumns = Number($('#desktopColumns').value);
         state.theme.mobileColumns = Number($('#mobileColumns').value);
         state.theme.renderMode = $('#themeMode').value;
-        state.theme.platformName = $('#platformNameInput').value.trim() || 'MerchPilot';
+        state.theme.platformName = $('#platformNameInput').value.trim() || 'מנהל המוצרים';
         applyThemeToPreview();
       }));
       $('#designerApplyMode').addEventListener('change', () => { state.theme.applyMode = $('#designerApplyMode').value; toggleDesignerScopeFields(); renderPreviewProduct(); });
