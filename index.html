@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>MerchPilot — מנהל מוצרים</title>
+  <title>MerchPilot — Product Manager</title>
   <meta name="theme-color" content="#f8fafc" />
   <style>
     :root {
@@ -25,7 +25,9 @@
       --input: rgba(255,255,255,.96);
       --chip: rgba(79, 70, 229, 0.10);
       --surface-grad: linear-gradient(180deg, rgba(255,255,255,.98), rgba(236,245,255,.96));
-      --hero-grad: linear-gradient(135deg, rgba(224,231,255,.95), rgba(236,254,255,.95));
+      --hero-grad: linear-gradient(135deg, rgba(224,231,255,.95), rgba(253,230,255,.92) 42%, rgba(236,254,255,.95));
+      --hero-accent: linear-gradient(135deg, #7c3aed, #06b6d4, #f97316);
+      --surface-highlight: linear-gradient(135deg, rgba(255,255,255,.98), rgba(240,249,255,.94), rgba(250,245,255,.96));
       --preview-bg: linear-gradient(135deg, rgba(79,70,229,.16), rgba(8,145,178,.08));
       --preview-card: #ffffff;
       --preview-text: #172033;
@@ -41,9 +43,11 @@
       color: var(--text);
       font-family: Inter, "Heebo", "Assistant", "Segoe UI", Arial, sans-serif;
       background:
-        radial-gradient(circle at top right, rgba(96,165,250,.12), transparent 22%),
-        radial-gradient(circle at bottom left, rgba(79,70,229,.08), transparent 20%),
-        linear-gradient(180deg, #eef4ff, #f5f3ff 35%, #ecfeff 68%, #dbeafe 100%);
+        radial-gradient(circle at top right, rgba(96,165,250,.18), transparent 22%),
+        radial-gradient(circle at 18% 18%, rgba(244,114,182,.14), transparent 18%),
+        radial-gradient(circle at bottom left, rgba(79,70,229,.10), transparent 20%),
+        linear-gradient(180deg, #eef4ff, #f5f3ff 30%, #ecfeff 62%, #dbeafe 100%);
+      background-attachment: fixed;
     }
     a { color: inherit; text-decoration: none; }
     button, input, select, textarea { font: inherit; }
@@ -255,6 +259,57 @@
     .template-list .mini-card img { height:72px; }
     .template-select { border:1px solid rgba(96,165,250,.22); background: rgba(96,165,250,.12); color: var(--text); border-radius: 14px; padding: 10px 14px; cursor:pointer; font-weight:700; }
 
+
+    .auth-showcase::before, .panel::before, .product-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(120deg, transparent, rgba(255,255,255,.34), transparent);
+      opacity: 0;
+      transition: opacity .3s ease;
+    }
+    .auth-showcase:hover::before, .panel:hover::before, .product-card:hover::before { opacity: 1; }
+    .panel, .product-card, .stat-card, .setting-card, .embed-card, .template-card, .auth-showcase, .auth-card { position: relative; }
+    .panel { overflow: hidden; }
+    .section-head h3, .topbar h2, .auth-showcase h2 { letter-spacing: -.02em; }
+    .brand h1 { margin-bottom: 4px; }
+    .hero .stat-card { background: var(--surface-highlight); }
+    .floating-orb {
+      position:absolute; border-radius:50%; filter: blur(2px); opacity:.55; pointer-events:none;
+      animation: drift 11s ease-in-out infinite;
+    }
+    .orb-a { width:120px; height:120px; top:18px; left:26px; background: radial-gradient(circle, rgba(167,139,250,.34), transparent 70%); }
+    .orb-b { width:160px; height:160px; bottom:24px; right:42px; background: radial-gradient(circle, rgba(34,211,238,.26), transparent 72%); animation-delay:-3s; }
+    @keyframes drift { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(0,-10px,0) scale(1.06); } }
+    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes floatCard { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
+    @keyframes pulseGlow { 0%,100% { box-shadow: 0 18px 35px rgba(37,99,235,.14); } 50% { box-shadow: 0 24px 40px rgba(168,85,247,.22); } }
+    @keyframes shimmerShift { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
+    .animate-in { animation: fadeSlideUp .55s ease both; }
+    .product-card { transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
+    .product-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 28px 70px rgba(37,99,235,.16); border-color: rgba(124,58,237,.22); }
+    .product-cover { position: relative; }
+    .product-cover::after { content:""; position:absolute; inset:auto 14px 14px auto; width:52px; height:52px; border-radius:18px; background:linear-gradient(135deg, rgba(255,255,255,.34), rgba(255,255,255,.06)); backdrop-filter: blur(10px); }
+    .product-body { background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.98)); }
+    .inline-field { display:grid; gap:8px; }
+    .inline-field label { font-weight:700; font-size:.88rem; }
+    .embed-card { position:relative; overflow:hidden; background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,250,255,.94)); }
+    .embed-card::after { content:""; position:absolute; inset:auto -40px -40px auto; width:140px; height:140px; border-radius:50%; background: radial-gradient(circle, rgba(59,130,246,.12), transparent 70%); }
+    .developer-guide { display:grid; gap:14px; }
+    .developer-guide .guide-step { padding:14px 16px; border-radius:16px; border:1px solid var(--line); background:rgba(255,255,255,.9); }
+    .developer-guide .guide-step strong { display:block; margin-bottom:6px; }
+    .field-table { display:grid; gap:10px; }
+    .field-row { display:grid; grid-template-columns: 120px 160px 1fr; gap:12px; padding:12px 14px; border-radius:16px; background:rgba(255,255,255,.82); border:1px solid rgba(148,163,184,.18); align-items:start; }
+    .field-row code { padding:4px 8px; border-radius:10px; background:rgba(79,70,229,.1); color:#312e81; font-weight:700; }
+    .field-row .type { color: var(--muted); font-size:.88rem; font-weight:700; }
+    .animation-select-note { margin-top: 6px; color: var(--muted); font-size: .84rem; }
+    .store-card[data-animation="float"] { animation: floatCard 4.6s ease-in-out infinite; }
+    .store-card[data-animation="glow"] { animation: pulseGlow 3.8s ease-in-out infinite; }
+    .store-card[data-animation="shimmer"] { background-size: 200% 200% !important; animation: shimmerShift 6s linear infinite; }
+    .store-card[data-animation="lift"] { animation: fadeSlideUp .65s ease both; }
+    @media (max-width: 760px) { .field-row { grid-template-columns: 1fr; } }
+
     .swatches { display:flex; gap:8px; flex-wrap:wrap; }
     .swatch-btn {
       width:34px; height:34px; border-radius:50%; border:2px solid rgba(255,255,255,.3); cursor:pointer;
@@ -392,6 +447,8 @@
   <section id="authScreen" class="auth-screen">
     <div class="auth-layout">
       <div class="auth-showcase">
+        <span class="floating-orb orb-a"></span>
+        <span class="floating-orb orb-b"></span>
         <div class="brand">
           <div class="logo-wrap">
             <svg width="64" height="64" viewBox="0 0 64 64" fill="none" xmlns="http://www.w3.org/2000/svg" aria-label="Logo">
@@ -569,9 +626,9 @@
                 </div>
               </div>
               <div class="embed-card">
-                <strong data-i18n="embed.devGuideTitle">הוראות למפתחים</strong>
-                <div class="embed-help" data-i18n="embed.devGuideDesc">אלה השמות הקבועים של השדות שיחזרו מה-API. השתמשו בהם בדיוק כך בקוד של האתר.</div>
-                <div class="code-block" id="apiFieldsBlock"></div>
+                <strong data-i18n="embed.devGuideTitle">Developer integration guide</strong>
+                <div class="embed-help" data-i18n="embed.devGuideDesc">All field names below stay in English so developers can map the payload directly inside the storefront code.</div>
+                <div class="developer-guide" id="apiFieldsBlock"></div>
               </div>
             </div>
           </div>
@@ -689,6 +746,7 @@
           <div class="field"><label for="productBodyGradient">גרדיאנט לגוף המוצר</label><input class="input" id="productBodyGradient" placeholder="לדוגמה: linear-gradient(135deg, #ffffff, #e0f2fe)" /></div>
           <div class="field"><label for="productButtonStyle">צורת כפתור הוסף לסל</label><select class="select" id="productButtonStyle"><option value="rounded">עגול רך</option><option value="pill">גלולה</option><option value="square">מרובע</option><option value="soft">רך ומודגש</option></select></div>
           <div class="field"><label for="productRenderMode">אופן חיבור</label><select class="select" id="productRenderMode"><option value="iframe">iFrame - העיצוב שלנו</option><option value="api">API - רק נתונים</option></select></div>
+          <div class="field"><label for="productAnimation">אנימציית מוצר</label><select class="select" id="productAnimation"><option value="none">ללא אנימציה</option><option value="float">Float</option><option value="glow">Glow</option><option value="shimmer">Shimmer</option><option value="lift">Lift-in</option></select><div class="animation-select-note">האנימציה נשמרת למוצר ומופיעה גם בתצוגה המקדימה וגם בהטמעה.</div></div>
           <div class="field full"><label data-i18n="form.sitePreview">איך המוצר יראה באתר</label><div class="preview-stage modal-preview-shell" id="modalProductPreview"></div></div>
         </div>
 
@@ -763,7 +821,7 @@
       template: 'classic',
       applyMode: 'all',
       selectedProductId: '',
-      embedTitle: 'המוצרים שלנו',
+      embedTitle: 'Our products',
       embedColumns: 3,
       showCart: true,
       primaryColor: '#60a5fa',
@@ -780,7 +838,8 @@
       logoText: 'MP',
       renderMode: 'iframe',
       bodyGradient: '',
-      buttonStyle: 'rounded'
+      buttonStyle: 'rounded',
+      animationStyle: 'none'
     };
 
     const QUICK_PALETTES = [
@@ -1060,11 +1119,11 @@
 
     function getPreviewProduct() {
       return getDesignerTargetProduct() || state.products[0] || {
-        name: 'כותרת מוצר לדוגמה',
+        name: 'Sample product title',
         price: 149,
-        description: 'כאן הלקוח באתר שלך יראה באופן אוטומטי את המוצרים, התיאור והעיצוב שאתה מנהל מהמערכת.',
-        tags: [{ label: 'חדש', color: '#4f46e5', shape: 'pill' }, { label: 'מבצע', color: '#f97316', shape: 'burst' }],
-        colors: ['כחול', 'לבן'],
+        description: 'This preview shows how the product content and styling will appear inside the connected storefront.',
+        tags: [{ label: 'New', color: '#4f46e5', shape: 'pill' }, { label: 'Promo', color: '#f97316', shape: 'burst' }],
+        colors: ['Blue', 'White'],
         imageUrl: '',
         font: 'Inter',
         template: 'classic',
@@ -1107,14 +1166,14 @@
             <span class="qty-value">${isPreview ? 1 : getCartQuantity(productId)}</span>
             <button type="button" data-action="qty-up" data-product-id="${esc(productId)}">+</button>
           </div>
-          <button class="store-btn btn-style-${esc(item.buttonStyle || theme.buttonStyle || 'rounded')}" type="button" data-action="add-cart" data-product-id="${esc(productId)}" style="background:${esc(theme.buttonColor)};color:${getContrastColor(theme.buttonColor)};">הוסף לסל</button>
+          <button class="store-btn btn-style-${esc(item.buttonStyle || theme.buttonStyle || 'rounded')}" type="button" data-action="add-cart" data-product-id="${esc(productId)}" style="background:${esc(theme.buttonColor)};color:${getContrastColor(theme.buttonColor)};">Add to cart</button>
         </div>
-        <div class="inline-note">הלקוח יוכל לבחור קטגוריה ולהוסיף לסל ישירות מהכרטיס.</div>` : '';
+        <div class="inline-note">Customers can choose options and add the product directly from the card.</div>` : '';
       const content = `
         ${template === 'split' ? image : ''}
         <div class="store-copy" style="font-family:${esc(item.font || 'Inter')}; text-align:${esc(theme.textAlign || 'right')};">
           ${template !== 'split' ? image : ''}
-          <div class="store-meta">${esc((item.freeText || 'קטלוג דינמי מחובר למנהל המוצרים').slice(0, 80))}</div>
+          <div class="store-meta">${esc((item.freeText || 'Connected product feed managed from MerchPilot').slice(0, 80))}</div>
           <h4 style="margin:6px 0 4px;">${esc(item.name || '')}</h4>
           <div class="store-price" style="color:${esc(item.accentColor || theme.primaryColor)};">${price}</div>
           <p class="store-meta">${esc(item.description || '')}</p>
@@ -1123,7 +1182,7 @@
           ${cartHtml}
         </div>`;
       const backgroundStyle = item.bodyGradient || theme.bodyGradient ? `background:${esc(item.bodyGradient || theme.bodyGradient)};` : `background:${esc(theme.cardBackground)};`;
-      return `<div class="store-card" style="${backgroundStyle}color:${esc(theme.textColor)};padding:${Number(theme.cardPadding || 18)}px;border-radius:${Number(theme.borderRadius || 24)}px;">${content}</div>`;
+      return `<div class="store-card animate-in" data-animation="${esc(item.animationStyle || theme.animationStyle || 'none')}" style="${backgroundStyle}color:${esc(theme.textColor)};padding:${Number(theme.cardPadding || 18)}px;border-radius:${Number(theme.borderRadius || 24)}px;">${content}</div>`;
     }
 
 
@@ -1152,9 +1211,9 @@
 
     function buildModalPreviewProduct() {
       return {
-        name: $('#productName').value.trim() || 'מוצר בתצוגה מקדימה',
+        name: $('#productName').value.trim() || 'Preview product',
         price: Number($('#productPrice').value || 0) || 149,
-        description: $('#productDesc').value.trim() || 'כאן תראה בדיוק איך המוצר יופיע באתר המחובר.',
+        description: $('#productDesc').value.trim() || 'See how the product will look inside the live storefront.',
         tags: state.modalTags,
         colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
         freeText: '',
@@ -1167,6 +1226,7 @@
         bodyGradient: $('#productBodyGradient').value.trim(),
         buttonStyle: $('#productButtonStyle').value || 'rounded',
         renderMode: $('#productRenderMode').value || state.theme.renderMode || 'iframe',
+        animationStyle: $('#productAnimation').value || 'none',
         active: true,
         status: 'active',
         useSiteTheme: 'inherit',
@@ -1238,6 +1298,7 @@
         $('#productBodyGradient').value = item.bodyGradient || '';
         $('#productButtonStyle').value = item.buttonStyle || 'rounded';
         $('#productRenderMode').value = item.renderMode || state.theme.renderMode || 'iframe';
+        $('#productAnimation').value = item.animationStyle || 'none';
         (item.variants || []).forEach(addVariantGroup);
       } else {
         state.modalTags = [];
@@ -1246,6 +1307,7 @@
         $('#productBodyGradient').value = state.theme.bodyGradient || '';
         $('#productButtonStyle').value = state.theme.buttonStyle || 'rounded';
         $('#productRenderMode').value = state.theme.renderMode || 'iframe';
+        $('#productAnimation').value = state.theme.animationStyle || 'none';
         addVariantGroup();
       }
       renderTagEditor();
@@ -1348,6 +1410,7 @@
           bodyGradient: $('#productBodyGradient').value.trim(),
           buttonStyle: $('#productButtonStyle').value || 'rounded',
           renderMode: $('#productRenderMode').value || state.theme.renderMode || 'iframe',
+          animationStyle: $('#productAnimation').value || 'none',
           active: state.editId ? (state.products.find((item) => item.id === state.editId)?.active !== false) : true,
           status: state.editId ? (state.products.find((item) => item.id === state.editId)?.status || 'active') : 'active',
           useSiteTheme: state.editId ? (state.products.find((item) => item.id === state.editId)?.useSiteTheme || 'inherit') : 'inherit',
@@ -1387,7 +1450,7 @@
       container.innerHTML = '';
       $('#emptyState').classList.toggle('hidden', items.length !== 0);
       items.forEach((item) => {
-        const chips = [...(item.tags || []).slice(0, 3).map(tag => typeof tag === 'string' ? tag : tag.label), ...((item.variants || []).slice(0, 2).map(group => `קטגוריה: ${group.name}`)), item.renderMode === 'api' ? 'API' : 'iFrame'];
+        const chips = [...(item.tags || []).slice(0, 3).map(tag => typeof tag === 'string' ? tag : tag.label), ...((item.variants || []).slice(0, 2).map(group => `קטגוריה: ${group.name}`)), item.renderMode === 'api' ? 'API' : 'iFrame', item.animationStyle && item.animationStyle !== 'none' ? `Animation: ${item.animationStyle}` : 'Static'];
         const card = document.createElement('article');
         card.className = 'product-card';
         card.dataset.id = item.id;
@@ -1499,7 +1562,7 @@
       const code = `<iframe src="${src}" style="width:100%;min-height:560px;border:0;" loading="lazy"></iframe>`;
       const payload = {
         theme: state.theme,
-        products: state.products.map(({ id, name, price, description, imageUrl, tags, tagStyles, colors, freeText, addons, useSiteTheme, template, active, variants, renderMode, bodyGradient, buttonStyle, accentColor, cardBackground }) => ({ id, name, price, description, imageUrl, tags, tagStyles, colors, freeText, addons, useSiteTheme, template, active, variants, renderMode, bodyGradient, buttonStyle, accentColor, cardBackground }))
+        products: state.products.map(({ id, name, price, description, imageUrl, tags, tagStyles, colors, freeText, addons, useSiteTheme, template, active, variants, renderMode, bodyGradient, buttonStyle, accentColor, cardBackground, animationStyle }) => ({ id, name, price, description, imageUrl, tags, tagStyles, colors, freeText, addons, useSiteTheme, template, active, variants, renderMode, bodyGradient, buttonStyle, accentColor, cardBackground, animationStyle }))
       };
       const apiEndpoint = `${window.location.origin}${window.location.pathname}?embed=1&view=data&uid=${state.currentUser?.uid || 'YOUR_ACCOUNT_UID'}`;
       const dataCode = `fetch('${apiEndpoint}')
@@ -1508,11 +1571,31 @@
     console.log(productManagerData.products);
   });`; 
       const apiFields = [
-        ['id', 'מזהה מוצר ייחודי'],['name', 'שם המוצר'],['price', 'מחיר להצגה'],['description', 'תיאור מלא'],['imageUrl', 'קישור לתמונה'],['tags', 'רשימת תגיות'],['tagStyles', 'סגנון תגיות'],['variants', 'וריאציות / מידות / צבעים'],['accentColor', 'צבע ראשי'],['cardBackground', 'רקע כרטיס'],['bodyGradient', 'גרדיאנט רקע'],['buttonStyle', 'סגנון כפתור'],['renderMode', 'iframe או api']
-      ].map(([key,label]) => `${text('embed.fieldLabel')}: ${key} | ${text('embed.fieldMeaning')}: ${label}`).join('\n');
+        ['id', 'string', 'Unique product identifier. Use this as the primary key in your storefront state and cart logic.'],
+        ['productId', 'string', 'Original product record id stored in Firestore. Usually matches `id`, but keep it if you sync external systems.'],
+        ['name', 'string', 'Customer-facing product name.'],
+        ['price', 'number', 'Display price for the product card and checkout summary.'],
+        ['description', 'string', 'Long description or supporting marketing copy.'],
+        ['imageUrl', 'string', 'Public image URL or inline data URL fallback.'],
+        ['tags', 'array', 'Visual badges. Each tag object includes `label`, `color`, and `shape`.'],
+        ['tagStyles', 'object', 'Lookup map for tag styling keyed by tag label.'],
+        ['variants', 'array', 'Selectable product options such as size, color, material, or bundle type.'],
+        ['accentColor', 'string', 'Primary highlight color used for badges and price emphasis.'],
+        ['cardBackground', 'string', 'Solid fallback background color for the product card.'],
+        ['bodyGradient', 'string', 'Optional CSS gradient applied to the product card body.'],
+        ['buttonStyle', 'string', 'Button shape preset: `rounded`, `pill`, `square`, or `soft`.'],
+        ['animationStyle', 'string', 'Product animation preset: `none`, `float`, `glow`, `shimmer`, or `lift`.'],
+        ['renderMode', 'string', 'Rendering preference: `iframe` for managed UI or `api` for headless data mapping.'],
+        ['active', 'boolean', 'Whether the product should be exposed to the embedded storefront.']
+      ];
       $('#embedCodeBlock').textContent = code;
       $('#embedDataCodeBlock').textContent = dataCode;
-      $('#apiFieldsBlock').textContent = apiFields;
+      $('#apiFieldsBlock').innerHTML = `
+        <div class="guide-step"><strong>Step 1 — Fetch the payload</strong><span>Use the API endpoint or iframe embed above. The payload always returns a top-level <code>theme</code> object and a <code>products</code> array.</span></div>
+        <div class="guide-step"><strong>Step 2 — Map the product fields in English</strong><span>Keep the field names exactly as returned below when binding data inside your storefront, component props, or analytics events.</span></div>
+        <div class="field-table">${apiFields.map(([key,type,desc]) => `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${esc(desc)}</div></div>`).join('')}</div>
+        <div class="guide-step"><strong>Step 3 — Recommended rendering flow</strong><span>Render only items where <code>active === true</code>, use <code>variants</code> for option selectors, and fall back from <code>bodyGradient</code> to <code>cardBackground</code> when styling each product card.</span></div>
+      `;
     }
 
     function goToView(view) {
@@ -1605,7 +1688,7 @@
         renderModalProductPreview();
       });
       ['productName','productPrice','productBodyGradient'].forEach((id) => $('#'+id).addEventListener('input', renderModalProductPreview));
-      ['productDesc','productAccentColor','productBodyColor','productButtonStyle','productRenderMode','productTagColor','productTagShape'].forEach((id) => $('#'+id).addEventListener(id.includes('Color') || id === 'productDesc' || id === 'productBodyGradient' ? 'input' : 'change', renderModalProductPreview));
+      ['productDesc','productAccentColor','productBodyColor','productButtonStyle','productRenderMode','productAnimation','productTagColor','productTagShape'].forEach((id) => $('#'+id).addEventListener(id.includes('Color') || id === 'productDesc' || id === 'productBodyGradient' ? 'input' : 'change', renderModalProductPreview));
       $('#addProductTagBtn').addEventListener('click', addTagFromInput);
       $('#productTagInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); } });
       $$('.nav-btn[data-view]').forEach(btn => btn.addEventListener('click', () => goToView(btn.dataset.view)));
@@ -1629,13 +1712,15 @@
         return;
       }
       document.body.innerHTML = '<div id="embedRuntime" style="padding:24px"></div>';
+      document.documentElement.dir = 'ltr';
+      document.documentElement.lang = 'en';
       const host = document.getElementById('embedRuntime');
       onSnapshot(qy, (snapshot) => {
         const items = snapshot.docs
           .map((d) => ({ id: d.id, ...d.data() }))
           .filter(productIsActive)
           .sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
-        host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'המוצרים שלנו')}</h2><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.embedColumns || 3))};">${items.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false)).join('')}</div></div>`;
+        host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'Our products')}</h2><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.embedColumns || 3))};">${items.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false)).join('')}</div></div>`;
       });
       document.body.addEventListener('click', (event) => {
         const actionEl = event.target.closest('[data-action]');
