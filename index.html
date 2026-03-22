@@ -398,7 +398,7 @@
         <div class="feature-list">
           <div class="feature-item"><strong data-i18n="f1.t">התחברות חכמה</strong><span data-i18n="f1.d">Google popup + redirect fallback</span></div>
           <div class="feature-item"><strong data-i18n="f2.t">סנכרון מוצרים</strong><span data-i18n="f2.d">קוד Embed לפי מזהה חשבון</span></div>
-          <div class="feature-item"><strong data-i18n="f3.t">עיצוב גמיש</strong><span data-i18n="f3.d">3 תבניות מוצר + צבעים + כפתור</span></div>
+          <div class="feature-item"><strong data-i18n="f3.t">עיצוב גמיש</strong><span data-i18n="f3.d">עיצוב אחיד + צבעים + כפתור</span></div>
           <div class="feature-item"><strong data-i18n="f4.t">רספונסיבי</strong><span data-i18n="f4.d">מובייל ומחשב עם תצוגה משופרת</span></div>
         </div>
       </div>
@@ -509,7 +509,7 @@
             <div class="section-head">
               <div>
                 <h3 data-i18n="products.title">המוצרים שלי</h3>
-                <p data-i18n="products.desc">חיפוש, סינון, עריכה, שכפול ומחיקה — עם תמיכה ב־3 תבניות תצוגה.</p>
+                <p data-i18n="products.desc">חיפוש, סינון, עריכה, שכפול ומחיקה — עם סגנון כרטיס אחיד וגמיש.</p>
               </div>
               <button class="btn btn-primary" id="openAddModalPanel" data-i18n="products.add">הוסף מוצר</button>
             </div>
@@ -564,10 +564,12 @@
                 <div class="field" style="margin-top:14px;">
                   <label for="embedColumns" data-i18n="embed.columnsLabel">מספר עמודות בדסקטופ</label>
                   <select class="select" id="embedColumns"><option value="2">2</option><option value="3" selected>3</option><option value="4">4</option></select>
+                  <div class="embed-help" data-i18n="embed.columnsHelp">הקוד נשאר קבוע, ורק ההגדרה שנשמרת במערכת מתעדכנת.</div>
                 </div>
                 <div class="field" style="margin-top:14px;">
                   <label for="embedTitle" data-i18n="embed.titleLabel">כותרת אזור המוצרים</label>
                   <input class="input" id="embedTitle" value="המוצרים שלנו" />
+                  <div class="embed-help" data-i18n="embed.titleHelp">גם כאן מזהה ההטמעה וה-iframe נשארים קבועים.</div>
                 </div>
               </div>
               <div style="display:grid; gap:16px;">
@@ -605,20 +607,23 @@
           <div class="panel">
             <div class="section-head">
               <div>
-                <h3 data-i18n="designer.title">עיצוב האתר ותבניות מוצר</h3>
-                <p data-i18n="designer.desc">בחר תבנית ברירת מחדל, הצג/הסתר כפתור סל, שנה צבעים וצפה מיד בתוצאה שתופיע גם באתר המחובר.</p>
+                <h3 data-i18n="designer.title">עיצוב האתר ותצוגת הכרטיס</h3>
+                <p data-i18n="designer.desc">יש סגנון כרטיס אחיד אחד. אפשר לבחור אם להחיל את השינויים על כל הכרטיסיות או רק על כרטיסייה נבחרת, ולצפות מיד בתוצאה.</p>
               </div>
             </div>
             <div class="settings-grid">
               <div class="setting-card">
-                <h4 data-i18n="designer.styleTitle">עיצוב גלובלי</h4>
+                <h4 data-i18n="designer.styleTitle">עיצוב כרטיס</h4>
                 <div class="field">
-                  <label for="themeTemplate" data-i18n="designer.templateLabel">תבנית ברירת מחדל</label>
-                  <select class="select" id="themeTemplate">
-                    <option value="classic" data-i18n="template.classic">כרטיס קלאסי</option>
-                    <option value="split" data-i18n="template.split">כרטיס מפוצל</option>
-                    <option value="minimal" data-i18n="template.minimal">כרטיס מינימלי</option>
+                  <label for="designerApplyMode" data-i18n="designer.applyModeLabel">איפה להחיל את העיצוב</label>
+                  <select class="select" id="designerApplyMode">
+                    <option value="all" data-i18n="designer.applyAll">על כל הכרטיסיות</option>
+                    <option value="selected" data-i18n="designer.applySelected">רק על הכרטיסייה הנבחרת</option>
                   </select>
+                </div>
+                <div class="field hidden" id="designerProductField">
+                  <label for="designerProductSelect" data-i18n="designer.productSelectLabel">בחר כרטיסייה</label>
+                  <select class="select" id="designerProductSelect"></select>
                 </div>
                 <div class="switch-row">
                   <div><strong data-i18n="designer.cartToggle">כפתור הוסף לסל</strong><p data-i18n="designer.cartToggleDesc">אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.</p></div>
@@ -647,7 +652,7 @@
                 <h4 data-i18n="designer.previewTitle">תצוגה מקדימה חיה</h4>
                 <div class="preview-stage">
                   <div class="preview-toolbar" style="margin-bottom:12px;">
-                    <span class="badge" id="activeTemplateBadge">classic</span>
+                    <span class="badge" id="activeTemplateBadge">כל הכרטיסיות</span>
                     <span class="badge" id="cartToggleBadge">Cart ON</span>
                   </div>
                   <div class="product-preview-shell" id="productPreviewShell" data-template="classic"></div>
@@ -656,15 +661,7 @@
             </div>
           </div>
 
-          <div class="panel">
-            <div class="section-head">
-              <div>
-                <h3 data-i18n="templates.title">3 צורות מוצר מוכנות</h3>
-                <p data-i18n="templates.desc">אתה שולט איפה התמונה מופיעה, איפה הטקסט, והאם יוצג כפתור הוספה לסל. התבנית נשמרת ומשותפת גם לקוד ההטמעה.</p>
-              </div>
-            </div>
-            <div class="template-grid" id="templateGrid"></div>
-          </div>
+
         </section>
 
         <section id="view-settings" class="hidden">
@@ -784,6 +781,10 @@
 
     const DEFAULT_THEME = {
       template: 'classic',
+      applyMode: 'all',
+      selectedProductId: '',
+      embedTitle: 'המוצרים שלנו',
+      embedColumns: 3,
       showCart: true,
       primaryColor: '#60a5fa',
       cardBackground: '#ffffff',
@@ -797,12 +798,6 @@
       mobileColumns: 2,
       platformName: 'MerchPilot',
       logoText: 'MP'
-    };
-
-    const TEMPLATE_DEFS = {
-      classic: { title: 'כרטיס קלאסי', desc: 'תמונה למעלה, אחריה שם, מחיר, תיאור וכפתור.', imagePosition: 'top' },
-      split: { title: 'כרטיס מפוצל', desc: 'תמונה בצד, מידע בצד השני. טוב לדסקטופ ולמוצרי פרימיום.', imagePosition: 'side' },
-      minimal: { title: 'כרטיס מינימלי', desc: 'תצוגה נקייה, מרכזית, בלי עומס. אפשר להסתיר כפתור סל.', imagePosition: 'top-centered' }
     };
 
     const QUICK_PALETTES = [
@@ -834,17 +829,17 @@
     const translations = {
       he: {
         'brand.title': 'MerchPilot','brand.subtitle': 'ניהול מוצרים וקטלוג במקום אחד','showcase.badge': 'מערכת ניהול מוצרים חכמה','showcase.title': 'דשבורד יפה, מהיר ומוכן לעבודה אמיתית','showcase.desc': 'התחברות עם גוגל או מייל וסיסמה, שמירת מוצרים ב-Firebase, יצירת קוד הטמעה לפי מזהה החשבון, שליטה בעיצוב כרטיסי מוצר ותצוגות שונות לאתר הלקוח.',
-        'f1.t': 'התחברות חכמה','f1.d': 'Google popup + redirect fallback','f2.t': 'סנכרון מוצרים','f2.d': 'קוד Embed לפי מזהה חשבון','f3.t': 'עיצוב גמיש','f3.d': '3 תבניות מוצר + צבעים + כפתור','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
+        'f1.t': 'התחברות חכמה','f1.d': 'Google popup + redirect fallback','f2.t': 'סנכרון מוצרים','f2.d': 'קוד Embed לפי מזהה חשבון','f3.t': 'עיצוב גמיש','f3.d': 'עיצוב אחיד + צבעים + כפתור','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
         'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.','auth.or': 'או התחבר עם פרטי משתמש','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.',
         'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב כרטיסיות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.export': 'ייצוא JSON','nav.copyEmbed': 'העתק קוד חיבור',
         'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא למנהל המוצרים שלך','app.sub': 'נהל מוצרים, תבניות, עיצוב, Google auth וחיבור לאתר לקוח ממקום אחד.','app.logout': 'התנתק',
         'hero.title': 'מקום אחד לכל ניהול המוצרים','hero.desc': 'הוסף מוצרים, בחר תבנית תצוגה, שלוט על כפתור הסל, צבעי הכרטיס והפונטים, וקבל קוד הטמעה שמתאים לאתר שלך לפי מזהה החשבון.','hero.add': 'הוסף מוצר חדש','hero.demo': 'הכנס מוצרי דוגמה','hero.embed': 'צור קוד חיבור לאתר',
-        'stats.products': 'סה״כ מוצרים','stats.productsSub': 'מתעדכן מהמסד','stats.promos': 'מוצרים עם מבצע','stats.promosSub': 'לפי התוספות','stats.templates': 'תבנית פעילה','stats.templatesSub': 'לפי הגדרות העיצוב','stats.updated': 'עדכון אחרון','stats.updatedSub': 'המוצר האחרון שנשמר',
-        'products.title': 'המוצרים שלי','products.desc': 'חיפוש, סינון, עריכה, שכפול ומחיקה — עם תמיכה ב־3 תבניות תצוגה.','products.add': 'הוסף מוצר','products.refresh': 'רענן','products.search': 'חפש לפי שם, תיאור או תג','products.empty': 'עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.',
+        'stats.products': 'סה״כ מוצרים','stats.productsSub': 'מתעדכן מהמסד','stats.promos': 'מוצרים עם מבצע','stats.promosSub': 'לפי התוספות','stats.templates': 'סגנון פעיל','stats.templatesSub': 'כרטיס אחיד לפי הגדרות העיצוב','stats.updated': 'עדכון אחרון','stats.updatedSub': 'המוצר האחרון שנשמר',
+        'products.title': 'המוצרים שלי','products.desc': 'חיפוש, סינון, עריכה, שכפול ומחיקה — עם סגנון כרטיס אחיד וגמיש.','products.add': 'הוסף מוצר','products.refresh': 'רענן','products.search': 'חפש לפי שם, תיאור או תג','products.empty': 'עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.',
         'filters.all': 'כל המוצרים','filters.active': 'רק פעילים','filters.inactive': 'מושבתים','filters.promo': 'עם מבצע','filters.regular': 'ללא מבצע','sort.newest': 'החדש ביותר','sort.name': 'לפי שם','sort.priceAsc': 'מחיר עולה','sort.priceDesc': 'מחיר יורד',
-        'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'קבל מזהה חשבון וקוד הטמעה מוכן. הקוד שואב אוטומטית את המוצרים והעיצוב מהמערכת שלך.','embed.copyId': 'העתק מזהה חשבון','embed.copyCode': 'העתק קוד הטמעה','embed.accountTitle': 'מזהה החשבון שלך','embed.accountHelp': 'זהו מזהה החשבון שמשויך לנתונים שלך בענן ומשמש גם להטמעה האישית.','embed.mountLabel': 'מזהה אלמנט באתר היעד','embed.columnsLabel': 'מספר עמודות בדסקטופ','embed.titleLabel': 'כותרת אזור המוצרים','embed.howto': 'לכל חשבון נוצר קוד הטמעה אישי שמושך אוטומטית את המוצרים, הסגנון והתמונות מהענן.','embed.note': 'אפשר לשלב את הקוד באתר, בדף נחיתה או במערכת צד שלישי שתומכת ב-HTML מותאם.','embed.optionsTitle': 'שתי אפשרויות חיבור ברורות','embed.optionManualTitle': '1. עיצוב ידני מתוך המערכת','embed.optionManualDesc': 'השתמשו ב-iframe המוכן כשהמערכת אחראית על עיצוב הכרטיסים, כפתור הסל והתוספות.','embed.optionThemeTitle': '2. עיצוב לפי הקוד של אתר הלקוח','embed.optionThemeDesc': 'האתר של הלקוח אחראי על ה-HTML/CSS שלו, והמערכת הזו מספקת רק את הנתונים המעודכנים.','embed.integrationTitle': 'איך מחברים באתר רגיל','embed.integrationStep1': 'העתיקו את מזהה החשבון או את קוד ה-iframe מהמסך הזה.','embed.integrationStep2': 'להטמעה מהירה: הדביקו את ה-iframe באזור HTML באתר.','embed.integrationStep3': 'להטמעת נתונים בלבד: העתיקו את אובייקט הנתונים והלבישו עליו את העיצוב הקיים של האתר.','embed.integrationStep4': 'בכל מוצר אפשר לבחור בין עיצוב מותאם במערכת לבין עיצוב שמגיע מהאתר.',
-        'designer.title': 'עיצוב האתר ותבניות מוצר','designer.desc': 'בחר תבנית ברירת מחדל, הצג/הסתר כפתור סל, שנה צבעים וצפה מיד בתוצאה שתופיע גם באתר המחובר.','designer.styleTitle': 'עיצוב גלובלי','designer.templateLabel': 'תבנית ברירת מחדל','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.palette': 'פלטת צבעים מהירה','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
-        'templates.title': '3 צורות מוצר מוכנות','templates.desc': 'אתה שולט איפה התמונה מופיעה, איפה הטקסט, והאם יוצג כפתור הוספה לסל. התבנית נשמרת ומשותפת גם לקוד ההטמעה.','template.classic': 'כרטיס קלאסי','template.split': 'כרטיס מפוצל','template.minimal': 'כרטיס מינימלי',
+        'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'קבל מזהה חשבון וקוד הטמעה מוכן. הקוד שואב אוטומטית את המוצרים והעיצוב מהמערכת שלך.','embed.copyId': 'העתק מזהה חשבון','embed.copyCode': 'העתק קוד הטמעה','embed.accountTitle': 'מזהה החשבון שלך','embed.accountHelp': 'זהו מזהה החשבון שמשויך לנתונים שלך בענן ומשמש גם להטמעה האישית.','embed.mountLabel': 'מזהה אלמנט באתר היעד','embed.columnsLabel': 'מספר עמודות בדסקטופ','embed.columnsHelp': 'הקוד נשאר קבוע, ורק ההגדרה שנשמרת במערכת מתעדכנת.','embed.titleLabel': 'כותרת אזור המוצרים','embed.titleHelp': 'גם כאן מזהה ההטמעה וה-iframe נשארים קבועים.','embed.howto': 'לכל חשבון נוצר קוד הטמעה אישי שמושך אוטומטית את המוצרים, הסגנון והתמונות מהענן.','embed.note': 'אפשר לשלב את הקוד באתר, בדף נחיתה או במערכת צד שלישי שתומכת ב-HTML מותאם.','embed.optionsTitle': 'שתי אפשרויות חיבור ברורות','embed.optionManualTitle': '1. עיצוב ידני מתוך המערכת','embed.optionManualDesc': 'השתמשו ב-iframe המוכן כשהמערכת אחראית על עיצוב הכרטיסים, כפתור הסל והתוספות.','embed.optionThemeTitle': '2. עיצוב לפי הקוד של אתר הלקוח','embed.optionThemeDesc': 'האתר של הלקוח אחראי על ה-HTML/CSS שלו, והמערכת הזו מספקת רק את הנתונים המעודכנים.','embed.integrationTitle': 'איך מחברים באתר רגיל','embed.integrationStep1': 'העתיקו את מזהה החשבון או את קוד ה-iframe מהמסך הזה.','embed.integrationStep2': 'להטמעה מהירה: הדביקו את ה-iframe באזור HTML באתר.','embed.integrationStep3': 'להטמעת נתונים בלבד: העתיקו את אובייקט הנתונים והלבישו עליו את העיצוב הקיים של האתר.','embed.integrationStep4': 'בכל מוצר אפשר לבחור בין עיצוב מותאם במערכת לבין עיצוב שמגיע מהאתר.',
+        'designer.title': 'עיצוב האתר ותצוגת הכרטיס','designer.desc': 'יש סגנון כרטיס אחיד אחד. אפשר לבחור אם להחיל את השינויים על כל הכרטיסיות או רק על כרטיסייה נבחרת, ולצפות מיד בתוצאה.','designer.styleTitle': 'עיצוב כרטיס','designer.applyModeLabel': 'איפה להחיל את העיצוב','designer.applyAll': 'על כל הכרטיסיות','designer.applySelected': 'רק על הכרטיסייה הנבחרת','designer.productSelectLabel': 'בחר כרטיסייה','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.palette': 'פלטת צבעים מהירה','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
+        'template.classic': 'כרטיס אחיד',
         'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה מופיעים כבאנר קטן עם דגלים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
         'ideas.title': 'מצב המערכת','ideas.1': '• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.','ideas.2': '• תמונות יישמרו ב-Storage ואם אין הרשאה הן יישמרו ישירות במסמך המוצר כדי לא לחסום שמירה.','ideas.3': '• קוד ההטמעה משתמש במזהה החשבון בלבד.','ideas.4': '• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.','ideas.5': '• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.','ideas.6': '• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.',
         'modal.addTitle': 'הוספת מוצר','modal.editTitle': 'עריכת מוצר','modal.desc': 'מלא את פרטי המוצר, הוסף תגיות והגדר קטגוריות בחירה ללקוח.','modal.cancel': 'ביטול','modal.save': 'שמור מוצר',
@@ -980,10 +975,10 @@
       document.documentElement.style.setProperty('--store-radius', `${Number(state.theme.borderRadius || 24)}px`);
       document.documentElement.style.setProperty('--store-image-height', `${Number(state.theme.imageHeight || 220)}px`);
       document.documentElement.style.setProperty('--store-align', state.theme.textAlign || 'right');
-      $('#productPreviewShell').dataset.template = state.theme.template;
-      $('#activeTemplateBadge').textContent = state.theme.template;
+      $('#productPreviewShell').dataset.template = 'classic';
+      $('#activeTemplateBadge').textContent = state.theme.applyMode === 'selected' ? 'כרטיס בודד' : 'כל הכרטיסיות';
       $('#cartToggleBadge').textContent = state.theme.showCart ? 'Cart ON' : 'Cart OFF';
-      $('#themeTemplate').value = state.theme.template;
+      $('#designerApplyMode').value = state.theme.applyMode || 'all';
       $('#toggleCartButton').classList.toggle('active', !!state.theme.showCart);
       $('#themePrimaryColor').value = normalizeHex(state.theme.primaryColor);
       $('#themeBackgroundColor').value = normalizeHex(state.theme.cardBackground);
@@ -997,16 +992,20 @@
       if ($('#mobileColumns')) $('#mobileColumns').value = String(state.theme.mobileColumns || 2);
       if ($('#themeMode')) $('#themeMode').value = state.theme.renderMode === 'site' ? 'site' : 'system';
       if ($('#platformNameInput')) $('#platformNameInput').value = state.theme.platformName || 'MerchPilot';
+      if ($('#embedColumns')) $('#embedColumns').value = String(state.theme.embedColumns || 3);
+      if ($('#embedTitle')) $('#embedTitle').value = state.theme.embedTitle || 'המוצרים שלנו';
       document.documentElement.style.setProperty('--desktop-columns', Number(state.theme.desktopColumns || 4));
       document.documentElement.style.setProperty('--mobile-columns', Number(state.theme.mobileColumns || 2));
       $('#themeCardPaddingValue').textContent = `${Number(state.theme.cardPadding || 18)}px`;
       $('#themeBorderRadiusValue').textContent = `${Number(state.theme.borderRadius || 24)}px`;
       $('#themeImageHeightValue').textContent = `${Number(state.theme.imageHeight || 220)}px`;
+      toggleDesignerScopeFields();
+      syncDesignerProductOptions();
       renderPreviewProduct();
       renderModalProductPreview();
       renderProducts();
       updateEmbedCode();
-      $('#statTemplate').textContent = state.theme.template;
+      $('#statTemplate').textContent = 'classic';
     }
 
     function normalizeHex(value) {
@@ -1077,7 +1076,7 @@
     }
 
     function getPreviewProduct() {
-      return state.products[0] || {
+      return getDesignerTargetProduct() || state.products[0] || {
         name: 'כותרת מוצר לדוגמה',
         price: 149,
         description: 'כאן הלקוח באתר שלך יראה באופן אוטומטי את המוצרים, התיאור והעיצוב שאתה מנהל מהמערכת.',
@@ -1085,7 +1084,7 @@
         colors: ['Blue', 'White'],
         imageUrl: '',
         font: 'Inter',
-        template: state.theme.template,
+        template: 'classic',
         showCart: 'default',
         accentColor: state.theme.primaryColor,
         cardBackground: state.theme.cardBackground
@@ -1095,7 +1094,7 @@
     function inheritThemeForItem(item = {}) {
       return item.useSiteTheme === 'custom' ? { ...state.theme, ...item } : { ...state.theme, accentColor: item.accentColor || state.theme.primaryColor, cardBackground: item.cardBackground || state.theme.cardBackground, font: item.font || 'Inter' };
     }
-    function productEffectiveTemplate(item) { return item.template || state.theme.template || 'classic'; }
+    function productEffectiveTemplate(item) { return 'classic'; }
     function productShowCart(item) { return item.showCart === 'show' ? true : item.showCart === 'hide' ? false : !!state.theme.showCart; }
     function productIsActive(item) { return item.active !== false && item.status !== 'inactive'; }
 
@@ -1142,6 +1141,30 @@
       return `<div class="store-card" style="background:${esc(theme.cardBackground)};color:${esc(theme.textColor)};padding:${Number(theme.cardPadding || 18)}px;border-radius:${Number(theme.borderRadius || 24)}px;">${content}</div>`;
     }
 
+
+    function syncDesignerProductOptions() {
+      const select = $('#designerProductSelect');
+      if (!select) return;
+      const current = state.theme.selectedProductId || '';
+      select.innerHTML = state.products.length
+        ? state.products.map((item) => `<option value="${esc(item.id)}">${esc(item.name || 'ללא שם')}</option>`).join('')
+        : '<option value="">אין עדיין כרטיסיות</option>';
+      if (state.products.some((item) => item.id === current)) select.value = current;
+      else if (state.products[0]) {
+        state.theme.selectedProductId = state.products[0].id;
+        select.value = state.products[0].id;
+      }
+    }
+
+    function toggleDesignerScopeFields() {
+      $('#designerProductField')?.classList.toggle('hidden', (state.theme.applyMode || 'all') !== 'selected');
+    }
+
+    function getDesignerTargetProduct() {
+      if ((state.theme.applyMode || 'all') !== 'selected') return null;
+      return state.products.find((item) => item.id === state.theme.selectedProductId) || state.products[0] || null;
+    }
+
     function buildModalPreviewProduct() {
       return {
         name: $('#productName').value.trim() || 'מוצר בתצוגה מקדימה',
@@ -1152,7 +1175,7 @@
         freeText: '',
         font: 'Inter',
         imageUrl: state.previewObjectUrl || state.currentImageUrl || '',
-        template: state.theme.template,
+        template: 'classic',
         showCart: 'default',
         accentColor: state.theme.primaryColor,
         cardBackground: state.theme.cardBackground,
@@ -1175,28 +1198,6 @@
       shell.innerHTML = `<div class="product-preview-shell" data-template="${esc(productEffectiveTemplate(item))}">${buildStoreCardHTML(item, true)}</div>`;
     }
 
-    function renderTemplateCards() {
-      const grid = $('#templateGrid');
-      grid.innerHTML = Object.entries(TEMPLATE_DEFS).map(([key, info]) => `
-        <article class="template-card">
-          <div class="template-preview ${key === 'split' ? 'template-split' : key === 'minimal' ? 'template-hero' : ''} ${key === 'minimal' ? '' : ''}">
-            ${key === 'classic' ? `<img alt="classic" src="data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='500' height='220'><rect width='100%' height='100%' fill='#dbeafe'/><circle cx='250' cy='110' r='52' fill='#60a5fa' opacity='.3'/></svg>`)}"><strong>${info.title}</strong><span class="template-meta">תמונה למעלה + טקסט + מחיר + כפתור</span><button class="store-btn" style="width:fit-content;background:#111827;color:#fff;">הוסף לסל</button>` : ''}
-            ${key === 'split' ? `<img alt="split" src="data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='220' height='220'><rect width='100%' height='100%' rx='24' fill='#e0e7ff'/></svg>`)}"><div><strong>${info.title}</strong><p class="template-meta">תמונה בצד אחד, תוכן בצד שני.</p><div class="store-price" style="font-size:1rem;color:#6366f1;">₪149</div><button class="store-btn" style="margin-top:8px;width:fit-content;background:#111827;color:#fff;">הוסף לסל</button></div>` : ''}
-            ${key === 'minimal' ? `<img alt="minimal" src="data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='500' height='220'><rect width='100%' height='100%' rx='24' fill='#f8fafc'/><rect x='130' y='40' width='240' height='140' rx='20' fill='#c7d2fe'/></svg>`)}"><strong>${info.title}</strong><span class="template-meta">מרכזי, נקי ואפשר בלי כפתור.</span>` : ''}
-          </div>
-          <div>
-            <strong>${info.title}</strong>
-            <div class="template-meta">${info.desc}</div>
-          </div>
-          <button class="template-select" data-template-select="${key}">בחר תבנית זו</button>
-        </article>
-      `).join('');
-      $$('[data-template-select]').forEach(btn => btn.addEventListener('click', () => {
-        state.theme.template = btn.dataset.templateSelect;
-        applyThemeToPreview();
-        saveThemeToFirestore().then(() => showToast('תבנית נשמרה'));
-      }));
-    }
 
     function renderSwatches() {
       const container = $('#swatches');
@@ -1205,7 +1206,7 @@
         const palette = QUICK_PALETTES[Number(btn.dataset.palette)];
         $$('.swatch-btn').forEach(x => x.classList.remove('active'));
         btn.classList.add('active');
-        state.theme = { ...state.theme, template: state.theme.template, showCart: state.theme.showCart, primaryColor: palette.primary, cardBackground: palette.card, textColor: palette.text, buttonColor: palette.button };
+        state.theme = { ...state.theme, showCart: state.theme.showCart, primaryColor: palette.primary, cardBackground: palette.card, textColor: palette.text, buttonColor: palette.button };
         applyThemeToPreview();
       }));
     }
@@ -1339,7 +1340,7 @@
           imagePath: upload.imagePath || '',
           imageStorageMode: upload.imageStorageMode || 'storage',
           addons: [],
-          template: state.editId ? (state.products.find((item) => item.id === state.editId)?.template || state.theme.template) : state.theme.template,
+          template: 'classic',
           showCart: state.editId ? (state.products.find((item) => item.id === state.editId)?.showCart || 'default') : 'default',
           accentColor: state.theme.primaryColor,
           cardBackground: state.theme.cardBackground,
@@ -1410,7 +1411,7 @@
     function renderStats() {
       $('#statProducts').textContent = state.products.filter(productIsActive).length;
       $('#statPromos').textContent = state.products.filter(p => productIsActive(p) && (p.addons || []).some(a => a.style === 'promo')).length;
-      $('#statTemplate').textContent = state.theme.template;
+      $('#statTemplate').textContent = 'classic';
       const latest = [...state.products].sort((a,b) => (b.updatedAt?.seconds||0)-(a.updatedAt?.seconds||0))[0];
       $('#statUpdated').textContent = latest?.name || '—';
     }
@@ -1438,6 +1439,7 @@
       state.unsubscribeProducts = onSnapshot(qy, (snapshot) => {
         state.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         renderProducts();
+        syncDesignerProductOptions();
         renderPreviewProduct();
         updateEmbedCode();
       }, (error) => {
@@ -1465,8 +1467,8 @@
       if (!state.currentUser) return;
       const samples = [
         { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מארז פרימיום', price: 129, description: 'תבנית קלאסית עם מבצע וצבעי מותג.', tags: ['חדש','פופולרי'], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', active:true, status:'active', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, description: 'מוצר עם תבנית מפוצלת לטאבלט ודסקטופ.', tags: ['קלאסי'], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'Best Seller', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'split', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', active:true, status:'active', useSiteTheme:'custom', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, description: 'כרטיס מינימלי ללא כפתור סל למי שרוצה רק קטלוג.', tags: ['minimal'], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'minimal', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', active:false, status:'inactive', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, description: 'מוצר עם כרטיס אחיד לטאבלט ודסקטופ.', tags: ['קלאסי'], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'Best Seller', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'classic', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', active:true, status:'active', useSiteTheme:'custom', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, description: 'כרטיס אחיד ללא כפתור סל למי שרוצה רק קטלוג.', tags: ['minimal'], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'classic', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', active:false, status:'inactive', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
       ];
       for (const sample of samples) await setDoc(productDoc(sample.productId), sample, { merge: true });
       showToast('נוספו מוצרי דוגמה');
@@ -1489,8 +1491,6 @@
       base.search = '';
       base.searchParams.set('embed', '1');
       base.searchParams.set('uid', state.currentUser?.uid || 'YOUR_ACCOUNT_UID');
-      base.searchParams.set('columns', $('#embedColumns')?.value || '3');
-      base.searchParams.set('title', $('#embedTitle')?.value || 'המוצרים שלנו');
       return base.toString();
     }
 
@@ -1540,7 +1540,6 @@
       $('#copyEmbedBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד החיבור הועתק'));
       $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד ההטמעה הועתק'));
       $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#accountUid').textContent, 'מזהה החשבון הועתק'));
-      $('#themeTemplate').addEventListener('change', () => { state.theme.template = $('#themeTemplate').value; applyThemeToPreview(); });
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
       ['themePrimaryColor','themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign'].forEach((id) => $("#"+id).addEventListener(id === 'themeTextAlign' ? 'change' : 'input', () => {
         state.theme.primaryColor = $('#themePrimaryColor').value;
@@ -1560,7 +1559,33 @@
         state.theme.platformName = $('#platformNameInput').value.trim() || 'MerchPilot';
         applyThemeToPreview();
       }));
-      $('#saveThemeBtn').addEventListener('click', async () => { await saveThemeToFirestore(); showToast('העיצוב נשמר'); });
+      $('#designerApplyMode').addEventListener('change', () => { state.theme.applyMode = $('#designerApplyMode').value; toggleDesignerScopeFields(); renderPreviewProduct(); });
+      $('#designerProductSelect').addEventListener('change', () => { state.theme.selectedProductId = $('#designerProductSelect').value; renderPreviewProduct(); });
+      $('#saveThemeBtn').addEventListener('click', async () => {
+        if (state.theme.applyMode === 'selected' && state.theme.selectedProductId) {
+          const item = state.products.find((product) => product.id === state.theme.selectedProductId);
+          if (item) {
+            await updateDoc(productDoc(item.id), {
+              useSiteTheme: 'custom',
+              template: 'classic',
+              showCart: state.theme.showCart ? 'show' : 'hide',
+              accentColor: state.theme.primaryColor,
+              cardBackground: state.theme.cardBackground,
+              textColor: state.theme.textColor,
+              buttonColor: state.theme.buttonColor,
+              cardPadding: state.theme.cardPadding,
+              borderRadius: state.theme.borderRadius,
+              imageHeight: state.theme.imageHeight,
+              textAlign: state.theme.textAlign,
+              updatedAt: serverTimestamp()
+            });
+            showToast('העיצוב נשמר לכרטיסייה שנבחרה');
+            return;
+          }
+        }
+        await saveThemeToFirestore();
+        showToast('העיצוב נשמר');
+      });
       $('#resetThemeBtn').addEventListener('click', async () => { state.theme = { ...DEFAULT_THEME }; applyThemeToPreview(); await saveThemeToFirestore(); showToast('העיצוב אופס'); });
       $('#productImage').addEventListener('change', (e) => {
         const file = e.target.files?.[0];
@@ -1579,7 +1604,11 @@
       $('#productDesc').addEventListener('input', renderModalProductPreview);
       $('#addProductTagBtn').addEventListener('click', addTagFromInput);
       $('#productTagInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); } });
-      ['embedColumns','embedTitle'].forEach((id) => $('#'+id).addEventListener('input', updateEmbedCode));
+      ['embedColumns','embedTitle'].forEach((id) => $('#'+id).addEventListener('input', () => {
+        state.theme.embedColumns = Number($('#embedColumns').value || 3);
+        state.theme.embedTitle = $('#embedTitle').value.trim() || 'המוצרים שלנו';
+        updateEmbedCode();
+      }));
       $$('.nav-btn[data-view]').forEach(btn => btn.addEventListener('click', () => goToView(btn.dataset.view)));
       ['toggleLang','togglePromos','toggleMobile','toggleGoogleAuthInfo'].forEach((id) => $('#'+id).addEventListener('click', (e) => e.currentTarget.classList.toggle('active')));
     }
@@ -1587,8 +1616,6 @@
     async function renderEmbedMode(uid) {
       const params = new URLSearchParams(window.location.search);
       const view = params.get('view') || 'cards';
-      const title = params.get('title') || 'המוצרים שלנו';
-      const columns = Math.max(1, Number(params.get('columns') || 3));
       const themeSnap = await getDoc(themeDocRef(uid));
       const theme = themeSnap.exists() ? { ...DEFAULT_THEME, ...themeSnap.data() } : { ...DEFAULT_THEME };
       state.theme = { ...theme };
@@ -1609,7 +1636,7 @@
           .map((d) => ({ id: d.id, ...d.data() }))
           .filter(productIsActive)
           .sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
-        host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(title)}</h2><div class="embed-runtime-grid" style="--embed-columns:${columns};">${items.map((item) => buildStoreCardHTML({ ...theme, ...item }, false)).join('')}</div></div>`;
+        host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'המוצרים שלנו')}</h2><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.embedColumns || 3))};">${items.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false)).join('')}</div></div>`;
       });
       document.body.addEventListener('click', (event) => {
         const actionEl = event.target.closest('[data-action]');
@@ -1662,7 +1689,6 @@
       renderEmbedMode(state.embedUid);
     } else {
       attachEvents();
-      renderTemplateCards();
       renderSwatches();
       applyThemeToPreview();
       renderPreviewProduct();
