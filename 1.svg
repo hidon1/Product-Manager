@@ -56,7 +56,6 @@
     const charW = 72;
 
     let i = 0;
-    let del = false;
 
     function render() {
       const shown = full.slice(0, i);
@@ -67,31 +66,20 @@
       line.setAttribute("width", w + 5);
     }
 
-    function loop() {
+    function typeFrame() {
       render();
 
-      if (!del && i < full.length) {
+      if (i < full.length) {
         i++;
-        setTimeout(loop, 80);
+        setTimeout(typeFrame, 80);
         return;
       }
 
-      if (!del && i === full.length) {
-        del = true;
-        setTimeout(loop, 1200);
-        return;
-      }
-
-      if (del && i > 0) {
-        i--;
-        setTimeout(loop, 40);
-        return;
-      }
-
-      if (del && i === 0) {
-        del = false;
-        setTimeout(loop, 300);
-      }
+      setTimeout(() => {
+        i = 0;
+        render();
+        setTimeout(typeFrame, 80);
+      }, 10000);
     }
 
     const blink = () => {
@@ -103,6 +91,6 @@
     };
 
     blink();
-    loop();
+    typeFrame();
   ]]></script>
 </svg>
