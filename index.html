@@ -1707,7 +1707,7 @@
     async function removeProduct(id) {
       if (!confirm('למחוק את המוצר?')) return;
       await deleteDoc(productDoc(id));
-      try { await deleteDoc(publicProductDoc(id)); } catch(e) { /* ignore */ }
+      try { await deleteDoc(publicProductDoc(id)); } catch(e) { console.warn('publicProduct cleanup:', e); }
       showToast('המוצר נמחק');
     }
     async function toggleProductActive(item) {
@@ -1909,8 +1909,8 @@
         animation: {
           enabled: !!(item.animationStyle && item.animationStyle !== 'none'),
           type: item.animationStyle || 'none',
-          duration: 0.8,
-          delay: 0.1
+          duration: item.animationDuration || 0.8,
+          delay: item.animationDelay || 0.1
         },
         theme: {
           cardStyle: item.buttonStyle || 'rounded',
@@ -2130,7 +2130,6 @@
       try {
         const snap = await getDoc(publicProductDoc(productId));
         if (!snap.exists()) {
-          document.contentType = 'application/json';
           pre.textContent = JSON.stringify({ error: 'Product not found or not published', productId }, null, 2);
           return;
         }
