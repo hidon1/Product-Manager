@@ -173,13 +173,23 @@
     }
 
     .main { min-width:0; padding: 24px; }
-    .mobile-topbar { display:none; margin-bottom: 14px; }
-    .mobile-menu-btn {
-      min-width: 46px;
-      min-height: 46px;
+    .mobile-topbar {
+      display:none;
+      margin-bottom: 14px;
       padding: 10px 12px;
-      font-size: 1rem;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      background: rgba(255,255,255,.88);
+      backdrop-filter: blur(16px);
+      box-shadow: 0 14px 36px rgba(37,99,235,.10);
+    }
+    .mobile-menu-btn {
+      min-width: 42px;
+      min-height: 42px;
+      padding: 8px 10px;
+      font-size: .95rem;
       box-shadow: 0 12px 30px rgba(37,99,235,.12);
+      flex: 0 0 auto;
     }
     .topbar, .section-head, .modal-head { display:flex; align-items:center; justify-content:space-between; gap: 14px; flex-wrap: wrap; }
     .hero {
@@ -467,16 +477,24 @@
       .app-shell { grid-template-columns: 1fr; }
       .grid-products, .embed-runtime-grid { grid-template-columns: repeat(var(--mobile-columns, 2), minmax(0, 1fr)); }
       .sidebar {
-        position: fixed; top: 0; right: 0; width: min(94vw, 360px); height:100vh; z-index: 80;
+        position: fixed; top: 0; right: 0; width: min(92vw, 340px); height:100vh; z-index: 80;
         transform: translateX(100%); transition:.24s ease;
-        padding: 18px 14px 24px;
+        padding: 16px 12px 22px;
       }
       .sidebar.open { transform: translateX(0); }
       .sidebar-close { display:inline-flex; }
-      .side-title { font-size: .72rem; margin-bottom: 8px; }
-      .nav-btn { padding: 12px; border-radius: 14px; font-size: .92rem; }
+      .side-title { font-size: .7rem; margin-bottom: 8px; }
+      .nav-btn { padding: 10px 11px; border-radius: 13px; font-size: .88rem; margin-bottom: 6px; }
       .nav-btn .left { gap: 8px; }
       .mobile-topbar { display:flex; align-items:center; justify-content:space-between; gap: 10px; }
+      .mobile-topbar .user-pill { min-width: 0; flex: 1 1 auto; justify-content: flex-start; }
+      .mobile-topbar #mobileUserName { font-size: .88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+      .sidebar .brand { padding: 10px; margin: 10px 0 16px; border-radius: 18px; }
+      .sidebar .logo-wrap, .sidebar .logo-mark { width: 56px; height: 56px; }
+      .sidebar .brand h1 { font-size: 1.15rem; }
+      .sidebar .brand p, .sidebar .mini { font-size: .82rem; }
+      .sidebar-user { gap: 10px; margin-top: 16px; padding-top: 16px; }
+      .sidebar-user .btn { width: 100%; }
       .main { padding: 16px; }
       .toolbar, .toolbar.compact, .settings-grid, .modal-grid, .addon-row, .template-grid, .variant-head, .variant-option-row { grid-template-columns: 1fr; }
       .topbar { flex-direction: column; align-items: stretch; }
@@ -505,9 +523,9 @@
       .auth-showcase, .auth-card, .panel, .modal-card { padding: 16px; border-radius: 22px; }
       .feature-list, .stats { grid-template-columns: 1fr; }
       .card-actions { grid-template-columns: 1fr; }
-      .mobile-menu-btn { min-width: 42px; min-height: 42px; padding: 8px 10px; }
-      .user-pill { padding: 7px 10px; }
-      .avatar { width: 34px; height: 34px; }
+      .mobile-menu-btn { min-width: 40px; min-height: 40px; padding: 7px 9px; font-size: .9rem; }
+      .user-pill { padding: 6px 9px; gap: 8px; }
+      .avatar { width: 32px; height: 32px; }
       .section-head h3, .topbar h2 { font-size: 1.1rem; }
       .section-head p { font-size: .84rem; }
       .toolbar { gap: 10px; }
@@ -596,8 +614,6 @@
           <button class="nav-btn active" data-view="products"><span class="left"><span>📦</span><span data-i18n="nav.products">ניהול מוצרים</span></span></button>
           <button class="nav-btn" data-view="embed"><span class="left"><span>🔗</span><span data-i18n="nav.embed">חיבור לאתר</span></span></button>
           <button class="nav-btn" data-view="designer"><span class="left"><span>🧩</span><span data-i18n="nav.designer">עיצוב כרטיסיות</span></span></button>
-          <button class="nav-btn" data-view="settings"><span class="left"><span>⚙️</span><span data-i18n="nav.settings">הגדרות</span></span></button>
-          <button class="nav-btn" data-view="product-embed"><span class="left"><span>📡</span><span>הטמעת מוצר</span></span></button>
         </div>
 
         <div class="side-group">
@@ -1953,11 +1969,13 @@
         $('#sidebar').classList.remove('open');
         $('#sidebarBackdrop')?.classList.remove('open');
       };
-      const toggleSidebar = () => {
+      const toggleSidebar = (event) => {
+        event?.stopPropagation();
         const isOpen = $('#sidebar').classList.toggle('open');
         $('#sidebarBackdrop')?.classList.toggle('open', isOpen);
       };
       $('#mobileMenuBtn').addEventListener('click', toggleSidebar);
+      $('#sidebar').addEventListener('click', (event) => event.stopPropagation());
       $('#closeSidebarBtn').addEventListener('click', closeSidebar);
       $('#sidebarBackdrop')?.addEventListener('click', closeSidebar);
       $('.main').addEventListener('click', closeSidebar);
