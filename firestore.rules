@@ -1,0 +1,69 @@
+// ==========================================================
+// Firestore Security Rules — Product Manager (מוצרלה)
+// ==========================================================
+//
+// כללי אבטחה של Firestore עבור מערכת ניהול מוצרים.
+//
+// שלבים להעתקה ל-Firebase Console:
+// 1. פתח את Firebase Console: https://console.firebase.google.com
+// 2. בחר את הפרויקט: product-manager-a084a
+// 3. לך אל Firestore Database -> Rules
+// 4. העתק את התוכן שמתחת לשורה הזו והדבק בעורך
+// 5. לחץ "Publish"
+//
+// ==========================================================
+
+rules_version = '2';
+
+service cloud.firestore {
+  match /databases/{database}/documents {
+
+    // --------------------------------------------------
+    // Private User Data
+    // קריאה וכתיבה רק לבעל החשבון המחובר
+    // --------------------------------------------------
+    match /users/{uid} {
+      allow read, write: if request.auth != null && request.auth.uid == uid;
+
+      // Private Products — רק הבעלים יכול לקרוא ולכתוב
+      match /products/{productId} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+
+      // Storefront Settings — רק הבעלים
+      match /storefront/{document=**} {
+        allow read, write: if request.auth != null && request.auth.uid == uid;
+      }
+    }
+
+    // --------------------------------------------------
+    // Public Products
+    // קריאה ציבורית בלבד — הכתיבה מתבצעת רק מצד הקליינט
+    // של הבעלים דרך הלוגיקה הפנימית (syncPublicProduct)
+    //
+    // הערה חשובה:
+    // כדי לאפשר לבעל המוצר לכתוב ל-publicProducts,
+    // אנחנו מאפשרים write רק אם המשתמש המחובר הוא
+    // הבעלים של המוצר (ownerId == request.auth.uid)
+    // --------------------------------------------------
+    match /publicProducts/{productId} {
+      // קריאה ציבורית — כל אחד יכול לקרוא מוצרים ציבוריים
+      allow read: if true;
+
+      // כתיבה — רק הבעלים של המוצר יכול ליצור/לעדכן/למחוק
+      allow create: if request.auth != null
+                    && request.resource.data.ownerId == request.auth.uid;
+      allow update: if request.auth != null
+                    && resource.data.ownerId == request.auth.uid;
+      allow delete: if request.auth != null
+                    && resource.data.ownerId == request.auth.uid;
+    }
+
+    // --------------------------------------------------
+    // Default — חסום כל דבר שלא מוגדר מעלה
+    // --------------------------------------------------
+    match /{document=**} {
+      allow read, write: if false;
+    }
+  }
+}

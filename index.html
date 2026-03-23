@@ -340,6 +340,14 @@
     .store-card[data-animation="glow"] { animation: sharpGlow 2.8s cubic-bezier(.4,0,.2,1) infinite; }
     .store-card[data-animation="shimmer"] { background-size: 220% 220% !important; animation: shimmerShift 3.2s linear infinite, sharpGlow 3.4s ease-in-out infinite; }
     .store-card[data-animation="lift"] { animation: sharpLift .72s cubic-bezier(.2,.9,.2,1) both; }
+    .store-card[data-animation="fade"] { animation: animFade .6s ease both; }
+    .store-card[data-animation="fade-up"] { animation: animFadeUp .6s ease both; }
+    .store-card[data-animation="zoom-in"] { animation: animZoomIn .5s ease both; }
+    .store-card[data-animation="slide-up"] { animation: animSlideUp .55s ease both; }
+    @keyframes animFade { from { opacity: 0; } to { opacity: 1; } }
+    @keyframes animFadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+    @keyframes animZoomIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
+    @keyframes animSlideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 760px) { .field-row { grid-template-columns: 1fr; } }
 
     .swatches { display:flex; gap:8px; flex-wrap:wrap; }
@@ -589,6 +597,7 @@
           <button class="nav-btn" data-view="embed"><span class="left"><span>🔗</span><span data-i18n="nav.embed">חיבור לאתר</span></span></button>
           <button class="nav-btn" data-view="designer"><span class="left"><span>🧩</span><span data-i18n="nav.designer">עיצוב כרטיסיות</span></span></button>
           <button class="nav-btn" data-view="settings"><span class="left"><span>⚙️</span><span data-i18n="nav.settings">הגדרות</span></span></button>
+          <button class="nav-btn" data-view="product-embed"><span class="left"><span>📡</span><span>הטמעת מוצר</span></span></button>
         </div>
 
         <div class="side-group">
@@ -793,6 +802,92 @@
             </div>
           </div>
         </section>
+
+        <section id="view-product-embed" class="hidden">
+          <div class="panel">
+            <div class="section-head">
+              <div>
+                <h3>הטמעת מוצר באתר</h3>
+                <p>בחר מוצר מפורסם והטמע אותו באתר חיצוני דרך iFrame או API.</p>
+              </div>
+            </div>
+            <div id="productEmbedSelector" style="margin-bottom:16px;">
+              <div class="field">
+                <label for="embedProductSelect">בחר מוצר להטמעה</label>
+                <select class="select" id="embedProductSelect"></select>
+              </div>
+            </div>
+            <div class="tabs" style="max-width:400px;margin-bottom:18px;">
+              <button class="tab active" id="embedTabIframe">iFrame — עיצוב מוכן</button>
+              <button class="tab" id="embedTabApi">API — עיצוב עצמאי</button>
+            </div>
+
+            <div id="embedPanelIframe">
+              <div class="embed-card" style="margin-bottom:16px;">
+                <h4>🖼️ הטמעת iFrame</h4>
+                <p class="mini">הדביקו את שורת הקוד הזו באתר שלכם והמוצר יוצג עם עיצוב מלא, אנימציות ורספונסיביות. כל שינוי במוצר מתעדכן אוטומטית באתר הלקוח.</p>
+                <div class="field" style="margin:12px 0;">
+                  <label for="iframeHeightInput">גובה ה-iframe (פיקסלים)</label>
+                  <input class="input" id="iframeHeightInput" type="number" value="520" min="300" max="1200" step="10" />
+                </div>
+                <div class="field" style="margin:12px 0;">
+                  <label for="iframeThemeSelect">ערכת נושא</label>
+                  <select class="select" id="iframeThemeSelect">
+                    <option value="">ברירת מחדל</option>
+                    <option value="dark">כהה (dark)</option>
+                    <option value="light">בהיר (light)</option>
+                  </select>
+                </div>
+                <pre class="code-block" id="singleEmbedIframeCode" style="margin:12px 0;"></pre>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;">
+                  <button class="btn btn-primary" id="copySingleIframeBtn">📋 העתק קוד iframe</button>
+                  <button class="btn btn-outline" id="openSingleIframeBtn">🔗 פתח בחלון חדש</button>
+                </div>
+              </div>
+              <div class="embed-card">
+                <h4>👁️ תצוגה מקדימה</h4>
+                <div id="singleIframePreview" style="border:1px solid var(--line);border-radius:18px;overflow:hidden;min-height:300px;background:#fff;"></div>
+              </div>
+            </div>
+
+            <div id="embedPanelApi" class="hidden">
+              <div class="embed-card" style="margin-bottom:16px;">
+                <h4>🔌 API Endpoint</h4>
+                <p class="mini">השתמש ב-URL הבא כדי לקבל JSON נקי של המוצר. התגובה כוללת רק נתונים ציבוריים.</p>
+                <pre class="code-block" id="singleApiUrl" style="margin:12px 0;"></pre>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                  <button class="btn btn-primary" id="copySingleApiUrlBtn">📋 העתק URL</button>
+                  <button class="btn btn-outline" id="openSingleApiBtn">🔗 פתח בחלון חדש</button>
+                </div>
+              </div>
+              <div class="embed-card" style="margin-bottom:16px;">
+                <h4>📦 JSON לדוגמה</h4>
+                <pre class="code-block" id="singleApiJsonExample" style="max-height:400px;overflow:auto;"></pre>
+                <button class="btn btn-outline" id="copySingleApiJsonBtn" style="margin-top:10px;">📋 העתק JSON</button>
+              </div>
+              <div class="embed-card">
+                <h4>📖 פירוט שדות API</h4>
+                <div class="field-table" id="apiFieldsDocBlock">
+                  <div class="field-table-head"><span>שדה</span><span>סוג</span><span>תיאור</span></div>
+                  <div class="field-row"><code>id</code><span class="type">string</span><span>מזהה מוצר</span></div>
+                  <div class="field-row"><code>ownerId</code><span class="type">string</span><span>מזהה בעל החשבון</span></div>
+                  <div class="field-row"><code>name</code><span class="type">string</span><span>שם מוצר</span></div>
+                  <div class="field-row"><code>price</code><span class="type">number</span><span>מחיר</span></div>
+                  <div class="field-row"><code>description</code><span class="type">string</span><span>תיאור</span></div>
+                  <div class="field-row"><code>imageUrl</code><span class="type">string</span><span>תמונה</span></div>
+                  <div class="field-row"><code>tags</code><span class="type">array</span><span>תגיות</span></div>
+                  <div class="field-row"><code>colors</code><span class="type">array</span><span>צבעים</span></div>
+                  <div class="field-row"><code>addons</code><span class="type">array</span><span>תוספות</span></div>
+                  <div class="field-row"><code>upgrades</code><span class="type">array</span><span>שדרוגים</span></div>
+                  <div class="field-row"><code>animation</code><span class="type">object</span><span>הגדרות אנימציה (enabled, type, duration, delay)</span></div>
+                  <div class="field-row"><code>theme</code><span class="type">object</span><span>הגדרות עיצוב (cardStyle, primaryColor)</span></div>
+                  <div class="field-row"><code>published</code><span class="type">boolean</span><span>האם ציבורי</span></div>
+                  <div class="field-row"><code>updatedAt</code><span class="type">timestamp</span><span>עדכון אחרון</span></div>
+                </div>
+              </div>
+            </div>
+          </div>
+        </section>
       </main>
     </div>
   </section>
@@ -813,7 +908,9 @@
           <div class="field"><label for="productAccentColor">צבע ראשי למוצר</label><input class="input" id="productAccentColor" type="color" value="#4f46e5" /></div>
           <div class="field"><label for="productBodyColor">צבע גוף הכרטיס</label><input class="input" id="productBodyColor" type="color" value="#ffffff" /></div>
                     <div class="field"><label for="productButtonStyle">צורת כפתור הוסף לסל</label><select class="select" id="productButtonStyle"><option value="rounded">עגול רך</option><option value="pill">גלולה</option><option value="square">מרובע</option><option value="soft">רך ומודגש</option></select></div>
-                    <div class="field"><label for="productAnimation">אנימציית מוצר</label><select class="select" id="productAnimation"><option value="none">ללא אנימציה</option><option value="float">Float</option><option value="glow">Glow</option><option value="shimmer">Shimmer</option><option value="lift">Lift-in</option></select><div class="animation-select-note">האנימציה נשמרת למוצר ומופיעה גם בתצוגה המקדימה וגם בהטמעה.</div></div>
+                    <div class="field"><label for="productAnimation">אנימציית מוצר</label><select class="select" id="productAnimation"><option value="none">ללא אנימציה</option><option value="fade">Fade</option><option value="fade-up">Fade Up</option><option value="zoom-in">Zoom In</option><option value="slide-up">Slide Up</option><option value="float">Float</option><option value="glow">Glow</option><option value="shimmer">Shimmer</option><option value="lift">Lift-in</option></select><div class="animation-select-note">האנימציה נשמרת למוצר ומופיעה גם בתצוגה המקדימה וגם בהטמעה.</div></div>
+          <div class="field"><label for="productAnimDuration">מהירות אנימציה (שניות)</label><input class="input" id="productAnimDuration" type="number" min="0.1" max="3" step="0.1" value="0.8" /></div>
+          <div class="field"><label for="productAnimDelay">השהיית אנימציה (שניות)</label><input class="input" id="productAnimDelay" type="number" min="0" max="2" step="0.1" value="0.1" /></div>
           <div class="field full"><label data-i18n="form.sitePreview">איך המוצר יראה באתר</label><div class="preview-stage modal-preview-shell" id="modalProductPreview"></div></div>
         </div>
 
@@ -863,7 +960,8 @@
       updateDoc,
       deleteDoc,
       doc,
-      getDoc
+      getDoc,
+      getDocs
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
     import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
@@ -1063,6 +1161,55 @@
     function themeDocRef(uid = state.currentUser?.uid) { return doc(db, 'users', uid, 'storefront', 'settings'); }
     function productsCollection(uid = state.currentUser?.uid) { return collection(db, 'users', uid, 'products'); }
     function productDoc(id, uid = state.currentUser?.uid) { return doc(db, 'users', uid, 'products', id); }
+
+    // --- Public Products helpers ---
+    function publicProductDoc(id) { return doc(db, 'publicProducts', id); }
+
+    function buildPublicProductPayload(item) {
+      return {
+        id: item.id || item.productId,
+        ownerId: item.uid || '',
+        name: item.name || '',
+        price: Number(item.price || 0),
+        description: item.description || '',
+        imageUrl: item.imageUrl || '',
+        tags: (item.tags || []).map(t => typeof t === 'string' ? { label: t } : { label: t?.label || '', color: t?.color || '', shape: t?.shape || 'pill' }),
+        colors: item.colors || [],
+        addons: (item.addons || []).map(a => ({ type: a?.style || a?.type || 'text', label: a?.value || a?.label || '' })),
+        upgrades: (item.variants || []).map(v => ({ name: v?.name || '', options: (v?.options || []).map(o => o?.label || o?.value || '') })),
+        animation: {
+          enabled: !!(item.animationStyle && item.animationStyle !== 'none'),
+          type: item.animationStyle || 'none',
+          duration: Number(item.animationDuration || 0.8),
+          delay: Number(item.animationDelay || 0.1)
+        },
+        theme: {
+          cardStyle: item.buttonStyle || 'rounded',
+          primaryColor: item.accentColor || '#60a5fa',
+          cardBackground: item.cardBackground || '#ffffff',
+          textColor: item.textColor || '',
+          font: item.font || 'Inter'
+        },
+        published: true,
+        updatedAt: serverTimestamp()
+      };
+    }
+
+    async function syncPublicProduct(item) {
+      if (!item || !item.id) return;
+      const isPublished = item.published === true;
+      const isDisabled = !productIsActive(item);
+      try {
+        if (isPublished && !isDisabled) {
+          await setDoc(publicProductDoc(item.id), buildPublicProductPayload(item), { merge: true });
+        } else {
+          const snap = await getDoc(publicProductDoc(item.id));
+          if (snap.exists()) await deleteDoc(publicProductDoc(item.id));
+        }
+      } catch (err) {
+        console.error('syncPublicProduct error:', err);
+      }
+    }
 
     async function saveThemeToFirestore(partialTheme = state.theme) {
       if (!state.currentUser) return;
@@ -1364,6 +1511,8 @@
         $('#productBodyColor').value = normalizeHex(item.cardBackground || state.theme.cardBackground);
         $('#productButtonStyle').value = item.buttonStyle || 'rounded';
         $('#productAnimation').value = item.animationStyle || 'none';
+        if ($('#productAnimDuration')) $('#productAnimDuration').value = item.animationDuration || 0.8;
+        if ($('#productAnimDelay')) $('#productAnimDelay').value = item.animationDelay || 0.1;
         (item.variants || []).forEach(addVariantGroup);
       } else {
         state.modalTags = [];
@@ -1450,6 +1599,7 @@
         $('#saveProductBtn').disabled = true;
         const upload = await uploadProductImage($('#productImage').files[0]);
         const productId = state.editId || upload.productId || crypto.randomUUID();
+        const existingProduct = state.editId ? state.products.find((item) => item.id === state.editId) : null;
         const payload = {
           uid: state.currentUser.uid,
           productId,
@@ -1460,21 +1610,25 @@
           tags: state.modalTags,
           tagStyles: Object.fromEntries(state.modalTags.map((tag) => [tag.label, { color: tag.color, shape: tag.shape }])),
           colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
-          freeText: state.editId ? (state.products.find((item) => item.id === state.editId)?.freeText || '') : '',
-          font: state.editId ? (state.products.find((item) => item.id === state.editId)?.font || 'Inter') : 'Inter',
+          freeText: existingProduct ? (existingProduct.freeText || '') : '',
+          font: existingProduct ? (existingProduct.font || 'Inter') : 'Inter',
           imageUrl: upload.imageUrl || state.currentImageUrl || '',
           imagePath: upload.imagePath || '',
           imageStorageMode: upload.imageStorageMode || 'storage',
           addons: [],
           template: 'classic',
-          showCart: state.editId ? (state.products.find((item) => item.id === state.editId)?.showCart || 'default') : 'default',
+          showCart: existingProduct ? (existingProduct.showCart || 'default') : 'default',
           accentColor: $('#productAccentColor').value || state.theme.primaryColor,
           cardBackground: $('#productBodyColor').value || state.theme.cardBackground,
             buttonStyle: $('#productButtonStyle').value || 'rounded',
             animationStyle: $('#productAnimation').value || 'none',
-          active: state.editId ? (state.products.find((item) => item.id === state.editId)?.active !== false) : true,
-          status: state.editId ? (state.products.find((item) => item.id === state.editId)?.status || 'active') : 'active',
-          useSiteTheme: state.editId ? (state.products.find((item) => item.id === state.editId)?.useSiteTheme || 'inherit') : 'inherit',
+            animationDuration: Number($('#productAnimDuration')?.value || 0.8),
+            animationDelay: Number($('#productAnimDelay')?.value || 0.1),
+          active: existingProduct ? (existingProduct.active !== false) : true,
+          status: existingProduct ? (existingProduct.status || 'active') : 'active',
+          published: existingProduct ? (existingProduct.published !== false) : false,
+          disabled: existingProduct ? (existingProduct.disabled === true) : false,
+          useSiteTheme: existingProduct ? (existingProduct.useSiteTheme || 'inherit') : 'inherit',
           variants: collectVariants(),
           updatedAt: serverTimestamp(),
           createdAt: serverTimestamp()
@@ -1483,9 +1637,11 @@
           delete payload.createdAt;
           await updateDoc(productDoc(state.editId), payload);
           showToast('המוצר עודכן');
+          await syncPublicProduct({ ...payload, id: state.editId });
         } else {
           await setDoc(productDoc(productId), payload, { merge: true });
           showToast('המוצר נשמר');
+          await syncPublicProduct({ ...payload, id: productId });
         }
         closeModal();
       } catch (err) {
@@ -1528,11 +1684,18 @@
             <div class="product-desc">${esc(item.description || 'ללא תיאור')}</div>
             <div class="chip-row">${chips.map(ch => `<span class="chip">${esc(ch)}</span>`).join('')}</div>
             <div class="inline-field"><label>בחירת לקוח</label><div class="addon-inline-list">${(item.variants || []).flatMap(group => (group.options || []).slice(0, 4).map((option) => `<button class="addon-inline-pill" type="button">${esc(group.name)}: ${esc(option.label)}</button>`)).join('') || '<span class="mini">אין קטגוריות בחירה למוצר הזה.</span>'}</div></div>
+            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
+              <span class="status-pill ${item.published ? 'active' : 'inactive'}" style="font-size:.78rem;"><span class="status-dot"></span>${item.published ? 'מפורסם' : 'טיוטה'}</span>
+              <button class="btn btn-outline publish-btn" style="font-size:.82rem;padding:6px 10px;">${item.published ? '⬇ בטל פרסום' : '⬆ פרסם'}</button>
+              <button class="btn btn-outline embed-product-btn" style="font-size:.82rem;padding:6px 10px;">🔗 הטמעה</button>
+            </div>
             <div class="card-actions"><button class="btn btn-primary manage-btn">עריכה</button><button class="btn btn-success toggle-btn">${productIsActive(item) ? 'השבתה' : 'הפעלה'}</button><button class="btn btn-danger delete-btn">מחיקה</button></div>
           </div>`;
         card.querySelector('.manage-btn').addEventListener('click', () => openModal(item));
         card.querySelector('.toggle-btn').addEventListener('click', () => toggleProductActive(item));
         card.querySelector('.delete-btn').addEventListener('click', () => removeProduct(item.id));
+        card.querySelector('.publish-btn').addEventListener('click', () => toggleProductPublished(item));
+        card.querySelector('.embed-product-btn').addEventListener('click', () => { goToView('product-embed'); showProductEmbedPanel(item); });
         container.appendChild(card);
       });
       renderStats();
@@ -1545,11 +1708,20 @@
     async function removeProduct(id) {
       if (!confirm('למחוק את המוצר?')) return;
       await deleteDoc(productDoc(id));
+      try { await deleteDoc(publicProductDoc(id)); } catch(e) { console.warn('Failed to delete public product (may not exist):', e); }
       showToast('המוצר נמחק');
     }
     async function toggleProductActive(item) {
-      await updateDoc(productDoc(item.id), { active: !productIsActive(item), status: productIsActive(item) ? 'inactive' : 'active', updatedAt: serverTimestamp() });
-      showToast(productIsActive(item) ? 'המוצר הושבת' : 'המוצר הופעל');
+      const newActive = !productIsActive(item);
+      await updateDoc(productDoc(item.id), { active: newActive, status: newActive ? 'active' : 'inactive', updatedAt: serverTimestamp() });
+      await syncPublicProduct({ ...item, active: newActive, status: newActive ? 'active' : 'inactive' });
+      showToast(newActive ? 'המוצר הופעל' : 'המוצר הושבת');
+    }
+    async function toggleProductPublished(item) {
+      const newPublished = !(item.published === true);
+      await updateDoc(productDoc(item.id), { published: newPublished, updatedAt: serverTimestamp() });
+      await syncPublicProduct({ ...item, published: newPublished });
+      showToast(newPublished ? 'המוצר פורסם לאתרים חיצוניים' : 'המוצר הוסר מאתרים חיצוניים');
     }
     async function cloneProduct(item) {
       const cloneId = crypto.randomUUID();
@@ -1677,6 +1849,89 @@
       $('#sidebarBackdrop')?.classList.remove('open');
     }
 
+    function showProductEmbedPanel(item) {
+      if (!item) return;
+      const select = $('#embedProductSelect');
+      if (select) select.value = item.id;
+      updateSingleProductEmbed(item);
+    }
+
+    function getSelectedEmbedProduct() {
+      const select = $('#embedProductSelect');
+      if (!select) return null;
+      return state.products.find(p => p.id === select.value) || null;
+    }
+
+    function updateSingleProductEmbed(item) {
+      if (!item) {
+        item = getSelectedEmbedProduct();
+        if (!item) return;
+      }
+      const productId = item.id || item.productId;
+      const base = new URL(window.location.href);
+      base.search = '';
+      const height = Number($('#iframeHeightInput')?.value || 520);
+      const theme = $('#iframeThemeSelect')?.value || '';
+
+      // iFrame URL
+      const iframeUrl = new URL(base);
+      iframeUrl.searchParams.set('embed', '1');
+      iframeUrl.searchParams.set('productId', productId);
+      if (theme) iframeUrl.searchParams.set('theme', theme);
+      const iframeSrc = iframeUrl.toString();
+      const iframeCode = `<iframe src="${iframeSrc}" title="${esc(item.name || 'Product')}" style="width:100%;max-width:100%;height:${height}px;border:0;display:block;" loading="lazy"></iframe>`;
+
+      $('#singleEmbedIframeCode').textContent = iframeCode;
+
+      // iFrame preview
+      const previewContainer = $('#singleIframePreview');
+      if (previewContainer) {
+        previewContainer.innerHTML = `<iframe src="${iframeSrc}" style="width:100%;height:${height}px;border:0;" loading="lazy"></iframe>`;
+      }
+
+      // API URL
+      const apiUrl = new URL(base);
+      apiUrl.searchParams.set('api', '1');
+      apiUrl.searchParams.set('productId', productId);
+      $('#singleApiUrl').textContent = apiUrl.toString();
+
+      // JSON example
+      const exampleJson = {
+        id: productId,
+        ownerId: item.uid || '',
+        name: item.name || '',
+        price: Number(item.price || 0),
+        description: item.description || '',
+        imageUrl: item.imageUrl || '',
+        tags: (item.tags || []).map(t => typeof t === 'string' ? t : (t?.label || '')),
+        colors: item.colors || [],
+        addons: (item.addons || []).map(a => ({ type: a?.style || 'text', label: a?.value || '' })),
+        upgrades: [],
+        animation: {
+          enabled: !!(item.animationStyle && item.animationStyle !== 'none'),
+          type: item.animationStyle || 'none',
+          duration: item.animationDuration || 0.8,
+          delay: item.animationDelay || 0.1
+        },
+        theme: {
+          cardStyle: item.buttonStyle || 'rounded',
+          primaryColor: item.accentColor || '#60a5fa'
+        },
+        published: true,
+        updatedAt: new Date().toISOString()
+      };
+      $('#singleApiJsonExample').textContent = JSON.stringify(exampleJson, null, 2);
+
+      // Populate product selector
+      const select = $('#embedProductSelect');
+      if (select) {
+        const publishedProducts = state.products.filter(p => p.published === true && productIsActive(p));
+        select.innerHTML = publishedProducts.length
+          ? publishedProducts.map(p => `<option value="${esc(p.id)}" ${p.id === productId ? 'selected' : ''}>${esc(p.name || 'ללא שם')}</option>`).join('')
+          : `<option value="">אין מוצרים מפורסמים</option>`;
+      }
+    }
+
     function attachEvents() {
       $('#googleLoginBtn').addEventListener('click', signInGoogle);
       $('#authForm').addEventListener('submit', handleAuthSubmit);
@@ -1769,10 +2024,50 @@
         renderModalProductPreview();
       });
       ['productName','productPrice'].forEach((id) => $('#'+id).addEventListener('input', renderModalProductPreview));
-      ['productDesc','productAccentColor','productBodyColor','productButtonStyle','productAnimation','productTagColor','productTagShape'].forEach((id) => $('#'+id).addEventListener(id.includes('Color') || id === 'productDesc' ? 'input' : 'change', renderModalProductPreview));
+      ['productDesc','productAccentColor','productBodyColor','productButtonStyle','productAnimation','productAnimDuration','productAnimDelay','productTagColor','productTagShape'].forEach((id) => {
+        const el = $('#'+id);
+        if (el) el.addEventListener(id.includes('Color') || id === 'productDesc' || id.includes('Anim') ? 'input' : 'change', renderModalProductPreview);
+      });
       $('#addProductTagBtn').addEventListener('click', addTagFromInput);
       $('#productTagInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); } });
       $$('.nav-btn[data-view]').forEach(btn => btn.addEventListener('click', () => goToView(btn.dataset.view)));
+      // Product embed panel events
+      $('#embedTabIframe')?.addEventListener('click', () => {
+        $('#embedTabIframe').classList.add('active');
+        $('#embedTabApi').classList.remove('active');
+        $('#embedPanelIframe').classList.remove('hidden');
+        $('#embedPanelApi').classList.add('hidden');
+      });
+      $('#embedTabApi')?.addEventListener('click', () => {
+        $('#embedTabApi').classList.add('active');
+        $('#embedTabIframe').classList.remove('active');
+        $('#embedPanelApi').classList.remove('hidden');
+        $('#embedPanelIframe').classList.add('hidden');
+      });
+      $('#embedProductSelect')?.addEventListener('change', () => updateSingleProductEmbed());
+      $('#iframeHeightInput')?.addEventListener('input', () => updateSingleProductEmbed());
+      $('#iframeThemeSelect')?.addEventListener('change', () => updateSingleProductEmbed());
+      $('#copySingleIframeBtn')?.addEventListener('click', () => copyText($('#singleEmbedIframeCode').textContent, 'קוד ה-iframe הועתק'));
+      $('#openSingleIframeBtn')?.addEventListener('click', () => {
+        const item = getSelectedEmbedProduct();
+        if (!item) return showToast('בחר מוצר מפורסם', true);
+        const base = new URL(window.location.href);
+        base.search = '';
+        base.searchParams.set('embed', '1');
+        base.searchParams.set('productId', item.id);
+        window.open(base.toString(), '_blank');
+      });
+      $('#copySingleApiUrlBtn')?.addEventListener('click', () => copyText($('#singleApiUrl').textContent, 'כתובת API הועתקה'));
+      $('#copySingleApiJsonBtn')?.addEventListener('click', () => copyText($('#singleApiJsonExample').textContent, 'JSON הועתק'));
+      $('#openSingleApiBtn')?.addEventListener('click', () => {
+        const item = getSelectedEmbedProduct();
+        if (!item) return showToast('בחר מוצר מפורסם', true);
+        const base = new URL(window.location.href);
+        base.search = '';
+        base.searchParams.set('api', '1');
+        base.searchParams.set('productId', item.id);
+        window.open(base.toString(), '_blank');
+      });
       ['toggleLang','togglePromos','toggleMobile','toggleGoogleAuthInfo'].forEach((id) => $('#'+id).addEventListener('click', (e) => e.currentTarget.classList.toggle('active')));
     }
 
@@ -1827,6 +2122,85 @@
       });
     }
 
+    async function renderApiMode(productId) {
+      document.body.style.margin = '0';
+      document.body.style.padding = '0';
+      document.body.style.background = '#fff';
+      document.body.innerHTML = '<pre style="margin:0;padding:24px;font-family:ui-monospace,monospace;white-space:pre-wrap;"></pre>';
+      const pre = document.querySelector('pre');
+      try {
+        const snap = await getDoc(publicProductDoc(productId));
+        if (!snap.exists()) {
+          pre.textContent = JSON.stringify({ error: 'Product not found or not published' }, null, 2);
+          return;
+        }
+        pre.textContent = JSON.stringify(snap.data(), null, 2);
+      } catch (err) {
+        pre.textContent = JSON.stringify({ error: 'Failed to load product', message: err.message }, null, 2);
+      }
+    }
+
+    async function renderSingleProductEmbed(productId) {
+      const params = new URLSearchParams(window.location.search);
+      const themeName = params.get('theme') || '';
+      const primaryColor = params.get('primaryColor') || '';
+      const animSpeed = params.get('animationSpeed') || '';
+      const cardStyle = params.get('cardStyle') || '';
+
+      document.body.style.margin = '0';
+      document.body.style.padding = '0';
+      document.body.style.background = 'transparent';
+      document.body.innerHTML = '<div id="singleEmbedHost" style="padding:24px;font-family:Inter,Heebo,Arial,sans-serif;"></div>';
+      document.documentElement.dir = 'rtl';
+      document.documentElement.lang = 'he';
+
+      const host = document.getElementById('singleEmbedHost');
+
+      // Apply dark theme
+      if (themeName === 'dark') {
+        document.body.style.background = '#1e293b';
+        document.body.style.color = '#f1f5f9';
+      }
+
+      try {
+        const snap = await getDoc(publicProductDoc(productId));
+        if (!snap.exists()) {
+          host.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">המוצר לא נמצא או לא פורסם</div>';
+          return;
+        }
+        const data = snap.data();
+        const item = {
+          ...data,
+          accentColor: primaryColor || data.theme?.primaryColor || '#60a5fa',
+          cardBackground: themeName === 'dark' ? '#334155' : (data.theme?.cardBackground || '#ffffff'),
+          textColor: themeName === 'dark' ? '#f1f5f9' : (data.theme?.textColor || '#111827'),
+          buttonColor: primaryColor || data.theme?.primaryColor || '#1d4ed8',
+          buttonStyle: cardStyle || data.theme?.cardStyle || 'rounded',
+          animationStyle: data.animation?.enabled ? data.animation.type : 'none',
+          font: data.theme?.font || 'Inter',
+          tags: data.tags || [],
+          variants: (data.upgrades || []).map(u => ({ name: u.name, options: (u.options || []).map(o => ({ label: o, value: o })) })),
+          imageUrl: data.imageUrl || '',
+          showCart: 'hide',
+          useSiteTheme: 'custom'
+        };
+        state.theme = {
+          ...DEFAULT_THEME,
+          primaryColor: item.accentColor,
+          cardBackground: item.cardBackground,
+          textColor: item.textColor,
+          buttonColor: item.buttonColor,
+          cardPadding: 20,
+          borderRadius: cardStyle === 'rounded' ? 24 : 16,
+          imageHeight: 240,
+          textAlign: 'right'
+        };
+        host.innerHTML = `<div class="product-preview-shell" data-template="classic" style="max-width:480px;margin:0 auto;">${buildStoreCardHTML(item, true)}</div>`;
+      } catch (err) {
+        host.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">שגיאה בטעינת המוצר</div>`;
+      }
+    }
+
         onAuthStateChanged(auth, async (user) => {
       if (state.embedMode) return;
       state.currentUser = user;
@@ -1850,7 +2224,14 @@
     state.embedMode = params.get('embed') === '1';
     state.embedUid = params.get('uid') || '';
 
-    if (state.embedMode && state.embedUid) {
+    const apiMode = params.get('api') === '1';
+    const singleProductId = params.get('productId') || '';
+
+    if (apiMode && singleProductId) {
+      renderApiMode(singleProductId);
+    } else if (state.embedMode && singleProductId) {
+      renderSingleProductEmbed(singleProductId);
+    } else if (state.embedMode && state.embedUid) {
       renderEmbedMode(state.embedUid);
     } else {
       attachEvents();

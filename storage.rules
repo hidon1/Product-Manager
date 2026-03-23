@@ -1,0 +1,43 @@
+// ==========================================================
+// Firebase Storage Security Rules — Product Manager (מוצרלה)
+// ==========================================================
+//
+// כללי אבטחה של Firebase Storage עבור תמונות מוצרים.
+//
+// שלבים להעתקה ל-Firebase Console:
+// 1. פתח את Firebase Console: https://console.firebase.google.com
+// 2. בחר את הפרויקט: product-manager-a084a
+// 3. לך אל Storage -> Rules
+// 4. העתק את התוכן שמתחת לשורה הזו והדבק בעורך
+// 5. לחץ "Publish"
+//
+// ==========================================================
+
+rules_version = '2';
+
+service firebase.storage {
+  match /b/{bucket}/o {
+
+    // --------------------------------------------------
+    // תמונות מוצרים — רק הבעלים יכול להעלות ולקרוא
+    // הנתיב: users/{uid}/products/{productId}/{filename}
+    // --------------------------------------------------
+    match /users/{uid}/products/{productId}/{allPaths=**} {
+      // קריאה — כל אחד יכול לראות תמונות מוצרים (נדרש לתצוגה ציבורית)
+      allow read: if true;
+
+      // כתיבה — רק הבעלים של התיקייה
+      allow write: if request.auth != null
+                   && request.auth.uid == uid
+                   && request.resource.size < 10 * 1024 * 1024  // מקסימום 10MB
+                   && request.resource.contentType.matches('image/.*');  // רק תמונות
+    }
+
+    // --------------------------------------------------
+    // Default — חסום כל דבר שלא מוגדר מעלה
+    // --------------------------------------------------
+    match /{allPaths=**} {
+      allow read, write: if false;
+    }
+  }
+}
