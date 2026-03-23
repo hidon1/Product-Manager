@@ -1,0 +1,108 @@
+<svg xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" viewBox="0 0 1400 300" width="1400" height="300">
+  <defs>
+    <linearGradient id="grad" x1="0%" y1="0%" x2="100%" y2="0%">
+      <stop offset="0%" stop-color="#2563eb"/>
+      <stop offset="25%" stop-color="#3b82f6"/>
+      <stop offset="50%" stop-color="#06b6d4"/>
+      <stop offset="75%" stop-color="#f59e0b"/>
+      <stop offset="100%" stop-color="#fcd34d"/>
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="5" result="b"/>
+      <feMerge>
+        <feMergeNode in="b"/>
+        <feMergeNode in="SourceGraphic"/>
+      </feMerge>
+    </filter>
+
+    <style><![CDATA[
+      .text {
+        font-family: JetBrains Mono, Fira Code, monospace;
+        font-size: 140px;
+        font-weight: 900;
+        letter-spacing: 2px;
+        fill: url(#grad);
+        filter: url(#glow);
+      }
+      .shine {
+        fill: white;
+        opacity: .15;
+      }
+      .cursor {
+        fill: #2563eb;
+      }
+      .line {
+        fill: url(#grad);
+      }
+    ]]></style>
+  </defs>
+
+  <rect width="100%" height="100%" fill="transparent"/>
+
+  <text id="text" x="100" y="170" class="text"></text>
+  <text id="shine" x="100" y="170" class="text shine"></text>
+  <rect id="cursor" x="100" y="80" width="12" height="110" rx="3" class="cursor"/>
+  <rect id="line" x="100" y="190" width="0" height="6" rx="3" class="line"/>
+
+  <script><![CDATA[
+    const full = "mozzarella();";
+    const text = document.getElementById("text");
+    const shine = document.getElementById("shine");
+    const cursor = document.getElementById("cursor");
+    const line = document.getElementById("line");
+
+    const startX = 100;
+    const charW = 72;
+
+    let i = 0;
+    let del = false;
+
+    function render() {
+      const shown = full.slice(0, i);
+      text.textContent = shown;
+      shine.textContent = shown;
+      const w = shown.length * charW;
+      cursor.setAttribute("x", startX + w + 5);
+      line.setAttribute("width", w + 5);
+    }
+
+    function loop() {
+      render();
+
+      if (!del && i < full.length) {
+        i++;
+        setTimeout(loop, 80);
+        return;
+      }
+
+      if (!del && i === full.length) {
+        del = true;
+        setTimeout(loop, 1200);
+        return;
+      }
+
+      if (del && i > 0) {
+        i--;
+        setTimeout(loop, 40);
+        return;
+      }
+
+      if (del && i === 0) {
+        del = false;
+        setTimeout(loop, 300);
+      }
+    }
+
+    const blink = () => {
+      let on = true;
+      setInterval(() => {
+        cursor.setAttribute("opacity", on ? "1" : "0.2");
+        on = !on;
+      }, 350);
+    };
+
+    blink();
+    loop();
+  ]]></script>
+</svg>
