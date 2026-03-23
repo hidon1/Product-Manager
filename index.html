@@ -1198,7 +1198,7 @@
     async function syncPublicProduct(item) {
       if (!item || !item.id) return;
       const isPublished = item.published === true;
-      const isDisabled = item.disabled === true || item.active === false || item.status === 'inactive';
+      const isDisabled = !productIsActive(item);
       try {
         if (isPublished && !isDisabled) {
           await setDoc(publicProductDoc(item.id), buildPublicProductPayload(item), { merge: true });
@@ -1599,6 +1599,7 @@
         $('#saveProductBtn').disabled = true;
         const upload = await uploadProductImage($('#productImage').files[0]);
         const productId = state.editId || upload.productId || crypto.randomUUID();
+        const existingProduct = state.editId ? state.products.find((item) => item.id === state.editId) : null;
         const payload = {
           uid: state.currentUser.uid,
           productId,
@@ -1609,25 +1610,25 @@
           tags: state.modalTags,
           tagStyles: Object.fromEntries(state.modalTags.map((tag) => [tag.label, { color: tag.color, shape: tag.shape }])),
           colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
-          freeText: state.editId ? (state.products.find((item) => item.id === state.editId)?.freeText || '') : '',
-          font: state.editId ? (state.products.find((item) => item.id === state.editId)?.font || 'Inter') : 'Inter',
+          freeText: existingProduct ? (existingProduct.freeText || '') : '',
+          font: existingProduct ? (existingProduct.font || 'Inter') : 'Inter',
           imageUrl: upload.imageUrl || state.currentImageUrl || '',
           imagePath: upload.imagePath || '',
           imageStorageMode: upload.imageStorageMode || 'storage',
           addons: [],
           template: 'classic',
-          showCart: state.editId ? (state.products.find((item) => item.id === state.editId)?.showCart || 'default') : 'default',
+          showCart: existingProduct ? (existingProduct.showCart || 'default') : 'default',
           accentColor: $('#productAccentColor').value || state.theme.primaryColor,
           cardBackground: $('#productBodyColor').value || state.theme.cardBackground,
             buttonStyle: $('#productButtonStyle').value || 'rounded',
             animationStyle: $('#productAnimation').value || 'none',
             animationDuration: Number($('#productAnimDuration')?.value || 0.8),
             animationDelay: Number($('#productAnimDelay')?.value || 0.1),
-          active: state.editId ? (state.products.find((item) => item.id === state.editId)?.active !== false) : true,
-          status: state.editId ? (state.products.find((item) => item.id === state.editId)?.status || 'active') : 'active',
-          published: state.editId ? (state.products.find((item) => item.id === state.editId)?.published !== false) : false,
-          disabled: state.editId ? (state.products.find((item) => item.id === state.editId)?.disabled === true) : false,
-          useSiteTheme: state.editId ? (state.products.find((item) => item.id === state.editId)?.useSiteTheme || 'inherit') : 'inherit',
+          active: existingProduct ? (existingProduct.active !== false) : true,
+          status: existingProduct ? (existingProduct.status || 'active') : 'active',
+          published: existingProduct ? (existingProduct.published !== false) : false,
+          disabled: existingProduct ? (existingProduct.disabled === true) : false,
+          useSiteTheme: existingProduct ? (existingProduct.useSiteTheme || 'inherit') : 'inherit',
           variants: collectVariants(),
           updatedAt: serverTimestamp(),
           createdAt: serverTimestamp()
@@ -1707,7 +1708,7 @@
     async function removeProduct(id) {
       if (!confirm('למחוק את המוצר?')) return;
       await deleteDoc(productDoc(id));
-      try { await deleteDoc(publicProductDoc(id)); } catch(e) { console.warn('publicProduct cleanup:', e); }
+      try { await deleteDoc(publicProductDoc(id)); } catch(e) { console.warn('Failed to delete public product (may not exist):', e); }
       showToast('המוצר נמחק');
     }
     async function toggleProductActive(item) {
@@ -2130,7 +2131,7 @@
       try {
         const snap = await getDoc(publicProductDoc(productId));
         if (!snap.exists()) {
-          pre.textContent = JSON.stringify({ error: 'Product not found or not published', productId }, null, 2);
+          pre.textContent = JSON.stringify({ error: 'Product not found or not published' }, null, 2);
           return;
         }
         pre.textContent = JSON.stringify(snap.data(), null, 2);
