@@ -1213,6 +1213,24 @@
       }
     }
 
+    async function syncPublicCatalog(products = []) {
+      if (!state.currentUser?.uid) return;
+      const tasks = products.map(async (item) => {
+        if (!item?.id) return;
+        if (productIsActive(item)) {
+          await setDoc(publicProductDoc(item.id), buildPublicProductPayload(item), { merge: true });
+          return;
+        }
+        try {
+          const snap = await getDoc(publicProductDoc(item.id));
+          if (snap.exists()) await deleteDoc(publicProductDoc(item.id));
+        } catch (err) {
+          console.warn('syncPublicCatalog delete warning:', err);
+        }
+      });
+      await Promise.all(tasks);
+    }
+
     async function saveThemeToFirestore(partialTheme = state.theme) {
       if (!state.currentUser) return;
       const payload = {
@@ -1748,8 +1766,9 @@
     function subscribeProducts(uid) {
       if (state.unsubscribeProducts) state.unsubscribeProducts();
       const qy = query(productsCollection(uid));
-      state.unsubscribeProducts = onSnapshot(qy, (snapshot) => {
+      state.unsubscribeProducts = onSnapshot(qy, async (snapshot) => {
         state.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        await syncPublicCatalog(state.products);
         renderProducts();
         syncDesignerProductOptions();
         renderPreviewProduct();
@@ -1799,7 +1818,7 @@
     }
 
     function updateEmbedCode() {
-      const styledApiEndpoint = `${window.location.origin}${window.location.pathname}?api=styled&uid=${state.currentUser?.uid || 'YOUR_ACCOUNT_UID'}`;
+      const styledApiEndpoint = `${window.location.origin}${window.location.pathname}?api=styled&uid=${state.currentUser?.uid || 'YOUR_ACCOUNT_UID'}&embed=1`;
       const jsonApiEndpoint = `${window.location.origin}${window.location.pathname}?api=json&uid=${state.currentUser?.uid || 'YOUR_ACCOUNT_UID'}`;
       const code = `<iframe
   src="${styledApiEndpoint}"
