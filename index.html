@@ -1225,6 +1225,8 @@
         price: Number(item.price || 0),
         description: item.description || '',
         imageUrl: item.imageUrl || '',
+        imagePath: item.imagePath || '',
+        imageStorageMode: item.imageStorageMode || (item.imagePath ? 'storage' : (item.imageUrl?.startsWith('data:') ? 'firestore-inline' : 'url')),
         tags: (item.tags || []).map(t => typeof t === 'string' ? { label: t } : { label: t?.label || '', color: t?.color || '', shape: t?.shape || 'pill' }),
         colors: item.colors || [],
         addons: (item.addons || []).map(a => ({ type: a?.style || a?.type || 'text', label: a?.value || a?.label || '' })),
@@ -1245,6 +1247,27 @@
         published: true,
         updatedAt: serverTimestamp()
       };
+    }
+
+    async function resolveImageFromStorage(item, ownerUid = '') {
+      if (!item) return item;
+      if (item.imageUrl || !item.imagePath) return item;
+      const effectiveUid = ownerUid || item.uid || item.ownerId || '';
+      if (!effectiveUid) return item;
+      try {
+        const fallbackPath = item.imagePath.startsWith(`users/${effectiveUid}/`)
+          ? item.imagePath
+          : `users/${effectiveUid}/products/${item.id || item.productId || ''}/${item.imagePath.split('/').pop() || ''}`;
+        const imageUrl = await getDownloadURL(ref(storage, fallbackPath));
+        return { ...item, imageUrl };
+      } catch (err) {
+        console.warn('Storage image resolve failed:', err);
+        return item;
+      }
+    }
+
+    async function hydrateProductsWithStorageImages(items = [], ownerUid = '') {
+      return Promise.all((items || []).map((item) => resolveImageFromStorage(item, ownerUid)));
     }
 
     async function syncPublicProduct(item) {
@@ -1819,8 +1842,9 @@
     function subscribeProducts(uid) {
       if (state.unsubscribeProducts) state.unsubscribeProducts();
       const qy = query(productsCollection(uid));
-      state.unsubscribeProducts = onSnapshot(qy, (snapshot) => {
-        state.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+      state.unsubscribeProducts = onSnapshot(qy, async (snapshot) => {
+        const firestoreItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
+        state.products = await hydrateProductsWithStorageImages(firestoreItems, uid);
         renderProducts();
         syncDesignerProductOptions();
         renderPreviewProduct();
@@ -2187,22 +2211,26 @@
     async function renderEmbedMode(uid) {
       const params = new URLSearchParams(window.location.search);
       const view = params.get('view') || 'cards';
-      let theme = { ...DEFAULT_PRODUCT_STYLE };
-      try {
-        const themeSnap = await getDoc(defaultProductStyleDoc(uid));
-        if (themeSnap.exists()) theme = { ...DEFAULT_PRODUCT_STYLE, ...themeSnap.data() };
-      } catch (err) {
-        console.warn('Failed loading theme from Firestore, using defaults:', err);
-      }
-      state.theme = { ...theme };
+      state.theme = { ...DEFAULT_PRODUCT_STYLE };
       state.designerDraft = { ...state.theme };
       const qy = publicProductsByOwnerQuery(uid);
+      let runtimeItems = [];
+      let embedHost = null;
+      const renderRuntime = () => {
+        if (!embedHost || view === 'data') return;
+        embedHost.innerHTML = `<div class="embed-runtime-shell full-page"><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.desktopColumns || 3))};">${runtimeItems.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false, state.theme)).join('')}</div></div>`;
+      };
       if (view === 'data') {
         document.body.innerHTML = '<pre id="embedJsonRuntime" style="margin:0;padding:24px;font-family:ui-monospace,monospace;white-space:pre-wrap;"></pre>';
         const host = document.getElementById('embedJsonRuntime');
-        onSnapshot(qy, (snapshot) => {
+        onSnapshot(defaultProductStyleDoc(uid), (snapshot) => {
+          state.theme = snapshot.exists() ? { ...DEFAULT_PRODUCT_STYLE, ...snapshot.data() } : { ...DEFAULT_PRODUCT_STYLE };
+          host.textContent = JSON.stringify({ theme: state.theme, products: runtimeItems }, null, 2);
+        });
+        onSnapshot(qy, async (snapshot) => {
           const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (b?.updatedAt?.seconds || 0) - (a?.updatedAt?.seconds || 0));
-          host.textContent = JSON.stringify({ theme, products: items }, null, 2);
+          runtimeItems = await hydrateProductsWithStorageImages(items, uid);
+          host.textContent = JSON.stringify({ theme: state.theme, products: runtimeItems }, null, 2);
         });
         return;
       }
@@ -2212,12 +2240,17 @@
       document.documentElement.style.setProperty('--desktop-columns', Number(state.theme.desktopColumns || state.theme.desktopColumns || 3));
       document.documentElement.style.setProperty('--mobile-columns', Number(state.theme.mobileColumns || 1));
       document.body.style.background = '#f8fafc';
-      const host = document.getElementById('embedRuntime');
-      onSnapshot(qy, (snapshot) => {
+      embedHost = document.getElementById('embedRuntime');
+      onSnapshot(defaultProductStyleDoc(uid), (snapshot) => {
+        state.theme = snapshot.exists() ? { ...DEFAULT_PRODUCT_STYLE, ...snapshot.data() } : { ...DEFAULT_PRODUCT_STYLE };
+        renderRuntime();
+      });
+      onSnapshot(qy, async (snapshot) => {
         const items = snapshot.docs
           .map((d) => ({ id: d.id, ...d.data() }))
           .sort((a, b) => (b?.updatedAt?.seconds || 0) - (a?.updatedAt?.seconds || 0));
-        host.innerHTML = `<div class="embed-runtime-shell full-page"><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.desktopColumns || state.theme.desktopColumns || 3))};">${items.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false, state.theme)).join('')}</div></div>`;
+        runtimeItems = await hydrateProductsWithStorageImages(items, uid);
+        renderRuntime();
       });
       document.body.addEventListener('click', (event) => {
         const actionEl = event.target.closest('[data-action]');
@@ -2255,8 +2288,9 @@
           return;
         }
         const productsSnapshot = await getDocs(publicProductsByOwnerQuery(uid));
-        const products = productsSnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
+        const rawProducts = productsSnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
           .sort((a, b) => (b?.updatedAt?.seconds || 0) - (a?.updatedAt?.seconds || 0));
+        const products = await hydrateProductsWithStorageImages(rawProducts, uid);
         if (mode === 'products') {
           pre.textContent = JSON.stringify({
             mode,
