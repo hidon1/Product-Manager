@@ -54,8 +54,12 @@
 
     const startX = 100;
     const charW = 72;
+    const LOOP_MS = 10000;
+    const TYPE_MS = 95;
+    const DELETE_MS = 70;
 
     let i = 0;
+    let mode = "typing";
 
     function render() {
       const shown = full.slice(0, i);
@@ -66,20 +70,48 @@
       line.setAttribute("width", w + 5);
     }
 
-    function typeFrame() {
-      render();
+    function runLoop() {
+      const typeTotal = full.length * TYPE_MS;
+      const deleteTotal = full.length * DELETE_MS;
+      const holdAfterType = Math.max(700, LOOP_MS - typeTotal - deleteTotal - 1200);
+      const holdAfterDelete = 500;
 
-      if (i < full.length) {
-        i++;
-        setTimeout(typeFrame, 80);
-        return;
+      function step() {
+        render();
+
+        if (mode === "typing") {
+          if (i < full.length) {
+            i++;
+            setTimeout(step, TYPE_MS);
+            return;
+          }
+          mode = "holdTyped";
+          setTimeout(step, holdAfterType);
+          return;
+        }
+
+        if (mode === "holdTyped") {
+          mode = "deleting";
+          setTimeout(step, DELETE_MS);
+          return;
+        }
+
+        if (mode === "deleting") {
+          if (i > 0) {
+            i--;
+            setTimeout(step, DELETE_MS);
+            return;
+          }
+          mode = "holdEmpty";
+          setTimeout(step, holdAfterDelete);
+          return;
+        }
+
+        mode = "typing";
+        setTimeout(step, TYPE_MS);
       }
 
-      setTimeout(() => {
-        i = 0;
-        render();
-        setTimeout(typeFrame, 80);
-      }, 10000);
+      step();
     }
 
     const blink = () => {
@@ -91,6 +123,6 @@
     };
 
     blink();
-    typeFrame();
+    runLoop();
   ]]></script>
 </svg>
