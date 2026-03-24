@@ -682,24 +682,24 @@
             <div class="section-head">
               <div>
                 <h3 data-i18n="embed.title">חיבור האתר שלך למוצרים</h3>
-                <p data-i18n="embed.desc">קבל מזהה חשבון וקוד הטמעה מוכן. הקוד שואב אוטומטית את המוצרים והעיצוב מהמערכת שלך.</p>
+                <p data-i18n="embed.desc">קבל שני קודי API ישירות מ-Firebase Storage: אחד לנתוני מוצרים בלבד ואחד לנתוני מוצרים + עיצוב.</p>
               </div>
               <div class="embed-toolbar">
-                <button class="btn btn-success" id="copyAccountIdBtn" data-i18n="embed.copyId">העתק קוד API</button>
-                <button class="btn btn-primary" id="copyEmbedCodeBtn" data-i18n="embed.copyCode">העתק קוד iframe</button>
+                <button class="btn btn-success" id="copyProductsApiBtn">העתק API לניהול מוצרים</button>
+                <button class="btn btn-primary" id="copyProductsStyleApiBtn">העתק API למוצרים + עיצוב</button>
               </div>
             </div>
             <div class="embed-grid">
               <div style="display:grid; gap:16px;">
                 <div class="embed-card">
-                  <h4 data-i18n="embed.iframeTitle">1. קוד iframe להטמעה מלאה</h4>
-                  <div class="embed-help" data-i18n="embed.iframeDesc">הדביקו את הקוד הזה בכל אזור HTML באתר, והמערכת תציג את הייצוג המלא של המוצרים אוטומטית.</div>
-                  <pre class="code-block" id="embedCodeBlock"></pre>
+                  <h4>1. API לניהול מוצרים בלבד</h4>
+                  <div class="embed-help">הקוד מחזיר מה-Storage רק את הקובץ <code>products.json</code>. מתאים למי שרוצה לעצב עצמאית באתר הלקוח.</div>
+                  <pre class="code-block" id="embedProductsApiCodeBlock"></pre>
                 </div>
                 <div class="embed-card">
-                  <h4 data-i18n="embed.apiTitle">2. קוד API קצר להעתקה</h4>
-                  <div class="embed-help" data-i18n="embed.apiDesc">העתיקו את כתובת ה-API ואת דוגמת הקוד, פרקו את תגובת ה-HTML ל-JSON, ובנו את התצוגה לפי ה-HTML/CSS של האתר שלכם.</div>
-                  <pre class="code-block" id="embedDataCodeBlock"></pre>
+                  <h4>2. API למוצרים + עיצוב</h4>
+                  <div class="embed-help">הקוד מחזיר מה-Storage גם <code>products.json</code> וגם <code>product-style.json</code>. מתאים למי שרוצה להשתמש גם בעיצוב שהוגדר במערכת.</div>
+                  <pre class="code-block" id="embedProductsWithDesignApiCodeBlock"></pre>
                 </div>
               </div>
               <div class="embed-card">
@@ -990,7 +990,7 @@
       getDoc,
       getDocs
     } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+    import { getStorage, ref, uploadBytes, uploadString, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
 
     const firebaseConfig = {
       apiKey: "AIzaSyC3LYWwTbQFS9i3Jq1YAg9osQURQ_Gknks",
@@ -1723,6 +1723,7 @@
           showToast('המוצר נשמר');
           await syncPublicProduct({ ...payload, id: productId });
         }
+        await publishPublicJsonToStorage();
         closeModal();
       } catch (err) {
         showToast(err.message, true);
@@ -1790,18 +1791,21 @@
       if (!confirm('למחוק את המוצר?')) return;
       await deleteDoc(productDoc(id));
       try { await deleteDoc(publicProductDoc(id)); } catch(e) { console.warn('Failed to delete public product (may not exist):', e); }
+      await publishPublicJsonToStorage();
       showToast('המוצר נמחק');
     }
     async function toggleProductActive(item) {
       const newActive = !productIsActive(item);
       await updateDoc(productDoc(item.id), { active: newActive, status: newActive ? 'active' : 'inactive', updatedAt: serverTimestamp() });
       await syncPublicProduct({ ...item, active: newActive, status: newActive ? 'active' : 'inactive' });
+      await publishPublicJsonToStorage();
       showToast(newActive ? 'המוצר הופעל' : 'המוצר הושבת');
     }
     async function toggleProductPublished(item) {
       const newPublished = !(item.published === true);
       await updateDoc(productDoc(item.id), { published: newPublished, updatedAt: serverTimestamp() });
       await syncPublicProduct({ ...item, published: newPublished });
+      await publishPublicJsonToStorage();
       showToast(newPublished ? 'המוצר פורסם לאתרים חיצוניים' : 'המוצר הוסר מאתרים חיצוניים');
     }
     async function cloneProduct(item) {
@@ -1821,6 +1825,7 @@
         syncDesignerProductOptions();
         renderPreviewProduct();
         updateEmbedCode();
+        publishPublicJsonToStorage(uid).catch((err) => console.warn('Failed to publish products.json', err));
       }, (error) => {
         console.error(error);
         showToast(formatFirestoreError(error), true);
@@ -1834,6 +1839,7 @@
         else state.theme = { ...DEFAULT_PRODUCT_STYLE };
         state.designerDraft = { ...state.theme };
         applyThemeToPreview();
+        publishPublicJsonToStorage(uid).catch((err) => console.warn('Failed to publish product-style.json', err));
       }, (error) => {
         console.error(error);
         showToast(formatFirestoreError(error), true);
@@ -1845,6 +1851,7 @@
       state.unsubscribeOverrides = onSnapshot(productCardOverridesCollection(uid), (snapshot) => {
         state.productStyleOverrides = snapshot.docs.reduce((acc, docSnap) => ({ ...acc, [docSnap.id]: docSnap.data() }), {});
         applyThemeToPreview();
+        publishPublicJsonToStorage(uid).catch((err) => console.warn('Failed to publish style overrides', err));
       }, (error) => {
         console.error(error);
         showToast(formatFirestoreError(error), true);
@@ -1891,60 +1898,69 @@
       navigator.clipboard.writeText(value).then(() => showToast(successMessage)).catch(() => showToast('לא ניתן להעתיק אוטומטית', true));
     }
 
-    function currentEmbedUrl() {
+    function storagePublicProductsRef(uid) {
+      return ref(storage, `public/${uid}/products.json`);
+    }
+
+    function storagePublicStyleRef(uid) {
+      return ref(storage, `public/${uid}/product-style.json`);
+    }
+
+    async function publishPublicJsonToStorage(uid = state.currentUser?.uid) {
+      if (!uid) return;
+      const productsPayload = state.products
+        .filter((item) => item.published === true && productIsActive(item))
+        .map((item) => ({ ...item }));
+      const stylePayload = { ...state.theme, overrides: state.productStyleOverrides || {} };
+      await uploadString(storagePublicProductsRef(uid), JSON.stringify(productsPayload, null, 2), 'raw', { contentType: 'application/json' });
+      await uploadString(storagePublicStyleRef(uid), JSON.stringify(stylePayload, null, 2), 'raw', { contentType: 'application/json' });
+    }
+
+    async function fetchStorageJson(path) {
+      const url = await getDownloadURL(ref(storage, path));
+      const response = await fetch(url);
+      if (!response.ok) throw new Error(`Failed to load ${path}: ${response.status}`);
+      return response.json();
+    }
+
+    function buildStorageApiUrl(mode) {
       const base = new URL(window.location.href);
       base.search = '';
-      base.searchParams.set('embed', '1');
+      base.searchParams.set('api', mode);
       base.searchParams.set('uid', state.currentUser?.uid || 'YOUR_ACCOUNT_UID');
       return base.toString();
     }
 
     function updateEmbedCode() {
-      const src = currentEmbedUrl();
-      const code = `<iframe src="${src}" title="Product Manager Embed" style="width:100%;max-width:100%;height:560px;min-height:560px;border:0;display:block;" loading="lazy"></iframe>`;
-      const apiEndpoint = `${window.location.origin}${window.location.pathname}?embed=1&view=data&uid=${state.currentUser?.uid || 'YOUR_ACCOUNT_UID'}`;
-      const dataCode = `fetch('${apiEndpoint}')
-  .then((response) => response.text())
-  .then((markup) => {
-    const doc = new DOMParser().parseFromString(markup, 'text/html');
-    const jsonText = doc.querySelector('#embedJsonRuntime')?.textContent;
-
-    if (!jsonText) {
-      throw new Error('Product Manager data payload was not found in the response.');
-    }
-
-    const productManagerData = JSON.parse(jsonText);
-    const activeProducts = productManagerData.products.filter((product) => product.active !== false);
-
-    console.log(activeProducts);
+      const productsOnlyEndpoint = buildStorageApiUrl('products');
+      const productsAndStyleEndpoint = buildStorageApiUrl('products-with-style');
+      const productsOnlyCode = `fetch('${productsOnlyEndpoint}')
+  .then((response) => response.json())
+  .then((data) => {
+    // data.products מגיע מ-products.json ב-Firebase Storage
+    console.log(data.products);
+  });`;
+      const productsWithStyleCode = `fetch('${productsAndStyleEndpoint}')
+  .then((response) => response.json())
+  .then((data) => {
+    // data.products מ-products.json
+    // data.theme מ-product-style.json
+    console.log(data.products, data.theme);
   });`;
       const apiFields = [
-        ['id', 'string', 'להעתיק אם צריך מזהה קבוע למוצר, עגלה, או state פנימי.'],
-        ['productId', 'string', 'לא חובה ברוב האתרים. להעתיק רק אם אתם מסנכרנים מערכת חיצונית או צריכים מזהה מקור.'],
-        ['name', 'string', 'להעתיק תמיד כשמציגים שם מוצר ללקוח.'],
-        ['price', 'number', 'להעתיק תמיד אם מציגים מחיר בכרטיס, בסל, או בסיכום הזמנה.'],
-        ['description', 'string', 'להעתיק רק אם רוצים טקסט שיווקי או תיאור מלא של המוצר.'],
-        ['imageUrl', 'string', 'להעתיק אם מציגים תמונת מוצר באתר.'],
-        ['tags', 'array', 'להעתיק רק אם מציגים תגיות כמו חדש, מבצע, או מהדורה מיוחדת.'],
-        ['tagStyles', 'object', 'לא חובה. להעתיק רק אם אתם רוצים לשחזר עיצוב מותאם של תגיות.'],
-        ['variants', 'array', 'להעתיק אם יש בחירת מידה, צבע, חומר, או חבילה.'],
-        ['accentColor', 'string', 'לא חובה. להעתיק רק אם משתמשים בצבע הדגשה מתוך הנתונים.'],
-        ['cardBackground', 'string', 'לא חובה. להעתיק אם אתם בונים כרטיס מוצר עם צבע רקע קבוע.'],
-        ['bodyGradient', 'string', 'לא חובה. להעתיק אם רוצים רקע גרדיאנט; אם לא, אפשר להישאר עם <code>cardBackground</code>.'],
-        ['buttonStyle', 'string', 'לא חובה. להעתיק רק אם הכפתור באתר שלכם אמור לקבל סגנון מתוך המערכת.'],
-        ['animationStyle', 'string', 'לא חובה. להעתיק אם רוצים להציג את האנימציה החדה שהוגדרה למוצר גם באתר הלקוח.'],
-        ['active', 'boolean', 'להעתיק תמיד אם רוצים להציג רק מוצרים פעילים.']
+        ['products', 'array', 'רשימת מוצרים מ-public/{uid}/products.json.'],
+        ['theme', 'object|null', 'עיצוב ברמת אתר מ-public/{uid}/product-style.json (רק במסלול products-with-style).'],
+        ['source', 'object', 'מידע מקור: storagePath ו-mode שנבחר.'],
+        ['updatedAt', 'string', 'חותמת זמן ISO של תגובת ה-API.']
       ];
       const allFieldNames = apiFields.map(([key]) => key).join('\n');
-      $('#embedCodeBlock').textContent = code;
-      $('#embedDataCodeBlock').textContent = dataCode;
+      $('#embedProductsApiCodeBlock').textContent = productsOnlyCode;
+      $('#embedProductsWithDesignApiCodeBlock').textContent = productsWithStyleCode;
       $('#apiFieldsBlock').innerHTML = `
-        <div class="guide-step"><strong>שלב 1 — שתי דרכי חיבור, בלי להגדיר מצב במוצר</strong><span>אם הלקוח מטמיע <code>iframe</code>, הוא יקבל את הייצוג העיצובי המלא. אם הוא מושך את ה-<code>API</code>, הוא יקבל תגובת HTML שבתוכה יושב JSON מוכן — ולכן צריך להשתמש בדוגמת הקוד שמפרקת את ה-HTML ומוציאה ממנו את הנתונים. אין צורך לבחור מצב ברמת מוצר או במערכת.</span></div>
-        <div class="guide-step"><strong>שלב 2 — כל השדות כבר מופיעים כאן באתר</strong><span>לא רק ככפתור העתקה: כל שדה מוצג בטבלה, עם סוג הנתון, הסבר בעברית ודוגמה למה משתמשים בו. אפשר לראות, לסמן, ולהעתיק ישירות מהמסך.</span></div>
-        <div class="guide-step"><strong>שלב 3 — טבלת שמות השדות המלאה</strong><span>כל השמות בטבלה נשארים באנגלית כדי שתוכלו להדביק אותם כמו שהם בקוד. השדות מופיעים כאן במלואם כדי שלא יהיה צורך לעבוד רק עם העתקה עיוורת.</span></div>
-        <div class="guide-step"><strong>שמות השדות המלאים על המסך</strong><span><strong>העתקה מהירה:</strong> אפשר ללחוץ על כפתור ההעתקה, אבל מיד מתחתיו כל השמות מופיעים גם על הדף עצמו כדי שיהיה קל לבדוק, להבין, ולהשוות בין השדות בלי לצאת מהעמוד.</span><pre class="code-block">${esc(allFieldNames)}</pre></div>
+        <div class="guide-step"><strong>שלב 1 — אין iframe, רק JSON מה-Storage</strong><span>בצד אתר הלקוח לא צריך מסך התחברות ולא iframe. שולחים בקשה ל-API ומקבלים JSON ישירות מהקבצים ב-Firebase Storage.</span></div>
+        <div class="guide-step"><strong>שלב 2 — בחירה בין שני מסלולים</strong><span><code>api=products</code> מחזיר רק ניהול מוצרים. <code>api=products-with-style</code> מחזיר גם את עיצוב המוצרים.</span></div>
+        <div class="guide-step"><strong>שמות שדות מהירים</strong><pre class="code-block">${esc(allFieldNames)}</pre></div>
         <div class="field-table"><div class="field-table-head"><div>${esc(text('embed.fieldLabel'))}</div><div>${esc(text('embed.fieldType'))}</div><div>${esc(text('embed.fieldMeaning'))}</div></div>${apiFields.map(([key,type,desc]) => `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${desc}</div></div>`).join('')}</div>
-        <div class="guide-step"><strong>שלב 4 — איך להשתמש בשדות נכון</strong><span>להצגה בסיסית התחילו עם <code>id</code>, <code>name</code>, <code>price</code>, <code>imageUrl</code>, <code>variants</code> ו-<code>active</code>. אם רוצים חוויה עשירה יותר, הוסיפו גם <code>tags</code>, <code>accentColor</code>, <code>buttonStyle</code> ו-<code>animationStyle</code>.</span></div>
       `;
       $('#copyFieldNamesBtn').onclick = () => copyText(allFieldNames, 'כל שמות השדות הועתקו');
     }
@@ -2070,9 +2086,9 @@
       $('#closeSidebarBtn').addEventListener('click', closeSidebar);
       $('#sidebarBackdrop')?.addEventListener('click', closeSidebar);
       $('.main').addEventListener('click', closeSidebar);
-      $('#copyEmbedBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד החיבור הועתק'));
-      $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד ה-iframe הועתק'));
-      $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#embedDataCodeBlock').textContent, 'קוד ה-API הועתק'));
+      $('#copyEmbedBtn').addEventListener('click', () => copyText($('#embedProductsApiCodeBlock').textContent, 'קוד API לניהול מוצרים הועתק'));
+      $('#copyProductsApiBtn').addEventListener('click', () => copyText($('#embedProductsApiCodeBlock').textContent, 'קוד API לניהול מוצרים הועתק'));
+      $('#copyProductsStyleApiBtn').addEventListener('click', () => copyText($('#embedProductsWithDesignApiCodeBlock').textContent, 'קוד API למוצרים + עיצוב הועתק'));
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.designerDraft.showCart = e.currentTarget.classList.contains('active'); renderPreviewProduct(); applyThemeToPreview(); });
       ['themePrimaryColor','themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign'].forEach((id) => $("#"+id).addEventListener(id === 'themeTextAlign' ? 'change' : 'input', () => {
         state.designerDraft.accentColor = $('#themePrimaryColor').value;
@@ -2121,6 +2137,7 @@
           targetProductId: ''
         };
         await saveThemeToFirestore(state.theme);
+        await publishPublicJsonToStorage();
         showToast('העיצוב נשמר');
       });
       $('#resetThemeBtn').addEventListener('click', async () => {
@@ -2128,6 +2145,7 @@
         state.designerDraft = { ...DEFAULT_PRODUCT_STYLE };
         applyThemeToPreview();
         await saveThemeToFirestore(state.theme);
+        await publishPublicJsonToStorage();
         showToast('העיצוב אופס');
       });
       $('#productImage').addEventListener('change', (e) => {
@@ -2152,6 +2170,11 @@
       $('#productTagInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); } });
       $$('.nav-btn[data-view]').forEach(btn => btn.addEventListener('click', () => goToView(btn.dataset.view)));
       // Product embed panel events
+      $('#embedTabIframe')?.classList.add('hidden');
+      $('#embedPanelIframe')?.classList.add('hidden');
+      $('#embedTabApi')?.classList.add('active');
+      $('#embedPanelApi')?.classList.remove('hidden');
+
       $('#embedTabIframe')?.addEventListener('click', () => {
         $('#embedTabIframe').classList.add('active');
         $('#embedTabApi').classList.remove('active');
@@ -2246,21 +2269,40 @@
       });
     }
 
-    async function renderApiMode(productId) {
+    async function renderApiMode(uid, mode = 'products') {
       document.body.style.margin = '0';
       document.body.style.padding = '0';
       document.body.style.background = '#fff';
       document.body.innerHTML = '<pre style="margin:0;padding:24px;font-family:ui-monospace,monospace;white-space:pre-wrap;"></pre>';
       const pre = document.querySelector('pre');
       try {
-        const snap = await getDoc(publicProductDoc(productId));
-        if (!snap.exists()) {
-          pre.textContent = JSON.stringify({ error: 'Product not found or not published' }, null, 2);
+        if (!uid) {
+          pre.textContent = JSON.stringify({ error: 'Missing uid query param' }, null, 2);
           return;
         }
-        pre.textContent = JSON.stringify(snap.data(), null, 2);
+        const products = await fetchStorageJson(`public/${uid}/products.json`);
+        if (mode === 'products') {
+          pre.textContent = JSON.stringify({
+            mode,
+            source: { storagePath: `public/${uid}/products.json` },
+            products,
+            updatedAt: new Date().toISOString()
+          }, null, 2);
+          return;
+        }
+        const theme = await fetchStorageJson(`public/${uid}/product-style.json`);
+        pre.textContent = JSON.stringify({
+          mode,
+          source: {
+            productsPath: `public/${uid}/products.json`,
+            stylePath: `public/${uid}/product-style.json`
+          },
+          products,
+          theme,
+          updatedAt: new Date().toISOString()
+        }, null, 2);
       } catch (err) {
-        pre.textContent = JSON.stringify({ error: 'Failed to load product', message: err.message }, null, 2);
+        pre.textContent = JSON.stringify({ error: 'Failed to load storage JSON', message: err.message }, null, 2);
       }
     }
 
@@ -2326,7 +2368,8 @@
     }
 
         onAuthStateChanged(auth, async (user) => {
-      if (state.embedMode) return;
+      const runtimeParams = new URLSearchParams(window.location.search);
+      if (state.embedMode || runtimeParams.get('api')) return;
       state.currentUser = user;
       switchScreen(!!user);
       if (user) {
@@ -2350,11 +2393,11 @@
     state.embedMode = params.get('embed') === '1';
     state.embedUid = params.get('uid') || '';
 
-    const apiMode = params.get('api') === '1';
+    const apiMode = params.get('api') || '';
     const singleProductId = params.get('productId') || '';
 
-    if (apiMode && singleProductId) {
-      renderApiMode(singleProductId);
+    if (apiMode === 'products' || apiMode === 'products-with-style') {
+      renderApiMode(params.get('uid') || '', apiMode);
     } else if (state.embedMode && singleProductId) {
       renderSingleProductEmbed(singleProductId);
     } else if (state.embedMode && state.embedUid) {
@@ -2375,7 +2418,9 @@
 - users/{uid}/productBannerStyle/default
 - users/{uid}/productCardOverrides/{productId}
 Storage path:
-- users/{uid}/products/{productId}/{filename}`);
+- users/{uid}/products/{productId}/{filename}
+- public/{uid}/products.json
+- public/{uid}/product-style.json`);
   </script>
 </body>
 </html>
