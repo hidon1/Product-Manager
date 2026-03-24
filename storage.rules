@@ -34,6 +34,17 @@ service firebase.storage {
     }
 
     // --------------------------------------------------
+    // JSON ציבורי שנוצר ע"י Cloud Functions
+    // הנתיב: public-json/{clientId}/products.json
+    //         public-json/{clientId}/product-style.json
+    // קריאה ציבורית — כתיבה רק מ-Cloud Functions (Admin SDK)
+    // --------------------------------------------------
+    match /public-json/{clientId}/{allPaths=**} {
+      allow read: if true;
+      allow write: if false;
+    }
+
+    // --------------------------------------------------
     // Default — חסום כל דבר שלא מוגדר מעלה
     // --------------------------------------------------
     match /{allPaths=**} {
