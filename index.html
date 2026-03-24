@@ -1054,6 +1054,8 @@
       authMode: 'login',
       currentUser: null,
       products: [],
+      privateProducts: [],
+      publicProducts: [],
       editId: null,
       currentImageUrl: '',
       unsubscribeProducts: null,
@@ -1268,6 +1270,68 @@
 
     async function hydrateProductsWithStorageImages(items = [], ownerUid = '') {
       return Promise.all((items || []).map((item) => resolveImageFromStorage(item, ownerUid)));
+    }
+
+    function normalizePublicProductForManager(item = {}, uid = '') {
+      return {
+        id: item.id || item.productId || '',
+        productId: item.id || item.productId || '',
+        uid: item.ownerId || uid || '',
+        ownerRef: `users/${item.ownerId || uid || ''}`,
+        name: item.name || '',
+        description: item.description || '',
+        shortDescription: item.shortDescription || '',
+        slug: item.slug || '',
+        category: item.category || '',
+        sortOrder: Number(item.sortOrder || 0),
+        price: Number(item.price || 0),
+        salePrice: item.salePrice ?? null,
+        active: item.active !== false,
+        status: item.status || 'active',
+        inStock: item.inStock !== false,
+        stockQty: Number(item.stockQty ?? 0),
+        sku: item.sku || '',
+        tags: (item.tags || []).map((tag) => typeof tag === 'string' ? tag : (tag?.label || '')),
+        imageUrl: item.imageUrl || '',
+        imagePath: item.imagePath || '',
+        imageStorageMode: item.imageStorageMode || '',
+        gallery: item.gallery || [],
+        url: item.url || '',
+        notes: item.notes || '',
+        variants: (item.variants || []).length
+          ? item.variants
+          : (item.upgrades || []).map((group) => ({
+            name: group?.name || '',
+            type: 'choice',
+            options: (group?.options || []).map((option) => ({ label: option, value: option }))
+          })),
+        addons: item.addons || [],
+        purchaseMode: item.purchaseMode || 'cart',
+        buttonText: item.buttonText || 'הוספה לסל',
+        showCart: item.showCart ?? true,
+        requiresVariantSelection: item.requiresVariantSelection ?? false,
+        minQty: Number(item.minQty ?? 1),
+        maxQty: Number(item.maxQty ?? 99),
+        stepQty: Number(item.stepQty ?? 1),
+        published: item.published !== false,
+        createdAt: item.createdAt || item.updatedAt || null,
+        updatedAt: item.updatedAt || null,
+        __source: 'public'
+      };
+    }
+
+    async function refreshMergedProducts(uid) {
+      const privateItems = await hydrateProductsWithStorageImages(state.privateProducts || [], uid);
+      const publicItemsRaw = await hydrateProductsWithStorageImages(state.publicProducts || [], uid);
+      const publicItems = publicItemsRaw.map((item) => normalizePublicProductForManager(item, uid));
+      const mergedMap = new Map();
+      publicItems.forEach((item) => { if (item.id) mergedMap.set(item.id, item); });
+      privateItems.forEach((item) => { if (item.id) mergedMap.set(item.id, item); });
+      state.products = [...mergedMap.values()];
+      renderProducts();
+      syncDesignerProductOptions();
+      renderPreviewProduct();
+      updateEmbedCode();
     }
 
     async function syncPublicProduct(item) {
@@ -1742,7 +1806,7 @@
         };
         if (state.editId) {
           delete payload.createdAt;
-          await updateDoc(productDoc(state.editId), payload);
+          await setDoc(productDoc(state.editId), payload, { merge: true });
           showToast('המוצר עודכן');
           await syncPublicProduct({ ...payload, id: state.editId });
         } else {
@@ -1815,19 +1879,19 @@
 
     async function removeProduct(id) {
       if (!confirm('למחוק את המוצר?')) return;
-      await deleteDoc(productDoc(id));
+      try { await deleteDoc(productDoc(id)); } catch(e) { console.warn('Failed to delete private product (may not exist):', e); }
       try { await deleteDoc(publicProductDoc(id)); } catch(e) { console.warn('Failed to delete public product (may not exist):', e); }
       showToast('המוצר נמחק');
     }
     async function toggleProductActive(item) {
       const newActive = !productIsActive(item);
-      await updateDoc(productDoc(item.id), { active: newActive, status: newActive ? 'active' : 'inactive', updatedAt: serverTimestamp() });
+      await setDoc(productDoc(item.id), { active: newActive, status: newActive ? 'active' : 'inactive', updatedAt: serverTimestamp() }, { merge: true });
       await syncPublicProduct({ ...item, active: newActive, status: newActive ? 'active' : 'inactive' });
       showToast(newActive ? 'המוצר הופעל' : 'המוצר הושבת');
     }
     async function toggleProductPublished(item) {
       const newPublished = !(item.published === true);
-      await updateDoc(productDoc(item.id), { published: newPublished, updatedAt: serverTimestamp() });
+      await setDoc(productDoc(item.id), { published: newPublished, updatedAt: serverTimestamp() }, { merge: true });
       await syncPublicProduct({ ...item, published: newPublished });
       showToast(newPublished ? 'המוצר פורסם לאתרים חיצוניים' : 'המוצר הוסר מאתרים חיצוניים');
     }
@@ -1841,18 +1905,26 @@
 
     function subscribeProducts(uid) {
       if (state.unsubscribeProducts) state.unsubscribeProducts();
-      const qy = query(productsCollection(uid));
-      state.unsubscribeProducts = onSnapshot(qy, async (snapshot) => {
-        const firestoreItems = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        state.products = await hydrateProductsWithStorageImages(firestoreItems, uid);
-        renderProducts();
-        syncDesignerProductOptions();
-        renderPreviewProduct();
-        updateEmbedCode();
+      const privateQuery = query(productsCollection(uid));
+      const publicQuery = publicProductsByOwnerQuery(uid);
+      const unsubscribePrivate = onSnapshot(privateQuery, async (snapshot) => {
+        state.privateProducts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        await refreshMergedProducts(uid);
       }, (error) => {
         console.error(error);
         showToast(formatFirestoreError(error), true);
       });
+      const unsubscribePublic = onSnapshot(publicQuery, async (snapshot) => {
+        state.publicProducts = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        await refreshMergedProducts(uid);
+      }, (error) => {
+        console.error(error);
+        showToast(formatFirestoreError(error), true);
+      });
+      state.unsubscribeProducts = () => {
+        unsubscribePrivate();
+        unsubscribePublic();
+      };
     }
 
     function subscribeTheme(uid) {
@@ -2398,6 +2470,8 @@
         if (state.unsubscribeProducts) state.unsubscribeProducts();
         if (state.unsubscribeTheme) state.unsubscribeTheme();
         if (state.unsubscribeOverrides) state.unsubscribeOverrides();
+        state.privateProducts = [];
+        state.publicProducts = [];
         state.products = [];
         state.theme = { ...DEFAULT_PRODUCT_STYLE };
         applyThemeToPreview();
