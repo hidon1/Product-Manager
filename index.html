@@ -1212,6 +1212,10 @@
 
     // --- Public Products helpers ---
     function publicProductDoc(id) { return doc(db, 'publicProducts', id); }
+    function publicProductsCollection() { return collection(db, 'publicProducts'); }
+    function publicProductsByOwnerQuery(uid) {
+      return query(publicProductsCollection(), where('ownerId', '==', uid));
+    }
 
     function buildPublicProductPayload(item) {
       return {
@@ -1937,27 +1941,27 @@
       const productsOnlyCode = `fetch('${productsOnlyEndpoint}')
   .then((response) => response.json())
   .then((data) => {
-    // data.products מגיע מ-products.json ב-Firebase Storage
+    // data.products מגיע ישירות מ-Firestore (publicProducts)
     console.log(data.products);
   });`;
       const productsWithStyleCode = `fetch('${productsAndStyleEndpoint}')
   .then((response) => response.json())
   .then((data) => {
-    // data.products מ-products.json
-    // data.theme מ-product-style.json
+    // data.products מ-Firestore (publicProducts)
+    // data.theme מ-Firestore (users/{uid}/productBannerStyle/default)
     console.log(data.products, data.theme);
   });`;
       const apiFields = [
-        ['products', 'array', 'רשימת מוצרים מ-public/{uid}/products.json.'],
-        ['theme', 'object|null', 'עיצוב ברמת אתר מ-public/{uid}/product-style.json (רק במסלול products-with-style).'],
-        ['source', 'object', 'מידע מקור: storagePath ו-mode שנבחר.'],
+        ['products', 'array', 'רשימת מוצרים מ-Firestore: publicProducts לפי ownerId.'],
+        ['theme', 'object|null', 'עיצוב ברמת אתר מ-Firestore: users/{uid}/productBannerStyle/default (רק במסלול products-with-style).'],
+        ['source', 'object', 'מידע מקור: מסלולי Firestore ו-mode שנבחר.'],
         ['updatedAt', 'string', 'חותמת זמן ISO של תגובת ה-API.']
       ];
       const allFieldNames = apiFields.map(([key]) => key).join('\n');
       $('#embedProductsApiCodeBlock').textContent = productsOnlyCode;
       $('#embedProductsWithDesignApiCodeBlock').textContent = productsWithStyleCode;
       $('#apiFieldsBlock').innerHTML = `
-        <div class="guide-step"><strong>שלב 1 — אין iframe, רק JSON מה-Storage</strong><span>בצד אתר הלקוח לא צריך מסך התחברות ולא iframe. שולחים בקשה ל-API ומקבלים JSON ישירות מהקבצים ב-Firebase Storage.</span></div>
+        <div class="guide-step"><strong>שלב 1 — אין iframe, רק JSON מה-API</strong><span>בצד אתר הלקוח לא צריך מסך התחברות ולא iframe. שולחים בקשה ל-API ומקבלים JSON ישירות מ-Firestore.</span></div>
         <div class="guide-step"><strong>שלב 2 — בחירה בין שני מסלולים</strong><span><code>api=products</code> מחזיר רק ניהול מוצרים. <code>api=products-with-style</code> מחזיר גם את עיצוב המוצרים.</span></div>
         <div class="guide-step"><strong>שמות שדות מהירים</strong><pre class="code-block">${esc(allFieldNames)}</pre></div>
         <div class="field-table"><div class="field-table-head"><div>${esc(text('embed.fieldLabel'))}</div><div>${esc(text('embed.fieldType'))}</div><div>${esc(text('embed.fieldMeaning'))}</div></div>${apiFields.map(([key,type,desc]) => `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${desc}</div></div>`).join('')}</div>
@@ -2217,16 +2221,21 @@
     async function renderEmbedMode(uid) {
       const params = new URLSearchParams(window.location.search);
       const view = params.get('view') || 'cards';
-      const themeSnap = await getDoc(defaultProductStyleDoc(uid));
-      const theme = themeSnap.exists() ? { ...DEFAULT_PRODUCT_STYLE, ...themeSnap.data() } : { ...DEFAULT_PRODUCT_STYLE };
+      let theme = { ...DEFAULT_PRODUCT_STYLE };
+      try {
+        const themeSnap = await getDoc(defaultProductStyleDoc(uid));
+        if (themeSnap.exists()) theme = { ...DEFAULT_PRODUCT_STYLE, ...themeSnap.data() };
+      } catch (err) {
+        console.warn('Failed loading theme from Firestore, using defaults:', err);
+      }
       state.theme = { ...theme };
       state.designerDraft = { ...state.theme };
-      const qy = query(productsCollection(uid));
+      const qy = publicProductsByOwnerQuery(uid);
       if (view === 'data') {
         document.body.innerHTML = '<pre id="embedJsonRuntime" style="margin:0;padding:24px;font-family:ui-monospace,monospace;white-space:pre-wrap;"></pre>';
         const host = document.getElementById('embedJsonRuntime');
         onSnapshot(qy, (snapshot) => {
-          const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).filter(productIsActive).sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
+          const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).sort((a, b) => (b?.updatedAt?.seconds || 0) - (a?.updatedAt?.seconds || 0));
           host.textContent = JSON.stringify({ theme, products: items }, null, 2);
         });
         return;
@@ -2241,8 +2250,7 @@
       onSnapshot(qy, (snapshot) => {
         const items = snapshot.docs
           .map((d) => ({ id: d.id, ...d.data() }))
-          .filter(productIsActive)
-          .sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
+          .sort((a, b) => (b?.updatedAt?.seconds || 0) - (a?.updatedAt?.seconds || 0));
         host.innerHTML = `<div class="embed-runtime-shell full-page"><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.desktopColumns || state.theme.desktopColumns || 3))};">${items.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false, state.theme)).join('')}</div></div>`;
       });
       document.body.addEventListener('click', (event) => {
@@ -2280,29 +2288,37 @@
           pre.textContent = JSON.stringify({ error: 'Missing uid query param' }, null, 2);
           return;
         }
-        const products = await fetchStorageJson(`public/${uid}/products.json`);
+        const productsSnapshot = await getDocs(publicProductsByOwnerQuery(uid));
+        const products = productsSnapshot.docs.map((docSnap) => ({ id: docSnap.id, ...docSnap.data() }))
+          .sort((a, b) => (b?.updatedAt?.seconds || 0) - (a?.updatedAt?.seconds || 0));
         if (mode === 'products') {
           pre.textContent = JSON.stringify({
             mode,
-            source: { storagePath: `public/${uid}/products.json` },
+            source: { firestorePath: `publicProducts (ownerId == ${uid})` },
             products,
             updatedAt: new Date().toISOString()
           }, null, 2);
           return;
         }
-        const theme = await fetchStorageJson(`public/${uid}/product-style.json`);
+        let theme = null;
+        try {
+          const themeSnap = await getDoc(defaultProductStyleDoc(uid));
+          if (themeSnap.exists()) theme = { ...DEFAULT_PRODUCT_STYLE, ...themeSnap.data() };
+        } catch (err) {
+          console.warn('Failed loading theme from Firestore for API response:', err);
+        }
         pre.textContent = JSON.stringify({
           mode,
           source: {
-            productsPath: `public/${uid}/products.json`,
-            stylePath: `public/${uid}/product-style.json`
+            productsPath: `publicProducts (ownerId == ${uid})`,
+            stylePath: `users/${uid}/productBannerStyle/default`
           },
           products,
           theme,
           updatedAt: new Date().toISOString()
         }, null, 2);
       } catch (err) {
-        pre.textContent = JSON.stringify({ error: 'Failed to load storage JSON', message: err.message }, null, 2);
+        pre.textContent = JSON.stringify({ error: 'Failed to load Firestore data', message: err.message }, null, 2);
       }
     }
 
