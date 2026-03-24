@@ -12,7 +12,7 @@
       --panel-strong: rgba(255, 255, 255, 0.94);
       --line: rgba(99, 102, 241, 0.18);
       --text: #172033;
-      --muted: #52607a;
+      --muted: #3f4d66;
       --primary: #4f46e5;
       --primary-2: #0891b2;
       --accent: #16a34a;
@@ -37,7 +37,7 @@
       --store-button-height: 44px;
     }
 
-    * { box-sizing: border-box; }
+    * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: geometricPrecision; }
     html, body { margin: 0; padding: 0; }
     body {
       min-height: 100vh;
@@ -302,7 +302,7 @@
       opacity: 0;
       transition: opacity .3s ease;
     }
-    .auth-showcase:hover::before, .panel:hover::before, .product-card:hover::before { opacity: 1; }
+    .auth-showcase:hover::before, .product-card:hover::before { opacity: 1; }
     .panel, .product-card, .stat-card, .setting-card, .embed-card, .template-card, .auth-showcase, .auth-card { position: relative; }
     .panel { overflow: hidden; }
     .section-head h3, .topbar h2, .auth-showcase h2 { letter-spacing: -.02em; }
@@ -705,7 +705,7 @@
             <div class="section-head">
               <div>
                 <h3 data-i18n="designer.title">עיצוב האתר ותצוגת הכרטיס</h3>
-                <p data-i18n="designer.desc">יש סגנון כרטיס אחיד אחד. אפשר לבחור אם להחיל את השינויים על כל הכרטיסיות או רק על כרטיסייה נבחרת, ולצפות מיד בתוצאה.</p>
+                
               </div>
             </div>
             <div class="settings-grid">
@@ -751,10 +751,6 @@
               <div class="setting-card">
                 <h4 data-i18n="designer.previewTitle">תצוגה מקדימה חיה</h4>
                 <div class="preview-stage">
-                  <div class="preview-toolbar" style="margin-bottom:12px;">
-                    <span class="badge" id="activeTemplateBadge">כל הכרטיסיות</span>
-                    <span class="badge" id="cartToggleBadge">סל פעיל</span>
-                  </div>
                   <div class="product-preview-shell" id="productPreviewShell" data-template="classic"></div>
                 </div>
               </div>
@@ -1020,7 +1016,7 @@
         'products.title': 'המוצרים שלי','products.desc': 'חיפוש, סינון, עריכה, שכפול ומחיקה — עם סגנון כרטיס אחיד וגמיש.','products.add': 'הוסף מוצר','products.refresh': 'רענן','products.search': 'חפש לפי שם, תיאור או תג','products.empty': 'עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.','products.desktopColumns': 'כמות כרטיסים בשורה במחשב','products.mobileColumns': 'כמות כרטיסים בשורה בטלפון',
         'filters.all': 'כל המוצרים','filters.active': 'רק פעילים','filters.inactive': 'מושבתים','filters.promo': 'עם מבצע','filters.regular': 'ללא מבצע','sort.newest': 'החדש ביותר','sort.name': 'לפי שם','sort.priceAsc': 'מחיר עולה','sort.priceDesc': 'מחיר יורד',
         'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'יש שתי דרכי חיבור: iFrame שמציג HTML מלא עם העיצוב, או API לנתונים בלבד (JSON).','embed.copyId': 'העתק API בלי עיצוב','embed.copyCode': 'העתק קוד iFrame','embed.iframeTitle': '1. iFrame — HTML מלא מוכן לתצוגה','embed.iframeDesc': 'השתמשו בקוד הבא כדי להטמיע iFrame שמציג את כל ה-HTML והעיצוב מתוך המערכת שלכם, כולל תמונות ומבנה מלא.','embed.apiTitle': '2. API לנתונים בלבד (JSON)','embed.apiDesc': 'השתמשו בכתובת הזו כדי לקבל JSON נקי ולבנות תצוגה עצמאית באתר שלכם.','embed.devGuideTitle': 'הוראות למפתחים','embed.devGuideDesc': 'כל ההסברים כאן בעברית, אבל שמות השדות והקוד נשארים באנגלית כדי שתוכלו להעתיק אותם כמו שהם.','embed.copyFields': 'העתק את כל שמות השדות','embed.fieldLabel': 'שם שדה','embed.fieldType': 'סוג','embed.fieldMeaning': 'מתי צריך להעתיק',
-        'designer.title': 'עיצוב האתר ותצוגת הכרטיס','designer.desc': 'יש סגנון כרטיס אחיד אחד, עם אנימציות חדות שנראות גם בתצוגה המקדימה וגם באתר המוטמע.','designer.styleTitle': 'עיצוב כרטיס','designer.applyModeLabel': 'איפה להחיל את העיצוב','designer.applyAll': 'על כל הכרטיסיות','designer.applySelected': 'רק על הכרטיסייה הנבחרת','designer.productSelectLabel': 'בחר כרטיסייה','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardTone': 'סוג רקע לכרטיס','designer.cardShadow': 'עומק צל','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
+        'designer.title': 'עיצוב האתר ותצוגת הכרטיס','designer.desc': '','designer.styleTitle': 'עיצוב כרטיס','designer.applyModeLabel': 'איפה להחיל את העיצוב','designer.applyAll': 'על כל הכרטיסיות','designer.applySelected': 'רק על הכרטיסייה הנבחרת','designer.productSelectLabel': 'בחר כרטיסייה','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardTone': 'סוג רקע לכרטיס','designer.cardShadow': 'עומק צל','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
         'template.classic': 'כרטיס אחיד',
         'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.platformName': 'שם הפלטפורמה','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה מופיעים כבאנר קטן עם דגלים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
         'ideas.title': 'מצב המערכת','ideas.1': '• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.','ideas.2': '• תמונות יישמרו ב-Storage ואם אין הרשאה הן יישמרו ישירות במסמך המוצר כדי לא לחסום שמירה.','ideas.3': '• קוד ההטמעה משתמש במזהה החשבון בלבד.','ideas.4': '• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.','ideas.5': '• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.','ideas.6': '• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.',
@@ -1224,8 +1220,6 @@
       document.documentElement.style.setProperty('--store-image-height', `${Number(state.theme.imageHeight || 220)}px`);
       document.documentElement.style.setProperty('--store-align', state.theme.textAlign || 'right');
       $('#productPreviewShell').dataset.template = 'classic';
-      $('#activeTemplateBadge').textContent = state.theme.applyMode === 'selected' ? 'כרטיס בודד' : 'כל הכרטיסיות';
-      $('#cartToggleBadge').textContent = state.theme.showCart ? 'סל פעיל' : 'סל מוסתר';
       $('#designerApplyMode').value = state.theme.applyMode || 'all';
       $('#toggleCartButton').classList.toggle('active', !!state.theme.showCart);
       $('#themePrimaryColor').value = normalizeHex(state.theme.primaryColor);
@@ -1441,6 +1435,29 @@
       return state.products.find((item) => item.id === state.theme.selectedProductId) || state.products[0] || null;
     }
 
+    function getDesignerPreviewProduct() {
+      const source = getPreviewProduct();
+      const theme = state.theme || DEFAULT_THEME;
+      return {
+        ...source,
+        useSiteTheme: 'custom',
+        showCart: theme.showCart ? 'show' : 'hide',
+        accentColor: theme.primaryColor,
+        cardBackground: theme.cardBackground,
+        textColor: theme.textColor,
+        buttonColor: theme.buttonColor,
+        cardTone: theme.cardTone,
+        cardShadow: theme.cardShadow,
+        cardPadding: theme.cardPadding,
+        borderRadius: theme.borderRadius,
+        imageHeight: theme.imageHeight,
+        textAlign: theme.textAlign,
+        animationStyle: theme.animationStyle,
+        animationDuration: theme.animationDuration,
+        animationDelay: theme.animationDelay
+      };
+    }
+
     function buildModalPreviewProduct() {
       return {
         name: $('#productName').value.trim() || 'Preview product',
@@ -1466,7 +1483,7 @@
     }
 
     function renderPreviewProduct() {
-      $('#productPreviewShell').innerHTML = buildStoreCardHTML(getPreviewProduct(), true);
+      $('#productPreviewShell').innerHTML = buildStoreCardHTML(getDesignerPreviewProduct(), true);
     }
 
     function renderModalProductPreview() {
