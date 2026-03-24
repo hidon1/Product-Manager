@@ -1137,6 +1137,17 @@
       return map[code] || err?.message || 'Authentication error';
     }
 
+    function formatFirestoreError(err) {
+      const code = err?.code || '';
+      const map = {
+        'permission-denied': 'אין הרשאה לגשת לנתונים. צריך לפרסם כללי Firestore ולהתחבר עם אותו משתמש בעל הפרויקט.',
+        'unauthenticated': 'החיבור פג או לא קיים. התנתק/י והתחבר/י מחדש.',
+        'unavailable': 'Firestore לא זמין כרגע או שיש בעיית רשת זמנית.',
+        'failed-precondition': 'חסר אינדקס/הגדרה ב-Firestore. בדוק/י הודעת שגיאה בקונסול.'
+      };
+      return map[code] || err?.message || 'שגיאה בגישה ל-Firestore';
+    }
+
     async function signInGoogle() {
       $('#googleLoginBtn').disabled = true;
       $('#googleAuthStatus').textContent = 'מעביר ל-Google בצורה מאובטחת…';
@@ -1824,7 +1835,7 @@
         updateEmbedCode();
       }, (error) => {
         console.error(error);
-        showToast('בדוק הרשאות Firestore וחיבור למסמכי המוצרים בענן', true);
+        showToast(formatFirestoreError(error), true);
       });
     }
 
@@ -1835,6 +1846,9 @@
         else state.theme = { ...DEFAULT_THEME };
         state.designerDraft = { ...state.theme };
         applyThemeToPreview();
+      }, (error) => {
+        console.error(error);
+        showToast(formatFirestoreError(error), true);
       });
     }
 
