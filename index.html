@@ -2076,29 +2076,64 @@
     }
 
     async function renderEmbedMode(uid, mode = 'styled') {
-      const themeSnap = await getDoc(themeDocRef(uid));
-      const theme = themeSnap.exists() ? { ...DEFAULT_THEME, ...themeSnap.data() } : { ...DEFAULT_THEME };
+      let theme = { ...DEFAULT_THEME };
+      try {
+        const themeSnap = await getDoc(themeDocRef(uid));
+        if (themeSnap.exists()) theme = { ...DEFAULT_THEME, ...themeSnap.data() };
+      } catch (err) {
+        if (err?.code === 'permission-denied') {
+          console.info('Firebase rules: אין הרשאה לקריאת ערכת נושא ציבורית. ממשיך עם ברירת מחדל.');
+        } else {
+          console.warn('Theme load warning:', err);
+        }
+      }
       state.theme = { ...theme };
-      const qy = query(productsCollection(uid));
+      const qy = query(
+        collection(db, 'publicProducts'),
+        where('ownerId', '==', uid),
+        where('published', '==', true)
+      );
       if (mode === 'json') {
         document.body.innerHTML = '';
-        onSnapshot(qy, (snapshot) => {
-          const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).filter(productIsActive).sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
-          document.body.textContent = JSON.stringify({ theme, products: items }, null, 2);
-        });
+        onSnapshot(
+          qy,
+          (snapshot) => {
+            const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).filter(productIsActive).sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
+            document.body.textContent = JSON.stringify({ theme, products: items }, null, 2);
+          },
+          (err) => {
+            if (err?.code === 'permission-denied') {
+              console.info('Firebase rules: אין הרשאה ל-publicProducts. בדוק rules עבור iframe ציבורי.');
+            } else {
+              console.warn('Public products JSON warning:', err);
+            }
+            document.body.textContent = JSON.stringify({ theme, products: [] }, null, 2);
+          }
+        );
         return;
       }
       document.body.innerHTML = '<div id="embedRuntime" style="padding:24px"></div>';
       document.documentElement.dir = 'ltr';
       document.documentElement.lang = 'en';
       const host = document.getElementById('embedRuntime');
-      onSnapshot(qy, (snapshot) => {
-        const items = snapshot.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .filter(productIsActive)
-          .sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
-        host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'המוצרים שלנו')}</h2><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.embedColumns || 3))};">${items.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false)).join('')}</div></div>`;
-      });
+      onSnapshot(
+        qy,
+        (snapshot) => {
+          const items = snapshot.docs
+            .map((d) => ({ id: d.id, ...d.data() }))
+            .filter(productIsActive)
+            .sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
+          host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'המוצרים שלנו')}</h2><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.embedColumns || 3))};">${items.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false)).join('')}</div></div>`;
+        },
+        (err) => {
+          if (err?.code === 'permission-denied') {
+            console.info('Firebase rules: אין הרשאה ל-publicProducts. בדוק rules עבור iframe ציבורי.');
+          } else {
+            console.warn('Public products styled warning:', err);
+          }
+          host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'המוצרים שלנו')}</h2><p style="color:#64748b;">אין כרגע מוצרים ציבוריים להצגה.</p></div>`;
+        }
+      );
       document.body.addEventListener('click', (event) => {
         const actionEl = event.target.closest('[data-action]');
         if (!actionEl) return;
@@ -2209,6 +2244,10 @@
     });
 
     const params = new URLSearchParams(window.location.search);
+    const isInIframe = (() => {
+      try { return window.self !== window.top; }
+      catch { return true; }
+    })();
     state.embedMode = params.get('embed') === '1';
     state.embedUid = params.get('uid') || '';
 
@@ -2221,8 +2260,10 @@
       renderSingleProductEmbed(singleProductId);
     } else if (apiMode === 'json' && state.embedUid) {
       renderEmbedMode(state.embedUid, 'json');
-    } else if ((apiMode === 'styled' || state.embedMode) && state.embedUid) {
+    } else if ((apiMode === 'styled' || state.embedMode || (isInIframe && state.embedUid)) && state.embedUid) {
       renderEmbedMode(state.embedUid, 'styled');
+    } else if (isInIframe) {
+      document.body.innerHTML = '<div style="padding:24px;font-family:Inter,Heebo,Arial,sans-serif;color:#64748b;">iFrame public mode: חסר uid בקישור ההטמעה.</div>';
     } else {
       attachEvents();
       renderSwatches();
