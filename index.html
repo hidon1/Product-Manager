@@ -627,7 +627,6 @@
         <div class="side-group">
           <div class="side-title" data-i18n="nav.shortcuts">קיצורים</div>
           <button class="nav-btn" id="quickAddBtn"><span class="left"><span>✨</span><span data-i18n="nav.addProduct">הוסף מוצר</span></span></button>
-          <button class="nav-btn" id="exportJsonBtn"><span class="left"><span>🧾</span><span data-i18n="nav.export">ייצוא JSON</span></span></button>
           <button class="nav-btn" id="copyEmbedBtn"><span class="left"><span>📋</span><span data-i18n="nav.copyEmbed">העתק קוד חיבור</span></span></button>
         </div>
 
@@ -1078,7 +1077,7 @@
         'brand.title': 'מוצרלה','brand.subtitle': 'מוצרלה, מערכת לניהול מוצרים','showcase.badge': 'פלטפורמת קטלוג עברית חכמה','showcase.title': 'קטלוג נע, חד ומוכן לעבודה מול לקוחות','showcase.desc': 'התחברות מהירה, ניהול מוצרים ב-Firebase, חיבור אוטומטי לאתר הלקוח ותצוגת כרטיסים חדה שנשמרת גם במסך הניהול וגם באתר.',
         'f1.t': 'התחברות חכמה','f1.d': 'Google Redirect יציב ומאובטח','f2.t': 'סנכרון מוצרים','f2.d': 'חיבור לאתר לפי מזהה חשבון','f3.t': 'עיצוב חי','f3.d': 'כרטיסים חדים עם אנימציה נראית לעין','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
         'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.','auth.or': 'או התחבר עם פרטי משתמש','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.',
-        'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב כרטיסיות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.export': 'ייצוא JSON','nav.copyEmbed': 'העתק קוד חיבור',
+        'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב כרטיסיות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.copyEmbed': 'העתק קוד חיבור',
         'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא למוצרלה שלך','app.sub': '','app.logout': 'התנתק',
         'hero.title': '','hero.desc': '','hero.add': 'הוסף מוצר חדש','hero.demo': 'הכנס מוצרי דוגמה','hero.embed': 'צור קוד חיבור לאתר',
         'stats.activeProducts': 'סך הכל מוצרים פעילים','stats.products': 'סך הכל מוצרים פעילים','stats.productsSub': '','stats.promos': '','stats.promosSub': '','stats.templates': '','stats.templatesSub': '','stats.updated': '','stats.updatedSub': '',
@@ -1968,25 +1967,6 @@
       showToast('נוספו מוצרי דוגמה');
     }
 
-    function exportProductsJson() {
-      const productFields = ['id','name','description','shortDescription','slug','category','sortOrder','price','salePrice','active','inStock','stockQty','sku','imageUrl','imagePath','gallery','url','tags','notes','variants','addons','purchaseMode','buttonText','showCart','requiresVariantSelection','minQty','maxQty','stepQty','createdAt','updatedAt'];
-      const productsPayload = state.products.map((item) => Object.fromEntries(productFields.map((field) => [field, item[field] ?? null])));
-      const stylePayload = { ...state.theme, overrides: state.productStyleOverrides };
-      const files = [
-        { name: 'products.json', payload: productsPayload },
-        { name: 'product-style.json', payload: stylePayload }
-      ];
-      files.forEach((file) => {
-        const blob = new Blob([JSON.stringify(file.payload, null, 2)], { type: 'application/json' });
-        const url = URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = url;
-        a.download = file.name;
-        a.click();
-        URL.revokeObjectURL(url);
-      });
-    }
-
     function copyText(value, successMessage) {
       navigator.clipboard.writeText(value).then(() => showToast(successMessage)).catch(() => showToast('לא ניתן להעתיק אוטומטית', true));
     }
@@ -2018,6 +1998,7 @@
       const apiFields = [
         ['products', 'array', 'רשימת מוצרים מ-Firestore: publicProducts לפי ownerId.'],
         ['theme', 'object|null', 'עיצוב ברמת אתר מ-Firestore: users/{uid}/productBannerStyle/default (רק במסלול products-with-style).'],
+        ['product', 'object|null', 'מוצר יחיד מ-Firestore לפי productId (רק במסלול api=product).'],
         ['source', 'object', 'מידע מקור: מסלולי Firestore ו-mode שנבחר.'],
         ['updatedAt', 'string', 'חותמת זמן ISO של תגובת ה-API.']
       ];
@@ -2026,7 +2007,7 @@
       $('#embedProductsWithDesignApiCodeBlock').textContent = productsWithStyleCode;
       $('#apiFieldsBlock').innerHTML = `
         <div class="guide-step"><strong>שלב 1 — אין iframe, רק JSON מה-API</strong><span>בצד אתר הלקוח לא צריך מסך התחברות ולא iframe. שולחים בקשה ל-API ומקבלים JSON ישירות מ-Firestore.</span></div>
-        <div class="guide-step"><strong>שלב 2 — בחירה בין שני מסלולים</strong><span><code>api=products</code> מחזיר רק ניהול מוצרים. <code>api=products-with-style</code> מחזיר גם את עיצוב המוצרים.</span></div>
+        <div class="guide-step"><strong>שלב 2 — בחירה בין מסלולים</strong><span><code>api=products</code> מחזיר רשימת מוצרים, <code>api=products-with-style</code> מחזיר גם עיצוב, ו-<code>api=product&amp;productId=...</code> מחזיר מוצר יחיד.</span></div>
         <div class="guide-step"><strong>שמות שדות מהירים</strong><pre class="code-block">${esc(allFieldNames)}</pre></div>
         <div class="field-table"><div class="field-table-head"><div>${esc(text('embed.fieldLabel'))}</div><div>${esc(text('embed.fieldType'))}</div><div>${esc(text('embed.fieldMeaning'))}</div></div>${apiFields.map(([key,type,desc]) => `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${desc}</div></div>`).join('')}</div>
       `;
@@ -2082,7 +2063,7 @@
 
       // API URL
       const apiUrl = new URL(base);
-      apiUrl.searchParams.set('api', '1');
+      apiUrl.searchParams.set('api', 'product');
       apiUrl.searchParams.set('productId', productId);
       $('#singleApiUrl').textContent = apiUrl.toString();
 
@@ -2135,7 +2116,6 @@
       $('#cancelModalBtn').addEventListener('click', closeModal);
       $('#addVariantBtn').addEventListener('click', () => addVariantGroup());
       $('#productForm').addEventListener('submit', saveProduct);
-      $('#exportJsonBtn').addEventListener('click', exportProductsJson);
       $('#refreshBtn')?.addEventListener('click', renderProducts);
       $('#searchInput').addEventListener('input', renderProducts);
       $('#filterPromo')?.addEventListener('change', renderProducts);
@@ -2355,6 +2335,33 @@
       document.body.innerHTML = '<pre style="margin:0;padding:24px;font-family:ui-monospace,monospace;white-space:pre-wrap;"></pre>';
       const pre = document.querySelector('pre');
       try {
+        const singleProductId = new URLSearchParams(window.location.search).get('productId') || '';
+        if (mode === 'product') {
+          if (!singleProductId) {
+            pre.textContent = JSON.stringify({ error: 'Missing productId query param' }, null, 2);
+            return;
+          }
+          const singleSnap = await getDoc(publicProductDoc(singleProductId));
+          if (!singleSnap.exists()) {
+            pre.textContent = JSON.stringify({
+              mode,
+              product: null,
+              source: { firestorePath: `publicProducts/${singleProductId}` },
+              updatedAt: new Date().toISOString()
+            }, null, 2);
+            return;
+          }
+          const rawProduct = { id: singleSnap.id, ...singleSnap.data() };
+          const productOwnerUid = rawProduct.ownerId || uid || '';
+          const [product] = await hydrateProductsWithStorageImages([rawProduct], productOwnerUid);
+          pre.textContent = JSON.stringify({
+            mode,
+            product,
+            source: { firestorePath: `publicProducts/${singleProductId}` },
+            updatedAt: new Date().toISOString()
+          }, null, 2);
+          return;
+        }
         if (!uid) {
           pre.textContent = JSON.stringify({ error: 'Missing uid query param' }, null, 2);
           return;
@@ -2423,6 +2430,7 @@
           return;
         }
         const data = snap.data();
+        const [hydrated] = await hydrateProductsWithStorageImages([{ id: snap.id, ...data }], data.ownerId || '');
         const item = {
           ...data,
           accentColor: accentColor || data.theme?.accentColor || '#60a5fa',
@@ -2434,7 +2442,7 @@
           font: data.theme?.font || 'Inter',
           tags: data.tags || [],
           variants: (data.upgrades || []).map(u => ({ name: u.name, options: (u.options || []).map(o => ({ label: o, value: o })) })),
-          imageUrl: data.imageUrl || '',
+          imageUrl: hydrated?.imageUrl || data.imageUrl || '',
           showCart: 'hide',
           useSiteTheme: 'custom'
         };
@@ -2488,6 +2496,8 @@
 
     if (apiMode === 'products' || apiMode === 'products-with-style') {
       renderApiMode(params.get('uid') || '', apiMode);
+    } else if (apiMode === 'product' && singleProductId) {
+      renderApiMode(params.get('uid') || '', 'product');
     } else if (state.embedMode && singleProductId) {
       renderSingleProductEmbed(singleProductId);
     } else if (state.embedMode && state.embedUid) {
