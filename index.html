@@ -12,6 +12,7 @@
       --text: #102033;
       --muted: #5f6f82;
       --brand: #1d4ed8;
+      --brand-2: #2563eb;
       --ok: #15803d;
       --danger: #b91c1c;
     }
@@ -23,6 +24,16 @@
       color: var(--text);
     }
     .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    .hero {
+      background: linear-gradient(135deg, #1d4ed8, #4f46e5);
+      color: #fff;
+      border-radius: 18px;
+      padding: 22px;
+      margin-bottom: 14px;
+      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
+    }
+    .hero h1 { margin-bottom: 8px; }
+    .hero p { margin: 0; opacity: 0.95; }
     .card {
       background: var(--panel);
       border: 1px solid var(--border);
@@ -43,8 +54,15 @@
       font: inherit;
     }
     textarea { min-height: 90px; resize: vertical; }
-    button { cursor: pointer; background: #fff; }
-    .btn-brand { background: var(--brand); color: #fff; border-color: var(--brand); }
+    button { cursor: pointer; background: #fff; transition: all .2s ease; }
+    button:hover { transform: translateY(-1px); box-shadow: 0 8px 15px rgba(16, 32, 51, 0.08); }
+    .btn-brand { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; border-color: var(--brand); }
+    .btn-google {
+      background: #fff;
+      border: 1px solid #cfd8e5;
+      color: #111827;
+      font-weight: 600;
+    }
     .btn-ok { background: var(--ok); color: #fff; border-color: var(--ok); }
     .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
     .row { display: flex; gap: 10px; flex-wrap: wrap; }
@@ -72,7 +90,10 @@
 </head>
 <body>
   <div class="wrap">
-    <h1>ניהול מוצרים ועיצוב (Firebase)</h1>
+    <section class="hero">
+      <h1>ניהול מוצרים ועיצוב (Firebase)</h1>
+      <p>מערכת ניהול מוצרים מחוברת ל-Firebase עם התחברות רגילה וכניסה דרך Google Redirect.</p>
+    </section>
 
     <section id="authCard" class="card">
       <h2>כניסה / הרשמה</h2>
@@ -89,6 +110,7 @@
       <div class="row" style="margin-top:10px;">
         <button id="loginBtn" class="btn-brand">התחברות</button>
         <button id="signupBtn">יצירת חשבון</button>
+        <button id="googleLoginBtn" class="btn-google">התחברות עם Google</button>
       </div>
       <p id="authMsg" class="msg"></p>
     </section>
@@ -194,7 +216,10 @@
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
       signOut,
-      onAuthStateChanged
+      onAuthStateChanged,
+      GoogleAuthProvider,
+      signInWithRedirect,
+      getRedirectResult
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       getFirestore,
@@ -216,18 +241,20 @@
       getDownloadURL
     } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
-    // TODO: החלף בערכי הפרויקט שלך
     const firebaseConfig = {
-      apiKey: "YOUR_API_KEY",
-      authDomain: "YOUR_AUTH_DOMAIN",
-      projectId: "YOUR_PROJECT_ID",
-      storageBucket: "YOUR_STORAGE_BUCKET",
-      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
-      appId: "YOUR_APP_ID"
+      apiKey: "AIzaSyC3LYWwTbQFS9i3Jq1YAg9osQURQ_Gknks",
+      authDomain: "product-manager-a084a.firebaseapp.com",
+      projectId: "product-manager-a084a",
+      storageBucket: "product-manager-a084a.firebasestorage.app",
+      messagingSenderId: "534748662537",
+      appId: "1:534748662537:web:9543f4a4bf137ad22e61d8",
+      measurementId: "G-JLX2H2E69M"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
+    const googleProvider = new GoogleAuthProvider();
+    googleProvider.setCustomParameters({ prompt: "select_account" });
     const db = getFirestore(app);
     const storage = getStorage(app);
 
@@ -414,6 +441,14 @@
       }
     });
 
+    el("googleLoginBtn").addEventListener("click", async () => {
+      try {
+        await signInWithRedirect(auth, googleProvider);
+      } catch (e) {
+        setMessage("authMsg", e.message, "err");
+      }
+    });
+
     el("logoutBtn").addEventListener("click", async () => {
       await signOut(auth);
     });
@@ -447,6 +482,14 @@
         await loadProducts(uid);
       }
     });
+
+    getRedirectResult(auth)
+      .then((result) => {
+        if (result?.user) {
+          setMessage("authMsg", `ברוך הבא ${result.user.displayName || result.user.email || ""}`.trim());
+        }
+      })
+      .catch((e) => setMessage("authMsg", e.message, "err"));
 
     onAuthStateChanged(auth, async (user) => {
       if (!user) {
