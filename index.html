@@ -1,2412 +1,468 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>מוצרלה — מערכת לניהול מוצרים</title>
-  <meta name="theme-color" content="#f8fafc" />
+  <title>Product Manager • Firebase</title>
   <style>
     :root {
-      --bg: #eef4ff;
-      --panel: rgba(255, 255, 255, 0.88);
-      --panel-strong: rgba(255, 255, 255, 0.94);
-      --line: rgba(99, 102, 241, 0.18);
-      --text: #172033;
-      --muted: #52607a;
-      --primary: #4f46e5;
-      --primary-2: #0891b2;
-      --accent: #16a34a;
-      --warning: #d97706;
-      --danger: #dc2626;
-      --radius: 24px;
-      --radius-md: 18px;
-      --radius-sm: 14px;
-      --shadow: 0 22px 55px rgba(37,99,235,.12);
-      --input: rgba(255,255,255,.96);
-      --chip: rgba(79, 70, 229, 0.10);
-      --surface-grad: linear-gradient(180deg, rgba(255,255,255,.98), rgba(236,245,255,.96));
-      --hero-grad: linear-gradient(135deg, rgba(224,231,255,.95), rgba(253,230,255,.92) 42%, rgba(236,254,255,.95));
-      --hero-accent: linear-gradient(135deg, #7c3aed, #06b6d4, #f97316);
-      --surface-highlight: linear-gradient(135deg, rgba(255,255,255,.98), rgba(240,249,255,.94), rgba(250,245,255,.96));
-      --preview-bg: linear-gradient(135deg, rgba(79,70,229,.16), rgba(8,145,178,.08));
-      --preview-card: #ffffff;
-      --preview-text: #172033;
-      --preview-muted: #5b657b;
-      --preview-btn-bg: #1d4ed8;
-      --preview-btn-text: #ffffff;
-      --store-button-height: 44px;
+      --bg: #f3f6fb;
+      --panel: #fff;
+      --border: #d9e2ef;
+      --text: #102033;
+      --muted: #5f6f82;
+      --brand: #1d4ed8;
+      --ok: #15803d;
+      --danger: #b91c1c;
     }
-
     * { box-sizing: border-box; }
-    html, body { margin: 0; padding: 0; }
     body {
-      min-height: 100vh;
+      margin: 0;
+      font-family: "Heebo", Arial, sans-serif;
+      background: var(--bg);
       color: var(--text);
-      font-family: Inter, "Heebo", "Assistant", "Segoe UI", Arial, sans-serif;
-      background:
-        radial-gradient(circle at top right, rgba(96,165,250,.18), transparent 22%),
-        radial-gradient(circle at 18% 18%, rgba(244,114,182,.14), transparent 18%),
-        radial-gradient(circle at bottom left, rgba(79,70,229,.10), transparent 20%),
-        linear-gradient(180deg, #eef4ff, #f5f3ff 30%, #ecfeff 62%, #dbeafe 100%);
-      background-attachment: fixed;
     }
-    a { color: inherit; text-decoration: none; }
-    button, input, select, textarea { font: inherit; }
-    .hidden { display: none !important; }
-
-    .auth-screen {
-      min-height: 100vh;
-      display: grid;
-      place-items: center;
-      padding: 24px;
-    }
-    .auth-layout {
-      width: min(1180px, 100%);
-      display: grid;
-      grid-template-columns: 1.08fr .92fr;
-      gap: 22px;
-    }
-    .auth-showcase, .auth-card, .panel, .product-card, .stat-card, .modal-card, .template-card, .code-block {
-      border: 1px solid var(--line);
-      box-shadow: var(--shadow);
-    }
-    .auth-showcase, .auth-card { border-radius: 30px; padding: 28px; }
-    .auth-showcase {
-      background: var(--hero-grad);
-      position: relative;
-      overflow: hidden;
-    }
-    .auth-showcase::after, .hero::after {
-      content: "";
-      position: absolute;
-      width: 250px;
-      height: 250px;
-      border-radius: 50%;
-      background: radial-gradient(circle, rgba(96,165,250,.24), transparent 62%);
-      inset: auto -80px -80px auto;
-      pointer-events: none;
-    }
-    .auth-card { background: var(--surface-grad); display: grid; gap: 16px; align-content: center; }
-    .badge {
-      display: inline-flex; align-items: center; gap: 8px;
-      width: fit-content; padding: 8px 12px; border-radius: 999px;
-      border: 1px solid rgba(148,163,184,.22); background: rgba(255,255,255,.04);
-      color: var(--muted); font-size: .84rem;
-    }
-    .brand {
-      display: flex; align-items: center; gap: 14px; padding: 12px;
-      border: 1px solid var(--line); border-radius: 22px;
-      background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(239,246,255,.88));
-      margin: 18px 0 22px;
-    }
-    .logo-wrap { width: 72px; height: 72px; display: grid; place-items: center; flex: 0 0 auto; }
-    .logo-mark { width: 72px; height: 72px; object-fit: contain; filter: drop-shadow(0 14px 26px rgba(37,99,235,.22)); }
-    .brand-wordmark { display: block; width: min(100%, 220px); height: auto; margin-bottom: 8px; }
-    h1,h2,h3,h4,p { margin-top: 0; }
-    .feature-list { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 12px; margin-top: 20px; }
-    .feature-item {
-      border: 1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.72);
-    }
-    .feature-item span, .helper, .mini, .section-head p, .sidebar-foot p, .product-desc, .embed-help, .template-meta, .setting-card p, .code-note {
-      color: var(--muted); line-height: 1.65;
-    }
-
-    .tabs { display:grid; grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 6px; border-radius: 16px; background: rgba(255,255,255,.04); }
-    .tab, .btn, .nav-btn, .toggle, .template-select, .swatch-btn {
-      transition: .22s ease;
-    }
-    .tab {
-      border:0; border-radius: 12px; background: transparent; color: var(--muted); padding: 12px; cursor: pointer; font-weight: 700;
-    }
-    .tab.active { background: rgba(96,165,250,.14); color: var(--text); }
-    .form-grid, .field { display: grid; gap: 8px; }
-    .input, .select, .textarea {
-      width: 100%; border: 1px solid rgba(148,163,184,.22); background: var(--input); color: var(--text);
-      border-radius: 15px; padding: 13px 14px; outline: none;
-    }
-    .textarea { min-height: 120px; resize: vertical; }
-    .input:focus, .select:focus, .textarea:focus {
-      border-color: rgba(96,165,250,.56); box-shadow: 0 0 0 4px rgba(96,165,250,.12);
-    }
-    .btn {
-      border: 1px solid transparent; border-radius: 15px; padding: 12px 16px; cursor: pointer;
-      background: rgba(255,255,255,.04); color: var(--text); display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-weight: 700;
-    }
-    .btn:hover, .nav-btn:hover, .template-select:hover, .swatch-btn:hover { transform: translateY(-1px); }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; }
-    .btn-outline { border-color: rgba(148,163,184,.24); }
-    .btn-success { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.22); color: #166534; }
-    .btn-danger { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.22); color: #991b1b; }
-    .btn-google { background: white; color: #111827; }
-
-    .app-shell { min-height: 100vh; display: grid; grid-template-columns: 320px 1fr; }
-    .sidebar {
-      position: sticky; top: 0; height: 100vh; overflow-y: auto; scrollbar-width: none;
-      padding: 24px 18px; border-left: 1px solid var(--line);
-      background: rgba(255,255,255,0.86); backdrop-filter: blur(20px);
-    }
-    .sidebar::-webkit-scrollbar { display:none; }
-    .sidebar-close { display:none; width:42px; height:42px; border-radius:14px; }
-    .sidebar-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, .38);
-      backdrop-filter: blur(6px);
-      opacity: 0;
-      pointer-events: none;
-      transition: opacity .24s ease;
-      z-index: 75;
-    }
-    .sidebar-backdrop.open { opacity: 1; pointer-events: auto; }
-    .side-group { margin-top: 18px; }
-    .side-title {
-      font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-inline: 8px; margin: 0 0 10px;
-    }
-    .nav-btn {
-      width: 100%; margin-bottom: 8px; border: 1px solid transparent; border-radius: 16px;
-      background: transparent; color: var(--text); cursor: pointer; padding: 14px;
-      display:flex; align-items:center; justify-content:space-between; gap: 10px;
-    }
-    .nav-btn .left { display:flex; align-items:center; gap:10px; }
-    .nav-btn.active, .nav-btn:hover { background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.24); }
-    .sidebar-user {
-      display:grid; gap:12px; margin-top:20px; padding-top:20px; border-top:1px solid var(--line);
-    }
-
-    .main { min-width:0; padding: 24px; }
-    .mobile-topbar {
-      display:none;
+    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
+    .card {
+      background: var(--panel);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      padding: 16px;
       margin-bottom: 14px;
+    }
+    h1, h2 { margin: 0 0 14px; }
+    .grid { display: grid; gap: 12px; }
+    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    label { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: block; }
+    input, textarea, select, button {
+      width: 100%;
+      border: 1px solid var(--border);
+      border-radius: 10px;
       padding: 10px 12px;
-      border: 1px solid var(--line);
-      border-radius: 18px;
-      background: rgba(255,255,255,.88);
-      backdrop-filter: blur(16px);
-      box-shadow: 0 14px 36px rgba(37,99,235,.10);
+      font: inherit;
     }
-    .mobile-menu-btn {
-      min-width: 42px;
-      min-height: 42px;
-      padding: 8px 10px;
-      font-size: .95rem;
-      box-shadow: 0 12px 30px rgba(37,99,235,.12);
-      flex: 0 0 auto;
+    textarea { min-height: 90px; resize: vertical; }
+    button { cursor: pointer; background: #fff; }
+    .btn-brand { background: var(--brand); color: #fff; border-color: var(--brand); }
+    .btn-ok { background: var(--ok); color: #fff; border-color: var(--ok); }
+    .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
+    .row { display: flex; gap: 10px; flex-wrap: wrap; }
+    .row > * { flex: 1; min-width: 170px; }
+    .muted { color: var(--muted); font-size: 0.9rem; }
+    .hidden { display: none !important; }
+    .pill {
+      display: inline-block;
+      padding: 3px 8px;
+      border-radius: 999px;
+      background: #e6eefc;
+      font-size: 0.8rem;
     }
-    .topbar, .section-head, .modal-head { display:flex; align-items:center; justify-content:space-between; gap: 14px; flex-wrap: wrap; }
-    .hero {
-      display: flex;
-      justify-content: flex-start;
-      margin-bottom: 22px;
-    }
-    .stats { display:flex; }
-    .stat-card {
-      min-width: 220px;
-      padding: 16px 18px;
-      border-radius: 18px;
-      background: var(--surface-grad);
-    }
-    .stat-card .label { color: var(--muted); font-size: .9rem; margin-bottom: 8px; }
-    .stat-card .value { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; }
-    .panel { background: var(--surface-grad); border-radius: 24px; padding: 18px; margin-bottom: 18px; }
-
-    .toolbar { display:grid; grid-template-columns: 1.4fr 180px 180px auto; gap:12px; margin-bottom:16px; }
-    .toolbar.compact { grid-template-columns: repeat(4, minmax(0, 1fr)); }
-    .grid-products { display:grid; grid-template-columns: repeat(var(--desktop-columns, 4), minmax(0, 1fr)); gap: 16px; align-items: stretch; }
-    .product-card {
-      border-radius: 22px; overflow:hidden; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
-      display:flex; flex-direction:column; height:100%; min-height: 100%;
-    }
-    .product-cover { aspect-ratio: 16/10; background: var(--preview-bg); display:grid; place-items:center; overflow:hidden; }
-    .product-cover img { width:100%; height:100%; object-fit:cover; }
-    .product-body { padding:16px; display:grid; gap: 12px; flex:1; grid-template-rows:auto auto minmax(72px, auto) auto minmax(86px, auto) auto; }
-    .product-title-row { display:flex; align-items:flex-start; justify-content:space-between; gap: 10px; }
-    .product-title { margin:0; font-size:1.06rem; font-weight:800; }
-    .product-status-row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
-    .status-pill { display:inline-flex; align-items:center; gap:8px; padding:6px 10px; border-radius:999px; font-size:.82rem; font-weight:700; }
-    .status-pill.active { background: rgba(34,197,94,.12); color:#166534; }
-    .status-pill.inactive { background: rgba(148,163,184,.18); color:#475569; }
-    .status-dot { width:9px; height:9px; border-radius:50%; background: currentColor; box-shadow: 0 0 0 4px rgba(255,255,255,.65); }
-    .price-tag {
-      white-space: nowrap; border-radius: 999px; background: rgba(34,197,94,.12); color:#166534;
-      padding: 8px 12px; font-weight: 700; font-size:.9rem;
-    }
-    .chip-row { display:flex; gap:8px; flex-wrap:wrap; }
-    .chip {
-      border-radius: 999px; padding: 7px 10px; background: var(--chip); border: 1px solid rgba(96,165,250,.18); color:#334155; font-size:.82rem;
-    }
-    .card-actions { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:auto; }
-    .card-actions .btn { min-height: 40px; padding: 9px 10px; font-size: .88rem; }
-    .card-editor { display:grid; gap:12px; }
-    .product-desc { min-height: 72px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
-    .price-tag { cursor:default; border:0; }
-    .addon-inline-list { display:flex; gap:8px; flex-wrap:wrap; }
-    .addon-inline-pill {
-      border:1px solid rgba(148,163,184,.22); background: rgba(255,255,255,.9); border-radius:999px; padding:8px 12px; cursor:pointer;
-    }
-    .addon-inline-pill.active { border-color: rgba(37,99,235,.34); background: rgba(37,99,235,.12); color: var(--primary); }
-    .cart-inline-row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
-    .qty-stepper { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:999px; padding:6px; background: rgba(255,255,255,.9); }
-    .qty-stepper button { width:32px; height:32px; border-radius:50%; border:0; background: rgba(15,23,42,.08); cursor:pointer; }
-    .qty-value { min-width:20px; text-align:center; font-weight:800; }
-    .inline-note { font-size:.84rem; color: var(--muted); }
-    .empty {
-      text-align:center; padding: 44px 18px; border:1px dashed rgba(148,163,184,.28); border-radius:20px;
-      color: var(--muted); background: rgba(255,255,255,.72);
-    }
-    .user-pill {
-      display:flex; align-items:center; gap:10px; padding:8px 12px; border:1px solid var(--line);
-      border-radius:999px; background: rgba(255,255,255,.86);
-    }
-    .avatar { width:40px; height:40px; border-radius:50%; display:grid; place-items:center; background: linear-gradient(135deg, var(--primary), var(--primary-2)); overflow:hidden; font-weight:800; }
-    .avatar img { width:100%; height:100%; object-fit:cover; }
-
-    .settings-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:16px; }
-    .setting-card, .template-card, .embed-card {
-      border: 1px solid var(--line); border-radius: 20px; padding: 16px; background: rgba(255,255,255,.78);
-    }
-    .switch-row {
-      display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border:1px solid var(--line);
-      border-radius:16px; background: rgba(255,255,255,.82); margin-bottom: 10px;
-    }
-    .toggle { width:52px; height:30px; background: rgba(148,163,184,.25); border-radius:999px; position:relative; cursor:pointer; }
-    .toggle::after {
-      content:""; position:absolute; top:4px; right:4px; width:22px; height:22px; border-radius:50%; background:#fff; transition:.22s ease;
-    }
-    .toggle.active { background: linear-gradient(135deg, var(--primary), var(--primary-2)); }
-    .toggle.active::after { transform: translateX(-22px); }
-
-    .template-grid { display:grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 14px; }
-    .template-card { display:grid; gap: 12px; }
-    .template-preview {
-      min-height: 180px; border-radius: 18px; padding: 16px; background: linear-gradient(180deg, rgba(255,255,255,.95), rgba(245,247,250,.97)); color:#111827;
-      display:grid; gap:10px; align-content:start;
-    }
-    .template-preview img { width:100%; height:78px; object-fit:cover; border-radius: 12px; background: #dbeafe; }
-    .template-hero { display:grid; gap:10px; }
-    .template-split { grid-template-columns: .8fr 1fr; align-items: center; }
-    .template-list .mini-card {
-      border:1px solid rgba(148,163,184,.22); border-radius:14px; padding:12px; background:#fff;
-      display:grid; grid-template-columns:72px 1fr; gap:10px; align-items:center;
-    }
-    .template-list .mini-card img { height:72px; }
-    .template-select { border:1px solid rgba(96,165,250,.22); background: rgba(96,165,250,.12); color: var(--text); border-radius: 14px; padding: 10px 14px; cursor:pointer; font-weight:700; }
-
-
-    .auth-showcase::before, .panel::before, .product-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      pointer-events: none;
-      background: linear-gradient(120deg, transparent, rgba(255,255,255,.34), transparent);
-      opacity: 0;
-      transition: opacity .3s ease;
-    }
-    .auth-showcase:hover::before, .panel:hover::before, .product-card:hover::before { opacity: 1; }
-    .panel, .product-card, .stat-card, .setting-card, .embed-card, .template-card, .auth-showcase, .auth-card { position: relative; }
-    .panel { overflow: hidden; }
-    .section-head h3, .topbar h2, .auth-showcase h2 { letter-spacing: -.02em; }
-    .brand h1 { margin-bottom: 4px; }
-    .hero .stat-card { background: var(--surface-highlight); }
-    .floating-orb {
-      position:absolute; border-radius:50%; filter: blur(2px); opacity:.55; pointer-events:none;
-      animation: drift 11s ease-in-out infinite;
-    }
-    .orb-a { width:120px; height:120px; top:18px; left:26px; background: radial-gradient(circle, rgba(167,139,250,.34), transparent 70%); }
-    .orb-b { width:160px; height:160px; bottom:24px; right:42px; background: radial-gradient(circle, rgba(34,211,238,.26), transparent 72%); animation-delay:-3s; }
-    @keyframes drift { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(0,-10px,0) scale(1.06); } }
-    @keyframes fadeSlideUp { from { opacity: 0; transform: translateY(18px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes floatCard { 0%,100% { transform: translateY(0); } 50% { transform: translateY(-5px); } }
-    @keyframes pulseGlow { 0%,100% { box-shadow: 0 18px 35px rgba(37,99,235,.14); } 50% { box-shadow: 0 24px 40px rgba(168,85,247,.22); } }
-    @keyframes shimmerShift { 0% { background-position: 0% 50%; } 100% { background-position: 100% 50%; } }
-    @keyframes logoPulse { 0%,100% { transform: scale(1); opacity:.96; } 50% { transform: scale(1.08); opacity:1; } }
-    @keyframes logoSpin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
-    @keyframes logoBlink { 0%,100% { opacity:.55; } 50% { opacity:1; } }
-    @keyframes sharpFloat { 0%,100% { transform: translate3d(0,0,0) scale(1); } 50% { transform: translate3d(0,-8px,0) scale(1.012); } }
-    @keyframes sharpGlow { 0%,100% { transform: translateZ(0) scale(1); box-shadow: 0 18px 34px rgba(37,99,235,.16), 0 0 0 rgba(59,130,246,0); } 50% { transform: translateZ(0) scale(1.02); box-shadow: 0 28px 52px rgba(14,165,233,.22), 0 0 0 1px rgba(59,130,246,.18); } }
-    @keyframes sharpLift { 0% { opacity: 0; transform: translate3d(0,22px,0) scale(.96); } 70% { opacity: 1; transform: translate3d(0,-4px,0) scale(1.01); } 100% { opacity: 1; transform: translate3d(0,0,0) scale(1); } }
-    .animate-in { animation: fadeSlideUp .55s ease both; }
-    .product-card { transition: transform .28s ease, box-shadow .28s ease, border-color .28s ease; }
-    .product-card:hover { transform: translateY(-6px) scale(1.01); box-shadow: 0 28px 70px rgba(37,99,235,.16); border-color: rgba(124,58,237,.22); }
-    .product-cover { position: relative; }
-    .product-cover::after { content:""; position:absolute; inset:auto 14px 14px auto; width:52px; height:52px; border-radius:18px; background:linear-gradient(135deg, rgba(255,255,255,.34), rgba(255,255,255,.06)); backdrop-filter: blur(10px); }
-    .product-body { background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(255,255,255,.98)); }
-    .inline-field { display:grid; gap:8px; }
-    .inline-field label { font-weight:700; font-size:.88rem; }
-    .embed-card { position:relative; overflow:hidden; background: linear-gradient(180deg, rgba(255,255,255,.92), rgba(246,250,255,.94)); }
-    .embed-card::after { content:""; position:absolute; inset:auto -40px -40px auto; width:140px; height:140px; border-radius:50%; background: radial-gradient(circle, rgba(59,130,246,.12), transparent 70%); }
-    .developer-guide { display:grid; gap:14px; }
-    .developer-guide .guide-step { padding:14px 16px; border-radius:16px; border:1px solid var(--line); background:rgba(255,255,255,.9); }
-    .developer-guide .guide-step strong { display:block; margin-bottom:6px; }
-    .field-table { display:grid; gap:10px; }
-    .field-table-head, .field-row { display:grid; grid-template-columns: 120px 160px 1fr; gap:12px; align-items:start; }
-    .field-table-head {
-      padding:0 14px; color: var(--muted); font-size:.82rem; font-weight:800;
-    }
-    .field-row { padding:12px 14px; border-radius:16px; background:rgba(255,255,255,.82); border:1px solid rgba(148,163,184,.18); }
-    .field-row code { padding:4px 8px; border-radius:10px; background:rgba(79,70,229,.1); color:#312e81; font-weight:700; user-select: all; }
-    .field-row .type { color: var(--muted); font-size:.88rem; font-weight:700; }
-    .copy-fields-row { display:flex; justify-content:flex-start; }
-    .animation-select-note { margin-top: 6px; color: var(--muted); font-size: .84rem; }
-    .store-card[data-animation="float"] { animation: sharpFloat 3.2s cubic-bezier(.4,0,.2,1) infinite; }
-    .store-card[data-animation="glow"] { animation: sharpGlow 2.8s cubic-bezier(.4,0,.2,1) infinite; }
-    .store-card[data-animation="shimmer"] { background-size: 220% 220% !important; animation: shimmerShift 3.2s linear infinite, sharpGlow 3.4s ease-in-out infinite; }
-    .store-card[data-animation="lift"] { animation: sharpLift .72s cubic-bezier(.2,.9,.2,1) both; }
-    .store-card[data-animation="fade"] { animation: animFade .6s ease both; }
-    .store-card[data-animation="fade-up"] { animation: animFadeUp .6s ease both; }
-    .store-card[data-animation="zoom-in"] { animation: animZoomIn .5s ease both; }
-    .store-card[data-animation="slide-up"] { animation: animSlideUp .55s ease both; }
-    @keyframes animFade { from { opacity: 0; } to { opacity: 1; } }
-    @keyframes animFadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
-    @keyframes animZoomIn { from { opacity: 0; transform: scale(0.85); } to { opacity: 1; transform: scale(1); } }
-    @keyframes animSlideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
-    @media (max-width: 760px) { .field-row { grid-template-columns: 1fr; } }
-
-    .swatches { display:flex; gap:8px; flex-wrap:wrap; }
-    .swatch-btn {
-      width:26px; height:26px; border-radius:50%; border:2px solid rgba(255,255,255,.55); cursor:pointer;
-      box-shadow: 0 0 0 0 transparent;
-    }
-    .swatch-btn.active { box-shadow: 0 0 0 3px rgba(255,255,255,.18); }
-
-    .embed-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
-    .code-block {
-      background: #e2e8f0; border-radius: 18px; padding: 14px; overflow:auto; white-space: pre-wrap; word-break: break-word;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .88rem;
-    }
-    .account-box {
-      display:grid; gap:10px; border:1px dashed rgba(96,165,250,.28); border-radius: 18px; padding: 14px; background: rgba(96,165,250,.08);
-    }
-
-    .preview-stage {
-      border:1px solid var(--line); border-radius: 22px; padding: 18px; background: rgba(255,255,255,.02);
-    }
-    .product-preview-shell {
-      padding: 18px; border-radius: 24px; background: var(--preview-bg); max-width: 420px; margin-inline: auto;
-    }
-    .product-preview-shell[data-template="classic"] .store-card {
-      gap: 12px;
-    }
-    .product-preview-shell[data-template="split"] .store-card {
-      display:grid; grid-template-columns: minmax(120px, 220px) 1fr; gap: 16px; align-items:center;
-    }
-    .product-preview-shell[data-template="minimal"] .store-card {
-      gap: 10px; text-align:center;
-    }
-    .store-card {
-      background: var(--preview-card); color: var(--preview-text); border-radius: var(--store-radius, 24px); padding: var(--store-padding, 18px); box-shadow: 0 14px 30px rgba(15,23,42,.14);
-      font-family: Inter, sans-serif; text-align: var(--store-align, right); height: 100%; display: flex; flex-direction: column;
-    }
-    .store-card img {
-      width:100%; height: var(--store-image-height, 220px); object-fit: cover; border-radius: calc(var(--store-radius, 24px) - 6px); background: #dbeafe;
-    }
-    .store-card .store-copy { display:grid; grid-template-rows:auto auto auto minmax(52px,auto) auto 1fr auto; gap:12px; flex:1; height:100%; }
-    .store-card .store-copy > img { margin-bottom: 2px; }
-    .store-card .store-meta { color: var(--preview-muted); font-size: .92rem; }
-    .store-card .store-price { font-size: 1.35rem; font-weight: 800; }
-    .store-card .store-btn {
-      border:0; border-radius: 14px; padding: 10px 16px; min-height: var(--store-button-height, 44px); cursor:pointer; background: var(--preview-btn-bg); color: var(--preview-btn-text); font-weight: 700;
-      width: min(100%, 180px); white-space: nowrap;
-    }
-    .store-card .store-chips { display:flex; gap:8px; flex-wrap: wrap; margin: 8px 0 0; min-height: 38px; align-content: flex-start; }
-    .store-card .store-chip {
-      padding: 7px 10px; border-radius: 999px; background: rgba(15,23,42,.08); color: var(--preview-text); font-size:.82rem;
-      border: 1px solid rgba(15,23,42,.06);
-    }
-    .preview-toolbar, .embed-toolbar { display:flex; gap: 10px; flex-wrap: wrap; align-items:center; }
-    .preview-note { margin-top: 12px; }
-    .modal-preview-shell { min-height: 280px; display:grid; justify-items:center; align-items:start; }
-    .modal-preview-shell .product-preview-shell { width: min(100%, 360px); max-width: 360px; padding: 14px; }
-    .modal-preview-shell .store-card { width: 100%; }
-    .tag-editor {
-      display:grid; gap:12px; padding:14px; border:1px solid rgba(148,163,184,.22); border-radius:18px; background: rgba(255,255,255,.9);
-      position: relative;
-    }
-    .tag-list { display:flex; gap:10px; flex-wrap:wrap; }
-    .tag-token {
-      display:inline-flex; align-items:center; gap:8px; padding:8px 12px; border-radius:999px; border:1px solid rgba(148,163,184,.18); font-weight:700;
-      background: rgba(37,99,235,.08); color: var(--text);
-    }
-    .tag-token button { border:0; background:transparent; cursor:pointer; color:inherit; font-weight:800; }
-    .tag-token-add { border-style:dashed; background:rgba(255,255,255,.6); color: var(--muted); cursor:default; }
-    .tag-editor-row { display:grid; grid-template-columns: 1fr auto; gap:10px; }
-    .slider-value { font-size:.85rem; color: var(--muted); }
-    .embed-frame { width:100%; min-height:560px; border:1px solid var(--line); border-radius:22px; background:#fff; }
-    .embed-runtime-shell { font-family:Inter,Arial,sans-serif; display:grid; gap:16px; }
-    .embed-runtime-grid { display:grid; grid-template-columns:repeat(var(--embed-columns, 3), minmax(0,1fr)); gap:16px; align-items:stretch; }
-    .tag-shape-pill { border-radius: 999px; }
-    .tag-shape-square { border-radius: 10px !important; }
-    .tag-shape-triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); border-radius: 0 !important; padding: 10px 16px 12px !important; }
-    .tag-shape-burst { clip-path: polygon(50% 0%, 61% 18%, 82% 8%, 76% 30%, 100% 50%, 76% 70%, 82% 92%, 61% 82%, 50% 100%, 39% 82%, 18% 92%, 24% 70%, 0 50%, 24% 30%, 18% 8%, 39% 18%); border-radius: 0 !important; padding: 12px 16px !important; }
-    .tag-shape-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); border-radius: 0 !important; padding: 10px 16px !important; }
-    .tag-shape-ticket { clip-path: polygon(0 0, 100% 0, 100% 30%, 92% 50%, 100% 70%, 100% 100%, 0 100%, 0 70%, 8% 50%, 0 30%); border-radius: 12px !important; }
-    .tag-shape-leaf { border-radius: 999px 24px 999px 24px !important; }
-    .btn-style-rounded { border-radius: 16px !important; }
-    .btn-style-pill { border-radius: 999px !important; }
-    .btn-style-square { border-radius: 8px !important; }
-    .btn-style-soft { border-radius: 18px !important; box-shadow: 0 10px 22px rgba(37,99,235,.18); }
-
-
-    .modal {
-      position: fixed; inset: 0; display:none; align-items:center; justify-content:center; padding:20px; z-index:70;
-      background: rgba(148,163,184,.35); backdrop-filter: blur(12px);
-    }
-    .modal.open { display:flex; }
-    .modal-card {
-      width: min(1080px, 100%); max-height: 92vh; overflow:auto; border-radius: 28px; padding: 20px; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
-    }
-    .modal-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
-    .full { grid-column: 1 / -1; }
-    .preview-box { min-height: 120px; border:1px dashed rgba(148,163,184,.26); border-radius: 18px; padding: 14px; display:grid; place-items:center; background: rgba(255,255,255,.02); color: var(--muted); }
-    .preview-box img { max-width:100%; max-height:240px; border-radius: 16px; object-fit: cover; }
-    .variant-box { border:1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.84); margin-bottom: 12px; }
-    .variant-head { display:grid; grid-template-columns: 1fr auto; gap:10px; margin-bottom:10px; }
-    .variant-option-row { display:grid; grid-template-columns: 1fr auto; gap:10px; margin-bottom:10px; }
-    .variant-options { margin-top:10px; }
-
-    .toast {
-      position: fixed; left:20px; bottom:20px; z-index: 90; display:none; max-width:360px;
-      padding:14px 16px; border-radius:16px; border:1px solid var(--line); background: rgba(255,255,255,.96); box-shadow: var(--shadow);
-    }
-    .toast.show { display:block; }
-
-    @media (max-width: 1180px) {
-      .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .hero, .auth-layout, .embed-grid { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 960px) {
-      html { font-size: 15px; }
-      .app-shell { grid-template-columns: 1fr; }
-      .grid-products, .embed-runtime-grid { grid-template-columns: repeat(var(--mobile-columns, 2), minmax(0, 1fr)); }
-      .sidebar {
-        position: fixed; top: 0; right: 0; width: min(92vw, 340px); height:100vh; z-index: 80;
-        transform: translateX(100%); transition:.24s ease;
-        padding: 16px 12px 22px;
-      }
-      .sidebar.open { transform: translateX(0); }
-      .sidebar-close { display:inline-flex; }
-      .side-title { font-size: .7rem; margin-bottom: 8px; }
-      .nav-btn { padding: 10px 11px; border-radius: 13px; font-size: .88rem; margin-bottom: 6px; }
-      .nav-btn .left { gap: 8px; }
-      .mobile-topbar { display:flex; align-items:center; justify-content:space-between; gap: 10px; }
-      .mobile-topbar .user-pill { min-width: 0; flex: 1 1 auto; justify-content: flex-start; }
-      .mobile-topbar #mobileUserName { font-size: .88rem; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
-      .sidebar .brand { padding: 10px; margin: 10px 0 16px; border-radius: 18px; }
-      .sidebar .logo-wrap, .sidebar .logo-mark { width: 56px; height: 56px; }
-      .sidebar .brand h1 { font-size: 1.15rem; }
-      .sidebar .brand p, .sidebar .mini { font-size: .82rem; }
-      .sidebar-user { gap: 10px; margin-top: 16px; padding-top: 16px; }
-      .sidebar-user .btn { width: 100%; }
-      .main { padding: 16px; }
-      .toolbar, .toolbar.compact, .settings-grid, .modal-grid, .addon-row, .template-grid, .variant-head, .variant-option-row { grid-template-columns: 1fr; }
-      .topbar { flex-direction: column; align-items: stretch; }
-      .stats { grid-template-columns: 1fr 1fr; }
-      .panel { padding: 16px; border-radius: 20px; }
-      .btn { padding: 10px 14px; border-radius: 13px; font-size: .92rem; }
-      .input, .select, .textarea { padding: 11px 12px; border-radius: 13px; font-size: .94rem; }
-      .product-card { border-radius: 18px; }
-      .product-cover { aspect-ratio: 16 / 9; }
-      .product-body { padding: 14px; gap: 10px; grid-template-rows:auto auto minmax(56px, auto) auto minmax(70px, auto) auto; }
-      .product-title { font-size: .98rem; }
-      .product-desc, .store-card .store-meta, .mini, .helper, .chip { font-size: .84rem; }
-      .price-tag { padding: 7px 10px; font-size: .84rem; }
-      .card-actions .btn { min-height: 36px; font-size: .82rem; padding: 8px 10px; }
-      .addon-inline-pill { padding: 7px 10px; font-size: .82rem; }
-      .qty-stepper button { width: 28px; height: 28px; }
-      .store-card .store-copy { gap: 10px; grid-template-rows:auto auto auto minmax(44px,auto) auto 1fr auto; }
-      .store-card .store-btn { width: 100%; }
-      .product-preview-shell[data-template="split"] .store-card,
-      .template-split { grid-template-columns: 1fr; }
-    }
-    @media (max-width: 640px) {
-      html { font-size: 14px; }
-      .auth-screen { padding: 14px; }
-      .embed-runtime-grid, .grid-products { grid-template-columns: repeat(var(--mobile-columns, 1), minmax(0, 1fr)); }
-      .auth-showcase, .auth-card, .panel, .modal-card { padding: 16px; border-radius: 22px; }
-      .feature-list, .stats { grid-template-columns: 1fr; }
-      .card-actions { grid-template-columns: 1fr; }
-      .mobile-menu-btn { min-width: 40px; min-height: 40px; padding: 7px 9px; font-size: .9rem; }
-      .user-pill { padding: 6px 9px; gap: 8px; }
-      .avatar { width: 32px; height: 32px; }
-      .section-head h3, .topbar h2 { font-size: 1.1rem; }
-      .section-head p { font-size: .84rem; }
-      .toolbar { gap: 10px; }
-      .product-body { padding: 12px; }
-      .product-title-row, .product-status-row, .cart-inline-row { gap: 8px; }
-      .product-desc { min-height: 56px; -webkit-line-clamp: 2; }
-      .chip { padding: 6px 9px; font-size: .78rem; }
-      .store-card img { height: 168px; }
-      .store-card .store-price { font-size: 1.18rem; }
-      .store-card .store-btn { min-height: 40px; font-size: .86rem; }
-      .inline-note { font-size: .78rem; }
+    table { width: 100%; border-collapse: collapse; }
+    th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); text-align: right; }
+    .thumb { width: 54px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
+    .msg { margin-top: 8px; font-size: 0.9rem; }
+    .msg.ok { color: var(--ok); }
+    .msg.err { color: var(--danger); }
+    @media (max-width: 820px) {
+      .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; }
+      .row > * { min-width: 100%; }
     }
   </style>
 </head>
 <body>
-  <section id="authScreen" class="auth-screen">
-    <div class="auth-layout">
-      <div class="auth-showcase">
-        <span class="floating-orb orb-a"></span>
-        <span class="floating-orb orb-b"></span>
-        <div class="brand">
-          <div class="logo-wrap">
-            <img class="logo-mark" src="./מוצרלה.png" alt="לוגו מוצרלה" />
-          </div>
-          <div>
-            <img class="brand-wordmark" src="./1.svg" alt="מוצרלה" />
-            <p data-i18n="brand.subtitle">מוצרלה, מערכת לניהול מוצרים</p>
-          </div>
+  <div class="wrap">
+    <h1>ניהול מוצרים ועיצוב (Firebase)</h1>
+
+    <section id="authCard" class="card">
+      <h2>כניסה / הרשמה</h2>
+      <div class="grid cols-2">
+        <div>
+          <label for="email">אימייל</label>
+          <input id="email" type="email" autocomplete="email" />
         </div>
-        <h2 data-i18n="showcase.title">קטלוג נע, חד ומוכן לעבודה מול לקוחות</h2>
-        <p data-i18n="showcase.desc">התחברות מהירה, ניהול מוצרים ב-Firebase, חיבור אוטומטי לאתר הלקוח ותצוגת כרטיסים חדה שנשמרת גם במסך הניהול וגם באתר.</p>
-        <div class="feature-list">
-          <div class="feature-item"><strong data-i18n="f1.t">התחברות חכמה</strong><span data-i18n="f1.d">Google popup + redirect fallback</span></div>
-          <div class="feature-item"><strong data-i18n="f2.t">סנכרון מוצרים</strong><span data-i18n="f2.d">קוד Embed לפי מזהה חשבון</span></div>
-          <div class="feature-item"><strong data-i18n="f3.t">עיצוב גמיש</strong><span data-i18n="f3.d">עיצוב אחיד + צבעים + כפתור</span></div>
-          <div class="feature-item"><strong data-i18n="f4.t">רספונסיבי</strong><span data-i18n="f4.d">מובייל ומחשב עם תצוגה משופרת</span></div>
+        <div>
+          <label for="password">סיסמה</label>
+          <input id="password" type="password" autocomplete="current-password" />
         </div>
       </div>
-      <div class="auth-card">
-        <div class="section-head" style="margin-bottom:8px;">
-          <div>
-            <h3 data-i18n="auth.title">כניסה למערכת</h3>
-            <p data-i18n="auth.subtitle">התחל עם גוגל או עם מייל וסיסמה.</p>
-          </div>
-        </div>
-        <div class="tabs">
-          <button class="tab active" id="loginTab" data-i18n="auth.login">התחברות</button>
-          <button class="tab" id="registerTab" data-i18n="auth.register">הרשמה</button>
-        </div>
-        <button class="btn btn-google" id="googleLoginBtn" type="button">
-          <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.24 36 24 36c-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 16.108 19.001 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.144 35.091 26.671 36 24 36c-5.219 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.05 12.05 0 0 1-4.084 5.57h.003l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
-          <span data-i18n="auth.google">המשך עם Google</span>
-        </button>
-        <div class="helper" id="googleAuthStatus" data-i18n="auth.googleHint">החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.</div>
-        <div class="helper" data-i18n="auth.or">או התחבר עם פרטי משתמש</div>
-        <form id="authForm" class="form-grid">
-          <input class="input hidden" id="authName" placeholder="שם מלא" />
-          <input class="input" id="authEmail" type="email" placeholder="אימייל" required />
-          <input class="input" id="authPassword" type="password" placeholder="סיסמה" required />
-          <button class="btn btn-primary" id="authSubmitBtn" type="submit" data-i18n="auth.submitLogin">התחברות</button>
-        </form>
-        <div class="helper" data-i18n="auth.note">בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.</div>
+      <div class="row" style="margin-top:10px;">
+        <button id="loginBtn" class="btn-brand">התחברות</button>
+        <button id="signupBtn">יצירת חשבון</button>
       </div>
-    </div>
-  </section>
+      <p id="authMsg" class="msg"></p>
+    </section>
 
-  <section id="appScreen" class="hidden">
-    <div class="app-shell">
-      <div class="sidebar-backdrop" id="sidebarBackdrop"></div>
-      <aside class="sidebar" id="sidebar">
-        <div style="display:flex; justify-content:flex-start; margin-bottom:10px;">
-          <button class="btn btn-outline sidebar-close" id="closeSidebarBtn" type="button">✕</button>
+    <section id="appCard" class="hidden">
+      <div class="card">
+        <div class="row">
+          <div><span class="pill" id="userPill"></span></div>
+          <button id="logoutBtn" class="btn-danger">התנתקות</button>
         </div>
-        <div class="brand">
-          <div class="logo-wrap">
-            <img class="logo-mark" src="./מוצרלה.png" alt="לוגו מוצרלה" />
-          </div>
-          <div>
-            <img class="brand-wordmark" src="./1.svg" alt="מוצרלה" />
-            <p data-i18n="brand.subtitle">מוצרלה, מערכת לניהול מוצרים</p>
-          </div>
-        </div>
-
-        <div class="side-group">
-          <div class="side-title" data-i18n="nav.main">ראשי</div>
-          <button class="nav-btn active" data-view="products"><span class="left"><span>📦</span><span data-i18n="nav.products">ניהול מוצרים</span></span></button>
-          <button class="nav-btn" data-view="embed"><span class="left"><span>🔗</span><span data-i18n="nav.embed">חיבור לאתר</span></span></button>
-          <button class="nav-btn" data-view="designer"><span class="left"><span>🧩</span><span data-i18n="nav.designer">עיצוב כרטיסיות</span></span></button>
-        </div>
-
-        <div class="side-group">
-          <div class="side-title" data-i18n="nav.shortcuts">קיצורים</div>
-          <button class="nav-btn" id="quickAddBtn"><span class="left"><span>✨</span><span data-i18n="nav.addProduct">הוסף מוצר</span></span></button>
-          <button class="nav-btn" id="exportJsonBtn"><span class="left"><span>🧾</span><span data-i18n="nav.export">ייצוא JSON</span></span></button>
-          <button class="nav-btn" id="copyEmbedBtn"><span class="left"><span>📋</span><span data-i18n="nav.copyEmbed">העתק קוד חיבור</span></span></button>
-        </div>
-
-        <div class="sidebar-user">
-          <div class="user-pill">
-            <div class="avatar" id="userAvatar">U</div>
-            <div>
-              <div id="userName">-</div>
-              <div class="mini" id="userEmail">-</div>
-            </div>
-          </div>
-          <button class="btn btn-outline" id="logoutBtn" data-i18n="app.logout">התנתק</button>
-        </div>
-      </aside>
-
-      <main class="main">
-        <div class="mobile-topbar">
-          <button class="btn btn-outline mobile-menu-btn" id="mobileMenuBtn" type="button" aria-label="פתח תפריט">☰</button>
-          <div class="user-pill"><div class="avatar" id="mobileAvatar">U</div><div><div id="mobileUserName">-</div></div></div>
-        </div>
-
-        <div class="topbar">
-          <div>
-            <h2 style="margin:10px 0 6px;" data-i18n="app.welcome">ברוך הבא לויטרינה שלך</h2>
-          </div>
-        </div>
-
-        <section class="hero">
-          <div class="stats">
-            <div class="stat-card"><div class="label" data-i18n="stats.activeProducts">סך הכל מוצרים פעילים</div><div class="value" id="statProducts">0</div></div>
-          </div>
-        </section>
-
-        <section id="view-products">
-          <div class="panel">
-            <div class="section-head">
-              <div>
-                <h3 data-i18n="products.title">המוצרים שלי</h3>
-                <p data-i18n="products.desc">חיפוש, סינון, עריכה, שכפול ומחיקה — עם סגנון כרטיס אחיד וגמיש.</p>
-              </div>
-              <button class="btn btn-primary" id="openAddModalPanel" data-i18n="products.add">הוסף מוצר</button>
-            </div>
-            <div class="toolbar">
-              <input class="input" id="searchInput" data-i18n-placeholder="products.search" placeholder="חפש לפי שם, תיאור או תג" />
-              <select class="select" id="filterPromo"><option value="all" data-i18n="filters.all">כל המוצרים</option><option value="active" data-i18n="filters.active">רק פעילים</option><option value="inactive" data-i18n="filters.inactive">מושבתים</option><option value="promo" data-i18n="filters.promo">עם מבצע</option><option value="regular" data-i18n="filters.regular">ללא מבצע</option></select>
-              <select class="select" id="sortSelect"><option value="newest" data-i18n="sort.newest">החדש ביותר</option><option value="name" data-i18n="sort.name">לפי שם</option><option value="priceAsc" data-i18n="sort.priceAsc">מחיר עולה</option><option value="priceDesc" data-i18n="sort.priceDesc">מחיר יורד</option></select>
-              <button class="btn btn-outline" id="refreshBtn" data-i18n="products.refresh">רענן</button>
-            </div>
-            <div class="toolbar compact">
-              <div class="field">
-                <label for="desktopColumns" data-i18n="products.desktopColumns">כמות כרטיסים בשורה במחשב</label>
-                <select class="select" id="desktopColumns"><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option></select>
-              </div>
-              <div class="field">
-                <label for="mobileColumns" data-i18n="products.mobileColumns">כמות כרטיסים בשורה בטלפון</label>
-                <select class="select" id="mobileColumns"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select>
-              </div>
-              <div class="field">
-                <label data-i18n="products.connectionMode">אופן החיבור באתר הלקוח</label>
-                <div class="input" id="themeModeInfo">מזוהה אוטומטית לפי שיטת החיבור של הלקוח — ללא בחירה ידנית.</div>
-              </div>
-              <div class="field">
-                <label for="platformNameInput" data-i18n="settings.platformName">שם הפלטפורמה</label>
-                <input class="input" id="platformNameInput" placeholder="מוצרלה" />
-              </div>
-            </div>
-            <div id="productsContainer" class="grid-products"></div>
-            <div id="emptyState" class="empty hidden" data-i18n="products.empty">עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.</div>
-          </div>
-        </section>
-
-        <section id="view-embed" class="hidden">
-          <div class="panel">
-            <div class="section-head">
-              <div>
-                <h3 data-i18n="embed.title">חיבור האתר שלך למוצרים</h3>
-                <p data-i18n="embed.desc">קבל מזהה חשבון וקוד הטמעה מוכן. הקוד שואב אוטומטית את המוצרים והעיצוב מהמערכת שלך.</p>
-              </div>
-              <div class="embed-toolbar">
-                <button class="btn btn-success" id="copyAccountIdBtn" data-i18n="embed.copyId">העתק קוד API</button>
-                <button class="btn btn-primary" id="copyEmbedCodeBtn" data-i18n="embed.copyCode">העתק קוד iframe</button>
-              </div>
-            </div>
-            <div class="embed-grid">
-              <div style="display:grid; gap:16px;">
-                <div class="embed-card">
-                  <h4 data-i18n="embed.iframeTitle">1. קוד iframe להטמעה מלאה</h4>
-                  <div class="embed-help" data-i18n="embed.iframeDesc">הדביקו את הקוד הזה בכל אזור HTML באתר, והמערכת תציג את הייצוג המלא של המוצרים אוטומטית.</div>
-                  <pre class="code-block" id="embedCodeBlock"></pre>
-                </div>
-                <div class="embed-card">
-                  <h4 data-i18n="embed.apiTitle">2. קוד API קצר להעתקה</h4>
-                  <div class="embed-help" data-i18n="embed.apiDesc">העתיקו את כתובת ה-API ואת דוגמת הקוד, פרקו את תגובת ה-HTML ל-JSON, ובנו את התצוגה לפי ה-HTML/CSS של האתר שלכם.</div>
-                  <pre class="code-block" id="embedDataCodeBlock"></pre>
-                </div>
-              </div>
-              <div class="embed-card">
-                <strong data-i18n="embed.devGuideTitle">הוראות למפתחים</strong>
-                <div class="embed-help" data-i18n="embed.devGuideDesc">כל ההסברים כאן בעברית, אבל שמות השדות והקוד נשארים באנגלית כדי שתוכלו להעתיק אותם כמו שהם.</div>
-                <div class="copy-fields-row">
-                  <button class="btn btn-outline" id="copyFieldNamesBtn" data-i18n="embed.copyFields">העתק את כל שמות השדות</button>
-                </div>
-                <div class="developer-guide" id="apiFieldsBlock"></div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="view-designer" class="hidden">
-          <div class="panel">
-            <div class="section-head">
-              <div>
-                <h3 data-i18n="designer.title">עיצוב האתר ותצוגת הכרטיס</h3>
-                <p data-i18n="designer.desc">יש סגנון כרטיס אחיד אחד. אפשר לבחור אם להחיל את השינויים על כל הכרטיסיות או רק על כרטיסייה נבחרת, ולצפות מיד בתוצאה.</p>
-              </div>
-            </div>
-            <div class="settings-grid">
-              <div class="setting-card">
-                <h4 data-i18n="designer.styleTitle">עיצוב כרטיס</h4>
-                <div class="field">
-                  <label for="designerApplyMode" data-i18n="designer.applyModeLabel">איפה להחיל את העיצוב</label>
-                  <select class="select" id="designerApplyMode">
-                    <option value="all" data-i18n="designer.applyAll">על כל הכרטיסיות</option>
-                    <option value="selected" data-i18n="designer.applySelected">רק על הכרטיסייה הנבחרת</option>
-                  </select>
-                </div>
-                <div class="field hidden" id="designerProductField">
-                  <label for="designerProductSelect" data-i18n="designer.productSelectLabel">בחר כרטיסייה</label>
-                  <select class="select" id="designerProductSelect"></select>
-                </div>
-                <div class="switch-row">
-                  <div><strong data-i18n="designer.cartToggle">כפתור הוסף לסל</strong><p data-i18n="designer.cartToggleDesc">אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.</p></div>
-                  <div class="toggle active" id="toggleCartButton"></div>
-                </div>
-                <div class="field">
-                  <label data-i18n="designer.palette">פלטת צבעים מהירה</label>
-                  <div class="swatches" id="swatches"></div>
-                </div>
-                <div class="modal-grid" style="margin-top:14px;">
-                  <div class="field"><label for="themePrimaryColor" data-i18n="designer.primaryColor">צבע ראשי</label><input class="input" id="themePrimaryColor" type="color" value="#60a5fa" /></div>
-                  <div class="field"><label for="themeBackgroundColor" data-i18n="designer.cardColor">צבע כרטיס</label><input class="input" id="themeBackgroundColor" type="color" value="#ffffff" /></div>
-                  <div class="field"><label for="themeTextColor" data-i18n="designer.textColor">צבע טקסט</label><input class="input" id="themeTextColor" type="color" value="#111827" /></div>
-                  <div class="field"><label for="themeButtonColor" data-i18n="designer.buttonColor">צבע כפתור</label><input class="input" id="themeButtonColor" type="color" value="#111827" /></div>
-                  <div class="field"><label for="themeCardPadding" data-i18n="designer.cardPadding">ריווח פנימי</label><input class="input" id="themeCardPadding" type="range" min="12" max="36" step="2" value="18" /><div class="slider-value" id="themeCardPaddingValue">18px</div></div>
-                  <div class="field"><label for="themeBorderRadius" data-i18n="designer.cardRadius">פינות כרטיס</label><input class="input" id="themeBorderRadius" type="range" min="12" max="36" step="2" value="24" /><div class="slider-value" id="themeBorderRadiusValue">24px</div></div>
-                  <div class="field"><label for="themeImageHeight" data-i18n="designer.imageHeight">גובה תמונה</label><input class="input" id="themeImageHeight" type="range" min="160" max="320" step="10" value="220" /><div class="slider-value" id="themeImageHeightValue">220px</div></div>
-                  <div class="field"><label for="themeTextAlign" data-i18n="designer.textAlign">יישור טקסט</label><select class="select" id="themeTextAlign"><option value="right">ימין</option><option value="center">מרכז</option><option value="left">שמאל</option></select></div>
-                </div>
-                <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
-                  <button class="btn btn-primary" id="saveThemeBtn" data-i18n="designer.save">שמור עיצוב</button>
-                  <button class="btn btn-outline" id="resetThemeBtn" data-i18n="designer.reset">אפס לברירת מחדל</button>
-                </div>
-              </div>
-              <div class="setting-card">
-                <h4 data-i18n="designer.previewTitle">תצוגה מקדימה חיה</h4>
-                <div class="preview-stage">
-                  <div class="preview-toolbar" style="margin-bottom:12px;">
-                    <span class="badge" id="activeTemplateBadge">כל הכרטיסיות</span>
-                    <span class="badge" id="cartToggleBadge">סל פעיל</span>
-                  </div>
-                  <div class="product-preview-shell" id="productPreviewShell" data-template="classic"></div>
-                </div>
-              </div>
-            </div>
-          </div>
-
-
-        </section>
-
-        <section id="view-settings" class="hidden">
-          <div class="panel">
-            <div class="section-head">
-              <div>
-                <h3 data-i18n="settings.title">הגדרות המערכת</h3>
-                <p data-i18n="settings.desc">שליטה בשפה, בהעדפות הממשק ובמצב האימות.</p>
-              </div>
-            </div>
-            <div class="settings-grid">
-              <div>
-                <div class="switch-row"><div><strong data-i18n="settings.multiLang">מצב רב-לשוני</strong><div class="mini" data-i18n="settings.multiLangDesc">כפתורי השפה מופיעים כבאנר קטן עם דגלים.</div></div><div class="toggle active" id="toggleLang"></div></div>
-                <div class="switch-row"><div><strong data-i18n="settings.promos">הצגת מבצעים מודגשת</strong><div class="mini" data-i18n="settings.promosDesc">מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.</div></div><div class="toggle active" id="togglePromos"></div></div>
-                <div class="switch-row"><div><strong data-i18n="settings.mobile">התאמה למובייל</strong><div class="mini" data-i18n="settings.mobileDesc">הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.</div></div><div class="toggle active" id="toggleMobile"></div></div>
-                <div class="switch-row"><div><strong data-i18n="settings.authMode">Google Auth חלק</strong><div class="mini" data-i18n="settings.authModeDesc">Popup עם Redirect fallback וטיפול בשגיאות נפוצות.</div></div><div class="toggle active" id="toggleGoogleAuthInfo"></div></div>
-              </div>
-              <div class="panel" style="margin:0; background:rgba(255,255,255,.82);">
-                <h3 style="margin-top:0;" data-i18n="ideas.title">מצב המערכת</h3>
-                <div class="mini" style="line-height:1.8;">
-                  <div data-i18n="ideas.1">• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.</div>
-                  <div data-i18n="ideas.2">• כל תמונה נשמרת ב-Firebase Storage עם שיוך למוצר.</div>
-                  <div data-i18n="ideas.3">• קוד ההטמעה משתמש במזהה החשבון בלבד.</div>
-                  <div data-i18n="ideas.4">• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.</div>
-                  <div data-i18n="ideas.5">• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.</div>
-                  <div data-i18n="ideas.6">• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.</div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-
-        <section id="view-product-embed" class="hidden">
-          <div class="panel">
-            <div class="section-head">
-              <div>
-                <h3>הטמעת מוצר באתר</h3>
-                <p>בחר מוצר מפורסם והטמע אותו באתר חיצוני דרך iFrame או API.</p>
-              </div>
-            </div>
-            <div id="productEmbedSelector" style="margin-bottom:16px;">
-              <div class="field">
-                <label for="embedProductSelect">בחר מוצר להטמעה</label>
-                <select class="select" id="embedProductSelect"></select>
-              </div>
-            </div>
-            <div class="tabs" style="max-width:400px;margin-bottom:18px;">
-              <button class="tab active" id="embedTabIframe">iFrame — עיצוב מוכן</button>
-              <button class="tab" id="embedTabApi">API — עיצוב עצמאי</button>
-            </div>
-
-            <div id="embedPanelIframe">
-              <div class="embed-card" style="margin-bottom:16px;">
-                <h4>🖼️ הטמעת iFrame</h4>
-                <p class="mini">הדביקו את שורת הקוד הזו באתר שלכם והמוצר יוצג עם עיצוב מלא, אנימציות ורספונסיביות. כל שינוי במוצר מתעדכן אוטומטית באתר הלקוח.</p>
-                <div class="field" style="margin:12px 0;">
-                  <label for="iframeHeightInput">גובה ה-iframe (פיקסלים)</label>
-                  <input class="input" id="iframeHeightInput" type="number" value="520" min="300" max="1200" step="10" />
-                </div>
-                <div class="field" style="margin:12px 0;">
-                  <label for="iframeThemeSelect">ערכת נושא</label>
-                  <select class="select" id="iframeThemeSelect">
-                    <option value="">ברירת מחדל</option>
-                    <option value="dark">כהה (dark)</option>
-                    <option value="light">בהיר (light)</option>
-                  </select>
-                </div>
-                <pre class="code-block" id="singleEmbedIframeCode" style="margin:12px 0;"></pre>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;">
-                  <button class="btn btn-primary" id="copySingleIframeBtn">📋 העתק קוד iframe</button>
-                  <button class="btn btn-outline" id="openSingleIframeBtn">🔗 פתח בחלון חדש</button>
-                </div>
-              </div>
-              <div class="embed-card">
-                <h4>👁️ תצוגה מקדימה</h4>
-                <div id="singleIframePreview" style="border:1px solid var(--line);border-radius:18px;overflow:hidden;min-height:300px;background:#fff;"></div>
-              </div>
-            </div>
-
-            <div id="embedPanelApi" class="hidden">
-              <div class="embed-card" style="margin-bottom:16px;">
-                <h4>🔌 API Endpoint</h4>
-                <p class="mini">השתמש ב-URL הבא כדי לקבל JSON נקי של המוצר. התגובה כוללת רק נתונים ציבוריים.</p>
-                <pre class="code-block" id="singleApiUrl" style="margin:12px 0;"></pre>
-                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
-                  <button class="btn btn-primary" id="copySingleApiUrlBtn">📋 העתק URL</button>
-                  <button class="btn btn-outline" id="openSingleApiBtn">🔗 פתח בחלון חדש</button>
-                </div>
-              </div>
-              <div class="embed-card" style="margin-bottom:16px;">
-                <h4>📦 JSON לדוגמה</h4>
-                <pre class="code-block" id="singleApiJsonExample" style="max-height:400px;overflow:auto;"></pre>
-                <button class="btn btn-outline" id="copySingleApiJsonBtn" style="margin-top:10px;">📋 העתק JSON</button>
-              </div>
-              <div class="embed-card">
-                <h4>📖 פירוט שדות API</h4>
-                <div class="field-table" id="apiFieldsDocBlock">
-                  <div class="field-table-head"><span>שדה</span><span>סוג</span><span>תיאור</span></div>
-                  <div class="field-row"><code>id</code><span class="type">string</span><span>מזהה מוצר</span></div>
-                  <div class="field-row"><code>ownerId</code><span class="type">string</span><span>מזהה בעל החשבון</span></div>
-                  <div class="field-row"><code>name</code><span class="type">string</span><span>שם מוצר</span></div>
-                  <div class="field-row"><code>price</code><span class="type">number</span><span>מחיר</span></div>
-                  <div class="field-row"><code>description</code><span class="type">string</span><span>תיאור</span></div>
-                  <div class="field-row"><code>imageUrl</code><span class="type">string</span><span>תמונה</span></div>
-                  <div class="field-row"><code>tags</code><span class="type">array</span><span>תגיות</span></div>
-                  <div class="field-row"><code>colors</code><span class="type">array</span><span>צבעים</span></div>
-                  <div class="field-row"><code>addons</code><span class="type">array</span><span>תוספות</span></div>
-                  <div class="field-row"><code>upgrades</code><span class="type">array</span><span>שדרוגים</span></div>
-                  <div class="field-row"><code>animation</code><span class="type">object</span><span>הגדרות אנימציה (enabled, type, duration, delay)</span></div>
-                  <div class="field-row"><code>theme</code><span class="type">object</span><span>הגדרות עיצוב (cardStyle, primaryColor)</span></div>
-                  <div class="field-row"><code>published</code><span class="type">boolean</span><span>האם ציבורי</span></div>
-                  <div class="field-row"><code>updatedAt</code><span class="type">timestamp</span><span>עדכון אחרון</span></div>
-                </div>
-              </div>
-            </div>
-          </div>
-        </section>
-      </main>
-    </div>
-  </section>
-
-  <div class="modal" id="productModal">
-    <div class="modal-card">
-      <div class="modal-head">
-        <div><h3 id="modalTitle" style="margin-bottom:4px;" data-i18n="modal.addTitle">הוספת מוצר</h3><div class="mini" data-i18n="modal.desc">מלא את פרטי המוצר, הוסף תגיות והגדר קטגוריות בחירה ללקוח.</div></div>
-        <button class="btn btn-outline" id="closeModalBtn" type="button">✕</button>
       </div>
-      <form id="productForm">
-        <div class="modal-grid">
-          <div class="field"><label for="productName" data-i18n="form.name">שם המוצר</label><input class="input" id="productName" required /></div>
-          <div class="field"><label for="productPrice" data-i18n="form.price">מחיר</label><input class="input" id="productPrice" type="number" min="0" step="0.01" required /></div>
-          <div class="field"><label for="productSalePrice">מחיר מבצע (אופציונלי)</label><input class="input" id="productSalePrice" type="number" min="0" step="0.01" placeholder="השאר ריק אם אין מבצע" /></div>
-          <div class="field"><label for="productCategory">קטגוריה</label><input class="input" id="productCategory" placeholder="לדוגמה: ביגוד, אלקטרוניקה" /></div>
-          <div class="field"><label for="productSortOrder">סדר הצגה</label><input class="input" id="productSortOrder" type="number" min="0" step="1" value="0" /></div>
-          <div class="field full"><label for="productDesc" data-i18n="form.desc">תיאור</label><textarea class="textarea" id="productDesc"></textarea></div>
-          <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid" style="grid-template-columns: 2fr 1fr 1fr auto;"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><input class="input" id="productTagColor" type="color" value="#4f46e5" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
-          <div class="field"><label for="productImage" data-i18n="form.image">תמונת מוצר</label><input class="input" id="productImage" type="file" accept="image/*" /></div>
-          <div class="field"><label for="productAccentColor">צבע ראשי למוצר</label><input class="input" id="productAccentColor" type="color" value="#4f46e5" /></div>
-          <div class="field"><label for="productBodyColor">צבע גוף הכרטיס</label><input class="input" id="productBodyColor" type="color" value="#ffffff" /></div>
-                    <div class="field"><label for="productButtonStyle">צורת כפתור הוסף לסל</label><select class="select" id="productButtonStyle"><option value="rounded">עגול רך</option><option value="pill">גלולה</option><option value="square">מרובע</option><option value="soft">רך ומודגש</option></select></div>
-                    <div class="field"><label for="productAnimation">אנימציית מוצר</label><select class="select" id="productAnimation"><option value="none">ללא אנימציה</option><option value="fade">Fade</option><option value="fade-up">Fade Up</option><option value="zoom-in">Zoom In</option><option value="slide-up">Slide Up</option><option value="float">Float</option><option value="glow">Glow</option><option value="shimmer">Shimmer</option><option value="lift">Lift-in</option></select><div class="animation-select-note">האנימציה נשמרת למוצר ומופיעה גם בתצוגה המקדימה וגם בהטמעה.</div></div>
-          <div class="field"><label for="productAnimDuration">מהירות אנימציה (שניות)</label><input class="input" id="productAnimDuration" type="number" min="0.1" max="3" step="0.1" value="0.8" /></div>
-          <div class="field"><label for="productAnimDelay">השהיית אנימציה (שניות)</label><input class="input" id="productAnimDelay" type="number" min="0" max="2" step="0.1" value="0.1" /></div>
-          <div class="field full"><label data-i18n="form.sitePreview">איך המוצר יראה באתר</label><div class="preview-stage modal-preview-shell" id="modalProductPreview"></div></div>
-        </div>
 
-        <div class="section-head" style="margin-top:18px;">
-          <div><h3 style="margin:0;">קטגוריות</h3><p>לכל קטגוריה אפשר להגדיר שם, כמו מידה או צבע, ולהוסיף כמה אפשרויות שצריך.</p></div>
-          <button class="btn btn-outline" type="button" id="addVariantBtn">הוסף קטגוריה</button>
+      <div class="card">
+        <h2>מוצר חדש / עריכה</h2>
+        <div class="grid cols-3">
+          <div>
+            <label for="productName">שם מוצר</label>
+            <input id="productName" />
+          </div>
+          <div>
+            <label for="price">מחיר</label>
+            <input id="price" type="number" min="0" step="0.01" />
+          </div>
+          <div>
+            <label for="status">סטטוס</label>
+            <select id="status">
+              <option value="active">פעיל</option>
+              <option value="inactive">לא פעיל</option>
+            </select>
+          </div>
         </div>
-        <div id="variantsContainer"></div>
-        <div class="helper">בתצוגה המקדימה תראו גם את הקטגוריות, המידות והצבעים שהוספתם.</div>
-        <div style="display:flex; gap:10px; justify-content:flex-end; margin-top:18px; flex-wrap:wrap;">
-          <button class="btn btn-outline" type="button" id="cancelModalBtn" data-i18n="modal.cancel">ביטול</button>
-          <button class="btn btn-primary" type="submit" id="saveProductBtn" data-i18n="modal.save">שמור מוצר</button>
+        <div class="grid cols-2" style="margin-top:10px;">
+          <div>
+            <label for="description">תיאור</label>
+            <textarea id="description"></textarea>
+          </div>
+          <div>
+            <label for="imageFile">תמונה</label>
+            <input id="imageFile" type="file" accept="image/*" />
+            <p class="muted">אם לא מעלים תמונה בעריכה, נשארת התמונה הקיימת.</p>
+          </div>
         </div>
-      </form>
-    </div>
+        <div class="row" style="margin-top:10px;">
+          <button id="saveProductBtn" class="btn-ok">שמירה</button>
+          <button id="clearFormBtn">ניקוי טופס</button>
+        </div>
+        <p id="productMsg" class="msg"></p>
+      </div>
+
+      <div class="card">
+        <h2>רשימת מוצרים</h2>
+        <table>
+          <thead>
+            <tr>
+              <th>תמונה</th><th>שם</th><th>מחיר</th><th>סטטוס</th><th>פעולות</th>
+            </tr>
+          </thead>
+          <tbody id="productsBody"></tbody>
+        </table>
+      </div>
+
+      <div class="card">
+        <h2>הגדרות עיצוב</h2>
+        <div class="grid cols-3">
+          <div>
+            <label for="themeName">שם תבנית</label>
+            <input id="themeName" placeholder="Default" />
+          </div>
+          <div>
+            <label for="primaryColor">צבע ראשי</label>
+            <input id="primaryColor" type="color" value="#1d4ed8" />
+          </div>
+          <div>
+            <label for="secondaryColor">צבע משני</label>
+            <input id="secondaryColor" type="color" value="#0f172a" />
+          </div>
+        </div>
+        <div class="row" style="margin-top:10px;">
+          <button id="saveDesignBtn" class="btn-ok">שמירת עיצוב</button>
+        </div>
+        <p id="designMsg" class="msg"></p>
+      </div>
+
+      <div class="card">
+        <h2>ייצוא JSON + API Key</h2>
+        <p class="muted">הכנס כאן את כתובת ה-HTTP Function (index.js בצד שרת) שמייצרת את קבצי ה-JSON ושומרת אותם ב-Storage.</p>
+        <label for="exportEndpoint">Cloud Function URL</label>
+        <input id="exportEndpoint" placeholder="https://REGION-PROJECT.cloudfunctions.net/generateClientJson" />
+        <div class="row" style="margin-top:10px;">
+          <button id="exportBtn" class="btn-brand">יצוא נתונים</button>
+        </div>
+        <p id="exportMsg" class="msg"></p>
+        <label for="apiKeyResult">API Key ללקוח</label>
+        <input id="apiKeyResult" readonly />
+      </div>
+    </section>
   </div>
 
-  <div id="toast" class="toast"></div>
-
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
     import {
       getAuth,
-      GoogleAuthProvider,
-      signInWithPopup,
-      signInWithRedirect,
-      getRedirectResult,
-      browserPopupRedirectResolver,
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
-      updateProfile,
-      onAuthStateChanged,
       signOut,
-      setPersistence,
-      browserLocalPersistence
-    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+      onAuthStateChanged
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
     import {
       getFirestore,
       collection,
-      addDoc,
-      setDoc,
-      serverTimestamp,
-      query,
-      where,
-      onSnapshot,
-      orderBy,
-      updateDoc,
-      deleteDoc,
       doc,
       getDoc,
-      getDocs
-    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-firestore.js";
-    import { getStorage, ref, uploadBytes, getDownloadURL } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-storage.js";
+      getDocs,
+      setDoc,
+      addDoc,
+      deleteDoc,
+      query,
+      orderBy,
+      serverTimestamp
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
+    import {
+      getStorage,
+      ref,
+      uploadBytes,
+      getDownloadURL
+    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
 
+    // TODO: החלף בערכי הפרויקט שלך
     const firebaseConfig = {
-      apiKey: "AIzaSyC3LYWwTbQFS9i3Jq1YAg9osQURQ_Gknks",
-      authDomain: "product-manager-a084a.firebaseapp.com",
-      projectId: "product-manager-a084a",
-      storageBucket: "product-manager-a084a.firebasestorage.app",
-      messagingSenderId: "534748662537",
-      appId: "1:534748662537:web:9543f4a4bf137ad22e61d8",
-      measurementId: "G-JLX2H2E69M"
+      apiKey: "YOUR_API_KEY",
+      authDomain: "YOUR_AUTH_DOMAIN",
+      projectId: "YOUR_PROJECT_ID",
+      storageBucket: "YOUR_STORAGE_BUCKET",
+      messagingSenderId: "YOUR_MESSAGING_SENDER_ID",
+      appId: "YOUR_APP_ID"
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
     const db = getFirestore(app);
     const storage = getStorage(app);
-    const provider = new GoogleAuthProvider();
-    provider.setCustomParameters({ prompt: 'select_account' });
 
-    // Base URL for publicly accessible JSON files generated by Cloud Functions.
-    // Pattern: public-json/{clientId}/products.json and product-style.json
-    const JSON_BASE_URL = `https://storage.googleapis.com/${firebaseConfig.storageBucket}/public-json`;
-
-    const DEFAULT_THEME = {
-      template: 'classic',
-      applyMode: 'all',
-      selectedProductId: '',
-      embedTitle: 'המוצרים שלנו',
-      embedColumns: 3,
-      showCart: true,
-      primaryColor: '#60a5fa',
-      cardBackground: '#ffffff',
-      textColor: '#111827',
-      buttonColor: '#111827',
-      buttonTextColor: '#ffffff',
-      cardPadding: 18,
-      borderRadius: 24,
-      imageHeight: 220,
-      textAlign: 'right',
-      layout: 'grid',
-      desktopColumns: 4,
-      mobileColumns: 2,
-      platformName: 'מוצרלה',
-      logoText: 'VT',
-      bodyGradient: '',
-      buttonStyle: 'rounded',
-      animationStyle: 'none',
-      animationDuration: 0.8,
-      cardShadow: ''
-    };
-
-    const QUICK_PALETTES = [
-      { name: 'שמים', primary: '#4f46e5', card: '#ffffff', text: '#172033', button: '#1d4ed8' },
-      { name: 'אזמרגד', primary: '#10b981', card: '#ecfdf5', text: '#064e3b', button: '#047857' },
-      { name: 'רוז', primary: '#f43f5e', card: '#fff1f2', text: '#4c0519', button: '#be123c' },
-      { name: 'שקיעה', primary: '#f97316', card: '#fff7ed', text: '#7c2d12', button: '#ea580c' },
-      { name: 'אוקיינוס', primary: '#0f766e', card: '#ecfeff', text: '#134e4a', button: '#0f766e' },
-      { name: 'זהב', primary: '#ca8a04', card: '#fefce8', text: '#713f12', button: '#a16207' },
-      { name: 'לילה', primary: '#1e293b', card: '#f8fafc', text: '#0f172a', button: '#334155' },
-      { name: 'לילך', primary: '#a855f7', card: '#faf5ff', text: '#581c87', button: '#9333ea' }
-    ];
+    const el = (id) => document.getElementById(id);
 
     const state = {
-      lang: 'he',
-      authMode: 'login',
-      currentUser: null,
-      products: [],
-      editId: null,
-      currentImageUrl: '',
-      unsubscribeProducts: null,
-      unsubscribeTheme: null,
-      theme: { ...DEFAULT_THEME },
-      redirectHandled: false,
-      embedMode: false,
-      embedUid: '',
-      previewObjectUrl: '',
-      cart: {},
-      selectedVariants: {},
-      modalTags: []
+      uid: null,
+      editingId: null,
+      products: []
     };
 
-    const translations = {
-      he: {
-        'brand.title': 'מוצרלה','brand.subtitle': 'מוצרלה, מערכת לניהול מוצרים','showcase.badge': 'פלטפורמת קטלוג עברית חכמה','showcase.title': 'קטלוג נע, חד ומוכן לעבודה מול לקוחות','showcase.desc': 'התחברות מהירה, ניהול מוצרים ב-Firebase, חיבור אוטומטי לאתר הלקוח ותצוגת כרטיסים חדה שנשמרת גם במסך הניהול וגם באתר.',
-        'f1.t': 'התחברות חכמה','f1.d': 'Google Redirect יציב ומאובטח','f2.t': 'סנכרון מוצרים','f2.d': 'חיבור לאתר לפי מזהה חשבון','f3.t': 'עיצוב חי','f3.d': 'כרטיסים חדים עם אנימציה נראית לעין','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
-        'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.','auth.or': 'או התחבר עם פרטי משתמש','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.',
-        'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב כרטיסיות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.export': 'ייצוא JSON','nav.copyEmbed': 'העתק קוד חיבור',
-        'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא למוצרלה שלך','app.sub': '','app.logout': 'התנתק',
-        'hero.title': '','hero.desc': '','hero.add': 'הוסף מוצר חדש','hero.demo': 'הכנס מוצרי דוגמה','hero.embed': 'צור קוד חיבור לאתר',
-        'stats.activeProducts': 'סך הכל מוצרים פעילים','stats.products': 'סך הכל מוצרים פעילים','stats.productsSub': '','stats.promos': '','stats.promosSub': '','stats.templates': '','stats.templatesSub': '','stats.updated': '','stats.updatedSub': '',
-        'products.title': 'המוצרים שלי','products.desc': 'חיפוש, סינון, עריכה, שכפול ומחיקה — עם סגנון כרטיס אחיד וגמיש.','products.add': 'הוסף מוצר','products.refresh': 'רענן','products.search': 'חפש לפי שם, תיאור או תג','products.empty': 'עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.','products.desktopColumns': 'כמות כרטיסים בשורה במחשב','products.mobileColumns': 'כמות כרטיסים בשורה בטלפון','products.connectionMode': 'אופן החיבור באתר',
-        'filters.all': 'כל המוצרים','filters.active': 'רק פעילים','filters.inactive': 'מושבתים','filters.promo': 'עם מבצע','filters.regular': 'ללא מבצע','sort.newest': 'החדש ביותר','sort.name': 'לפי שם','sort.priceAsc': 'מחיר עולה','sort.priceDesc': 'מחיר יורד',
-        'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'האתר מזהה אוטומטית אם החיבור נעשה דרך iframe או דרך API, בלי צורך להגדיר מצב ברמת מוצר.','embed.copyId': 'העתק קוד API','embed.copyCode': 'העתק קוד iframe','embed.iframeTitle': '1. קוד iframe להטמעה מלאה','embed.iframeDesc': 'הדביקו את הקוד הזה בכל אזור HTML באתר, והמערכת תציג את הייצוג המלא של המוצרים אוטומטית.','embed.apiTitle': '2. כתובת API למשיכת נתונים','embed.apiDesc': 'העתיקו את כתובת ה-API ואת דוגמת הקוד, פרקו את תגובת ה-HTML ל-JSON, ואז בנו תצוגה משלכם על בסיס כל השדות שמופיעים כאן באתר.','embed.devGuideTitle': 'הוראות למפתחים','embed.devGuideDesc': 'כל ההסברים כאן בעברית, אבל שמות השדות והקוד נשארים באנגלית כדי שתוכלו להעתיק אותם כמו שהם.','embed.copyFields': 'העתק את כל שמות השדות','embed.fieldLabel': 'שם שדה','embed.fieldType': 'סוג','embed.fieldMeaning': 'מתי צריך להעתיק',
-        'designer.title': 'עיצוב האתר ותצוגת הכרטיס','designer.desc': 'יש סגנון כרטיס אחיד אחד, עם אנימציות חדות שנראות גם בתצוגה המקדימה וגם באתר המוטמע.','designer.styleTitle': 'עיצוב כרטיס','designer.applyModeLabel': 'איפה להחיל את העיצוב','designer.applyAll': 'על כל הכרטיסיות','designer.applySelected': 'רק על הכרטיסייה הנבחרת','designer.productSelectLabel': 'בחר כרטיסייה','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.palette': 'פלטת צבעים מהירה','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
-        'template.classic': 'כרטיס אחיד',
-        'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.platformName': 'שם הפלטפורמה','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה מופיעים כבאנר קטן עם דגלים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
-        'ideas.title': 'מצב המערכת','ideas.1': '• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.','ideas.2': '• תמונות יישמרו ב-Storage ואם אין הרשאה הן יישמרו ישירות במסמך המוצר כדי לא לחסום שמירה.','ideas.3': '• קוד ההטמעה משתמש במזהה החשבון בלבד.','ideas.4': '• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.','ideas.5': '• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.','ideas.6': '• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.',
-        'modal.addTitle': 'הוספת מוצר','modal.editTitle': 'עריכת מוצר','modal.desc': 'מלא את פרטי המוצר, הוסף תגיות והגדר קטגוריות בחירה ללקוח.','modal.cancel': 'ביטול','modal.save': 'שמור מוצר',
-        'form.name': 'שם המוצר','form.price': 'מחיר','form.desc': 'תיאור','form.tags': 'תגיות','form.image': 'תמונת מוצר','form.sitePreview': 'איך המוצר יראה באתר'
-      },
-      en: {}, fr: {}
-    };
+    const authCard = el("authCard");
+    const appCard = el("appCard");
 
-    const $ = (sel) => document.querySelector(sel);
-    const $$ = (sel) => [...document.querySelectorAll(sel)];
-
-    function dict() { return translations[state.lang] || translations.he; }
-    function text(key) { return dict()[key] || translations.he[key] || key; }
-    function esc(value) { return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
-    function showToast(message, isError = false) {
-      const toast = $('#toast');
-      if (!toast) {
-        console[isError ? 'error' : 'log'](message);
-        return;
-      }
-      toast.textContent = message;
-      toast.style.borderColor = isError ? 'rgba(239,68,68,.35)' : 'rgba(96,165,250,.25)';
-      toast.classList.add('show');
-      clearTimeout(showToast._timer);
-      showToast._timer = setTimeout(() => toast.classList.remove('show'), 3200);
+    function setMessage(id, text, type = "ok") {
+      const node = el(id);
+      node.textContent = text;
+      node.className = `msg ${type === "err" ? "err" : "ok"}`;
     }
 
-    function applyTranslations() {
-      document.documentElement.lang = 'he';
-      document.documentElement.dir = 'rtl';
-      $$('[data-i18n]').forEach((el) => { const key = el.dataset.i18n; if (text(key)) el.textContent = text(key); });
-      $$('[data-i18n-placeholder]').forEach((el) => { const key = el.dataset.i18nPlaceholder; if (text(key)) el.placeholder = text(key); });
-      $('#authSubmitBtn').textContent = state.authMode === 'login' ? text('auth.submitLogin') : text('auth.submitRegister');
-      $('#modalTitle').textContent = state.editId ? text('modal.editTitle') : text('modal.addTitle');
+    async function uploadImage(uid, file) {
+      const imageRef = ref(storage, `users/${uid}/products/${Date.now()}-${file.name}`);
+      await uploadBytes(imageRef, file);
+      return getDownloadURL(imageRef);
     }
 
-    function setAuthMode(mode) {
-      state.authMode = mode;
-      $('#loginTab').classList.toggle('active', mode === 'login');
-      $('#registerTab').classList.toggle('active', mode === 'register');
-      $('#authName').classList.toggle('hidden', mode !== 'register');
-      applyTranslations();
+    function productCollection(uid) {
+      return collection(db, "users", uid, "products");
     }
 
-    function formatFirebaseError(err) {
-      const code = err?.code || '';
-      const map = {
-        'auth/invalid-credential': 'פרטי ההתחברות שגויים',
-        'auth/email-already-in-use': 'האימייל כבר קיים במערכת',
-        'auth/weak-password': 'הסיסמה חלשה מדי',
-        'auth/popup-closed-by-user': 'חלון גוגל נסגר לפני סיום',
-        'auth/popup-blocked': 'הדפדפן חסם את חלון Google — מנסה Redirect מאובטח',
-        'auth/cancelled-popup-request': 'בקשת ה־Google בוטלה, נסה שוב',
-        'auth/unauthorized-domain': 'הדומיין הנוכחי לא מוגדר ב־Firebase Authentication',
-        'auth/network-request-failed': 'בעיה ברשת. בדוק חיבור אינטרנט ונסה שוב'
-      };
-      return map[code] || err?.message || 'Authentication error';
+    function designDoc(uid) {
+      return doc(db, "users", uid, "design", "current");
     }
 
-    async function signInGoogle() {
-      $('#googleLoginBtn').disabled = true;
-      $('#googleAuthStatus').textContent = 'מעביר ל-Google בצורה מאובטחת…';
-      try {
-        await setPersistence(auth, browserLocalPersistence);
-        await signInWithRedirect(auth, provider);
-      } catch (err) {
-        showToast(formatFirebaseError(err), true);
-        $('#googleLoginBtn').disabled = false;
-      }
-    }
-
-    async function handleRedirectResult() {
-      if (state.redirectHandled) return;
-      state.redirectHandled = true;
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          $('#googleAuthStatus').textContent = 'התחברת דרך Redirect בהצלחה';
-          showToast('התחברת בהצלחה עם Google Redirect');
-        }
-      } catch (err) {
-        showToast(formatFirebaseError(err), true);
-      } finally {
-        $('#googleLoginBtn').disabled = false;
-      }
-    }
-
-    async function handleAuthSubmit(e) {
-      e.preventDefault();
-      const name = $('#authName').value.trim();
-      const email = $('#authEmail').value.trim();
-      const password = $('#authPassword').value;
-      try {
-        await setPersistence(auth, browserLocalPersistence);
-        if (state.authMode === 'register') {
-          const cred = await createUserWithEmailAndPassword(auth, email, password);
-          if (name) await updateProfile(cred.user, { displayName: name });
-          showToast('החשבון נוצר בהצלחה');
-        } else {
-          await signInWithEmailAndPassword(auth, email, password);
-          showToast('התחברת בהצלחה');
-        }
-      } catch (err) {
-        showToast(formatFirebaseError(err), true);
-      }
-    }
-
-    function userDoc(uid = state.currentUser?.uid) { return doc(db, 'users', uid); }
-    function themeDocRef(uid = state.currentUser?.uid) { return doc(db, 'users', uid, 'storefront', 'settings'); }
-    function productsCollection(uid = state.currentUser?.uid) { return collection(db, 'users', uid, 'products'); }
-    function productDoc(id, uid = state.currentUser?.uid) { return doc(db, 'users', uid, 'products', id); }
-
-    // --- Public Products helpers ---
-    function publicProductDoc(id) { return doc(db, 'publicProducts', id); }
-
-    function buildPublicProductPayload(item) {
-      return {
-        id: item.id || item.productId,
-        ownerId: item.uid || '',
-        name: item.name || '',
-        price: Number(item.price || 0),
-        description: item.description || '',
-        imageUrl: item.imageUrl || '',
-        tags: (item.tags || []).map(t => typeof t === 'string' ? { label: t } : { label: t?.label || '', color: t?.color || '', shape: t?.shape || 'pill' }),
-        colors: item.colors || [],
-        addons: (item.addons || []).map(a => ({ type: a?.style || a?.type || 'text', label: a?.value || a?.label || '' })),
-        upgrades: (item.variants || []).map(v => ({ name: v?.name || '', options: (v?.options || []).map(o => o?.label || o?.value || '') })),
-        animation: {
-          enabled: !!(item.animationStyle && item.animationStyle !== 'none'),
-          type: item.animationStyle || 'none',
-          duration: Number(item.animationDuration || 0.8),
-          delay: Number(item.animationDelay || 0.1)
-        },
-        theme: {
-          cardStyle: item.buttonStyle || 'rounded',
-          primaryColor: item.accentColor || '#60a5fa',
-          cardBackground: item.cardBackground || '#ffffff',
-          textColor: item.textColor || '',
-          font: item.font || 'Inter'
-        },
-        published: true,
-        updatedAt: serverTimestamp()
-      };
-    }
-
-    async function syncPublicProduct(item) {
-      if (!item || !item.id) return;
-      const isPublished = item.published === true;
-      const isDisabled = !productIsActive(item);
-      try {
-        if (isPublished && !isDisabled) {
-          await setDoc(publicProductDoc(item.id), buildPublicProductPayload(item), { merge: true });
-        } else {
-          const snap = await getDoc(publicProductDoc(item.id));
-          if (snap.exists()) await deleteDoc(publicProductDoc(item.id));
-        }
-      } catch (err) {
-        console.error('syncPublicProduct error:', err);
-      }
-    }
-
-    async function saveThemeToFirestore(partialTheme = state.theme) {
-      if (!state.currentUser) return;
-      const payload = {
-        ...DEFAULT_THEME,
-        ...partialTheme,
-        uid: state.currentUser.uid,
-        updatedAt: serverTimestamp()
-      };
-      await setDoc(userDoc(), { uid: state.currentUser.uid, email: state.currentUser.email || '', displayName: state.currentUser.displayName || '', updatedAt: serverTimestamp() }, { merge: true });
-      await setDoc(themeDocRef(), payload, { merge: true });
-    }
-
-    function applyThemeToPreview() {
-      document.documentElement.style.setProperty('--preview-bg', `linear-gradient(135deg, ${hexToRgba(state.theme.primaryColor, .18)}, ${hexToRgba(state.theme.primaryColor, .05)})`);
-      document.documentElement.style.setProperty('--preview-card', state.theme.cardBackground);
-      document.documentElement.style.setProperty('--preview-text', state.theme.textColor);
-      document.documentElement.style.setProperty('--preview-muted', hexToRgba(state.theme.textColor, .62));
-      document.documentElement.style.setProperty('--preview-btn-bg', state.theme.buttonColor);
-      document.documentElement.style.setProperty('--preview-btn-text', getContrastColor(state.theme.buttonColor));
-      document.documentElement.style.setProperty('--store-padding', `${Number(state.theme.cardPadding || 18)}px`);
-      document.documentElement.style.setProperty('--store-radius', `${Number(state.theme.borderRadius || 24)}px`);
-      document.documentElement.style.setProperty('--store-image-height', `${Number(state.theme.imageHeight || 220)}px`);
-      document.documentElement.style.setProperty('--store-align', state.theme.textAlign || 'right');
-      $('#productPreviewShell').dataset.template = 'classic';
-      $('#activeTemplateBadge').textContent = state.theme.applyMode === 'selected' ? 'כרטיס בודד' : 'כל הכרטיסיות';
-      $('#cartToggleBadge').textContent = state.theme.showCart ? 'סל פעיל' : 'סל מוסתר';
-      $('#designerApplyMode').value = state.theme.applyMode || 'all';
-      $('#toggleCartButton').classList.toggle('active', !!state.theme.showCart);
-      $('#themePrimaryColor').value = normalizeHex(state.theme.primaryColor);
-      $('#themeBackgroundColor').value = normalizeHex(state.theme.cardBackground);
-      $('#themeTextColor').value = normalizeHex(state.theme.textColor);
-      $('#themeButtonColor').value = normalizeHex(state.theme.buttonColor);
-      $('#themeCardPadding').value = Number(state.theme.cardPadding || 18);
-      $('#themeBorderRadius').value = Number(state.theme.borderRadius || 24);
-      $('#themeImageHeight').value = Number(state.theme.imageHeight || 220);
-      $('#themeTextAlign').value = state.theme.textAlign || 'right';
-      if ($('#desktopColumns')) $('#desktopColumns').value = String(state.theme.desktopColumns || 4);
-      if ($('#mobileColumns')) $('#mobileColumns').value = String(state.theme.mobileColumns || 2);
-            if ($('#platformNameInput')) $('#platformNameInput').value = state.theme.platformName || 'מוצרלה';
-      document.documentElement.style.setProperty('--desktop-columns', Number(state.theme.desktopColumns || 4));
-      document.documentElement.style.setProperty('--mobile-columns', Number(state.theme.mobileColumns || 2));
-      $('#themeCardPaddingValue').textContent = `${Number(state.theme.cardPadding || 18)}px`;
-      $('#themeBorderRadiusValue').textContent = `${Number(state.theme.borderRadius || 24)}px`;
-      $('#themeImageHeightValue').textContent = `${Number(state.theme.imageHeight || 220)}px`;
-      toggleDesignerScopeFields();
-      syncDesignerProductOptions();
-      renderPreviewProduct();
-      renderModalProductPreview();
+    async function loadProducts(uid) {
+      const q = query(productCollection(uid), orderBy("createdAt", "desc"));
+      const snap = await getDocs(q);
+      state.products = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       renderProducts();
-      updateEmbedCode();
-    }
-
-    function normalizeHex(value) {
-      if (!value) return '#000000';
-      if (value.startsWith('#') && (value.length === 7 || value.length === 4)) return value;
-      return '#000000';
-    }
-    function hexToRgba(hex, alpha = 1) {
-      const clean = normalizeHex(hex).slice(1);
-      const full = clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean;
-      const num = parseInt(full, 16);
-      const r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
-      return `rgba(${r}, ${g}, ${b}, ${alpha})`;
-    }
-    function getContrastColor(hex) {
-      const clean = normalizeHex(hex).slice(1);
-      const full = clean.length === 3 ? clean.split('').map(c => c + c).join('') : clean;
-      const num = parseInt(full, 16);
-      const r = (num >> 16) & 255, g = (num >> 8) & 255, b = num & 255;
-      const luma = (0.2126*r + 0.7152*g + 0.0722*b)/255;
-      return luma > 0.55 ? '#111827' : '#ffffff';
-    }
-
-    function normalizeTagData(tags = [], tagStyles = {}) {
-      return (tags || []).map((tag) => {
-        if (typeof tag === 'string') return tag ? { label: tag, color: tagStyles?.[tag]?.color || '#4f46e5', shape: tagStyles?.[tag]?.shape || 'pill' } : null;
-        const label = tag?.label || '';
-        return label ? { label, color: tag?.color || tagStyles?.[label]?.color || '#4f46e5', shape: tag?.shape || tagStyles?.[label]?.shape || 'pill' } : null;
-      }).filter(Boolean);
-    }
-
-    function renderTagEditor() {
-      const list = $('#productTagsList');
-      if (!list) return;
-      list.innerHTML = state.modalTags.length
-        ? state.modalTags.map((tag, index) => `<div class="tag-token tag-shape-${esc(tag.shape || 'pill')}" style="background:${esc(hexToRgba(tag.color || '#4f46e5', .14))}; color:${esc(tag.color || '#4f46e5')}; border-color:${esc(hexToRgba(tag.color || '#4f46e5', .28))};"><span>${esc(tag.label)}</span><button type="button" data-remove-tag="${index}" aria-label="remove">×</button></div>`).join('')
-        : '<div class="tag-token tag-token-add">אין תגיות עדיין</div>'; 
-      list.querySelectorAll('[data-remove-tag]').forEach((btn) => btn.addEventListener('click', (event) => {
-        event.stopPropagation();
-        state.modalTags.splice(Number(btn.dataset.removeTag), 1);
-        renderTagEditor();
-        renderModalProductPreview();
-      }));
-    }
-
-    function addTagFromInput() {
-      const input = $('#productTagInput');
-      const value = input.value.trim();
-      if (!value) return;
-      const color = $('#productTagColor').value || '#4f46e5';
-      const shape = $('#productTagShape').value || 'pill';
-      if (!state.modalTags.some((tag) => tag.label === value)) state.modalTags.push({ label: value, color, shape });
-      input.value = '';
-      renderTagEditor();
-      renderModalProductPreview();
-    }
-
-    function getCartQuantity(productId) {
-      return Number(state.cart[productId] || 1);
-    }
-
-    function setCartQuantity(productId, value) {
-      state.cart[productId] = Math.max(1, Number(value || 1));
-    }
-    function getSelectedVariant(productId, groupName) {
-      return state.selectedVariants?.[productId]?.[groupName] || '';
-    }
-    function setSelectedVariant(productId, groupName, value) {
-      state.selectedVariants[productId] ||= {};
-      state.selectedVariants[productId][groupName] = value || '';
-    }
-
-    function getPreviewProduct() {
-      return getDesignerTargetProduct() || state.products[0] || {
-        name: 'Sample product title',
-        price: 149,
-        description: 'This preview shows how the product content and styling will appear inside the connected storefront.',
-        tags: [{ label: 'New', color: '#4f46e5', shape: 'pill' }, { label: 'Promo', color: '#f97316', shape: 'burst' }],
-        colors: ['Blue', 'White'],
-        imageUrl: '',
-        font: 'Inter',
-        template: 'classic',
-        showCart: 'default',
-        accentColor: state.theme.primaryColor,
-        cardBackground: state.theme.cardBackground
-      };
-    }
-
-    function inheritThemeForItem(item = {}) {
-      return item.useSiteTheme === 'custom' ? { ...state.theme, ...item } : { ...state.theme, accentColor: item.accentColor || state.theme.primaryColor, cardBackground: item.cardBackground || state.theme.cardBackground, font: item.font || 'Inter' };
-    }
-    function productEffectiveTemplate(item) { return 'classic'; }
-    function productShowCart(item) { return item.showCart === 'show' ? true : item.showCart === 'hide' ? false : !!state.theme.showCart; }
-    function productIsActive(item) { return item.active !== false && item.status !== 'inactive'; }
-
-    function buildStoreCardHTML(item, isPreview = false) {
-      const theme = inheritThemeForItem(item);
-      const template = productEffectiveTemplate(item);
-      const showCart = productShowCart(item);
-      const productId = item.id || item.productId || item.name || 'preview';
-      const price = `₪${Number(item.price || 0).toLocaleString()}`;
-      const image = item.imageUrl ? `<img src="${esc(item.imageUrl)}" alt="${esc(item.name || '')}">` : `<img alt="placeholder" src="data:image/svg+xml,${encodeURIComponent(`<svg xmlns='http://www.w3.org/2000/svg' width='600' height='420'><rect width='100%' height='100%' fill='${item.accentColor || theme.primaryColor}' opacity='0.18'/><text x='50%' y='50%' dominant-baseline='middle' text-anchor='middle' font-family='Arial' font-size='32' fill='#334155'>מוצרלה</text></svg>`)}">`;
-      const chips = (item.tags || []).slice(0, 4).map((tag) => {
-        const label = typeof tag === 'string' ? tag : tag?.label || '';
-        const color = typeof tag === 'string' ? (item.tagStyles?.[label]?.color || theme.primaryColor) : (tag?.color || theme.primaryColor);
-        const shape = typeof tag === 'string' ? (item.tagStyles?.[label]?.shape || 'pill') : (tag?.shape || 'pill');
-        return `<span class="store-chip tag-shape-${esc(shape)}" style="background:${esc(hexToRgba(color, .14))}; color:${esc(color)}; border-color:${esc(hexToRgba(color, .28))};">${esc(label)}</span>`;
-      }).join('');
-
-      const variantGroups = (item.variants || []).filter((group) => group?.name && (group.options || []).length);
-      const variantHtml = variantGroups.map((group) => `<div class="inline-field"><label>${esc(group.name)}</label><div class="addon-inline-list">${group.options.map((option) => {
-        const optionLabel = typeof option === 'string' ? option : (option?.label ?? option?.value ?? '');
-        const selected = !isPreview && getSelectedVariant(productId, group.name) === optionLabel;
-        return `<button class="addon-inline-pill ${selected ? 'active' : ''}" type="button" data-action="select-variant" data-product-id="${esc(productId)}" data-group="${esc(group.name)}" data-option="${esc(optionLabel)}">${esc(optionLabel)}</button>`;
-      }).join('')}</div></div>`).join('');
-      const cartHtml = showCart ? `
-        <div class="cart-inline-row">
-          <div class="qty-stepper">
-            <button type="button" data-action="qty-down" data-product-id="${esc(productId)}">−</button>
-            <span class="qty-value">${isPreview ? 1 : getCartQuantity(productId)}</span>
-            <button type="button" data-action="qty-up" data-product-id="${esc(productId)}">+</button>
-          </div>
-          <button class="store-btn btn-style-${esc(item.buttonStyle || theme.buttonStyle || 'rounded')}" type="button" data-action="add-cart" data-product-id="${esc(productId)}" style="background:${esc(theme.buttonColor)};color:${getContrastColor(theme.buttonColor)};">הוספה לסל</button>
-        </div>
-        <div class="inline-note">הלקוחות יכולים לבחור אפשרויות ולהוסיף את המוצר ישירות מהכרטיס.</div>` : '';
-      const content = `
-        ${template === 'split' ? image : ''}
-        <div class="store-copy" style="font-family:${esc(item.font || 'Inter')}; text-align:${esc(theme.textAlign || 'right')};">
-          ${template !== 'split' ? image : ''}
-          <div class="store-meta">${esc((item.freeText || 'קטלוג מחובר ומנוהל מתוך מוצרלה').slice(0, 80))}</div>
-          <h4 style="margin:6px 0 4px;">${esc(item.name || '')}</h4>
-          <div class="store-price" style="color:${esc(item.accentColor || theme.primaryColor)};">${price}</div>
-          <p class="store-meta">${esc(item.description || '')}</p>
-          <div class="store-chips">${chips}</div>
-          ${variantHtml}
-          ${cartHtml}
-        </div>`;
-      const backgroundStyle = item.bodyGradient || theme.bodyGradient ? `background:${esc(item.bodyGradient || theme.bodyGradient)};` : `background:${esc(theme.cardBackground)};`;
-      return `<div class="store-card animate-in" data-animation="${esc(item.animationStyle || theme.animationStyle || 'none')}" style="${backgroundStyle}color:${esc(theme.textColor)};padding:${Number(theme.cardPadding || 18)}px;border-radius:${Number(theme.borderRadius || 24)}px;">${content}</div>`;
-    }
-
-
-    function syncDesignerProductOptions() {
-      const select = $('#designerProductSelect');
-      if (!select) return;
-      const current = state.theme.selectedProductId || '';
-      select.innerHTML = state.products.length
-        ? state.products.map((item) => `<option value="${esc(item.id)}">${esc(item.name || 'ללא שם')}</option>`).join('')
-        : '<option value="">אין עדיין כרטיסיות</option>';
-      if (state.products.some((item) => item.id === current)) select.value = current;
-      else if (state.products[0]) {
-        state.theme.selectedProductId = state.products[0].id;
-        select.value = state.products[0].id;
-      }
-    }
-
-    function toggleDesignerScopeFields() {
-      $('#designerProductField')?.classList.toggle('hidden', (state.theme.applyMode || 'all') !== 'selected');
-    }
-
-    function getDesignerTargetProduct() {
-      if ((state.theme.applyMode || 'all') !== 'selected') return null;
-      return state.products.find((item) => item.id === state.theme.selectedProductId) || state.products[0] || null;
-    }
-
-    function buildModalPreviewProduct() {
-      return {
-        name: $('#productName').value.trim() || 'Preview product',
-        price: Number($('#productPrice').value || 0) || 149,
-        description: $('#productDesc').value.trim() || 'See how the product will look inside the live storefront.',
-        tags: state.modalTags,
-        colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
-        freeText: '',
-        font: 'Inter',
-        imageUrl: state.previewObjectUrl || state.currentImageUrl || '',
-        template: 'classic',
-        showCart: 'default',
-        accentColor: $('#productAccentColor').value || state.theme.primaryColor,
-        cardBackground: $('#productBodyColor').value || state.theme.cardBackground,
-        buttonStyle: $('#productButtonStyle').value || 'rounded',
-        animationStyle: $('#productAnimation').value || 'none',
-        active: true,
-        status: 'active',
-        useSiteTheme: 'inherit',
-        tagStyles: Object.fromEntries(state.modalTags.map(tag => [tag.label, { color: tag.color, shape: tag.shape }])),
-        variants: collectVariants()
-      };
-    }
-
-    function renderPreviewProduct() {
-      $('#productPreviewShell').innerHTML = buildStoreCardHTML(getPreviewProduct(), true);
-    }
-
-    function renderModalProductPreview() {
-      const shell = $('#modalProductPreview');
-      if (!shell) return;
-      const item = buildModalPreviewProduct();
-      shell.innerHTML = `<div class="product-preview-shell" data-template="${esc(productEffectiveTemplate(item))}">${buildStoreCardHTML(item, true)}</div>`;
-    }
-
-
-    function renderSwatches() {
-      const container = $('#swatches');
-      container.innerHTML = QUICK_PALETTES.map((palette, idx) => `<button type="button" class="swatch-btn ${idx===0 ? 'active' : ''}" data-palette="${idx}" style="background:${palette.primary}" title="${palette.name}"></button>`).join('');
-      $$('[data-palette]').forEach(btn => btn.addEventListener('click', () => {
-        const palette = QUICK_PALETTES[Number(btn.dataset.palette)];
-        $$('.swatch-btn').forEach(x => x.classList.remove('active'));
-        btn.classList.add('active');
-        state.theme = { ...state.theme, showCart: state.theme.showCart, primaryColor: palette.primary, cardBackground: palette.card, textColor: palette.text, buttonColor: palette.button };
-        applyThemeToPreview();
-      }));
-    }
-
-    function updateUserUI(user) {
-      const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
-      const email = user?.email || '-';
-      $('#userName').textContent = displayName;
-      $('#userEmail').textContent = email;
-      $('#mobileUserName').textContent = displayName;
-      if ($('#accountUid')) $('#accountUid').textContent = user?.uid || '-';
-      [$('#userAvatar'), $('#mobileAvatar')].forEach((el) => {
-        if (!el) return;
-        if (user?.photoURL) el.innerHTML = `<img src="${user.photoURL}" alt="avatar">`;
-        else el.textContent = displayName.charAt(0).toUpperCase();
-      });
-      updateEmbedCode();
-    }
-
-    function switchScreen(loggedIn) {
-      $('#authScreen').classList.toggle('hidden', loggedIn);
-      $('#appScreen').classList.toggle('hidden', !loggedIn);
-    }
-
-    function openModal(item = null) {
-      state.editId = item?.id || null;
-      state.currentImageUrl = item?.imageUrl || '';
-      if (state.previewObjectUrl) {
-        URL.revokeObjectURL(state.previewObjectUrl);
-        state.previewObjectUrl = '';
-      }
-      $('#productForm').reset();
-      $('#variantsContainer').innerHTML = '';
-      state.modalTags = normalizeTagData(item?.tags || [], item?.tagStyles || {});
-      if (item) {
-        $('#productName').value = item.name || '';
-        $('#productPrice').value = item.price || '';
-        if ($('#productSalePrice')) $('#productSalePrice').value = item.salePrice || '';
-        if ($('#productCategory')) $('#productCategory').value = item.category || '';
-        if ($('#productSortOrder')) $('#productSortOrder').value = item.sortOrder ?? 0;
-        $('#productDesc').value = item.description || '';
-        $('#productAccentColor').value = normalizeHex(item.accentColor || state.theme.primaryColor);
-        $('#productBodyColor').value = normalizeHex(item.cardBackground || state.theme.cardBackground);
-        $('#productButtonStyle').value = item.buttonStyle || 'rounded';
-        $('#productAnimation').value = item.animationStyle || 'none';
-        if ($('#productAnimDuration')) $('#productAnimDuration').value = item.animationDuration || 0.8;
-        if ($('#productAnimDelay')) $('#productAnimDelay').value = item.animationDelay || 0.1;
-        (item.variants || []).forEach(addVariantGroup);
-      } else {
-        state.modalTags = [];
-        $('#productAccentColor').value = normalizeHex(state.theme.primaryColor);
-        $('#productBodyColor').value = normalizeHex(state.theme.cardBackground);
-        $('#productButtonStyle').value = state.theme.buttonStyle || 'rounded';
-        $('#productAnimation').value = state.theme.animationStyle || 'none';
-        addVariantGroup();
-      }
-      renderTagEditor();
-      applyTranslations();
-      renderModalProductPreview();
-      $('#productModal').classList.add('open');
-    }
-    function closeModal() { $('#productModal').classList.remove('open'); state.editId = null; state.currentImageUrl = ''; if (state.previewObjectUrl) { URL.revokeObjectURL(state.previewObjectUrl); state.previewObjectUrl=''; } }
-    function addVariantGroup(data = {}) {
-      const box = document.createElement('div');
-      box.className = 'variant-box';
-      box.innerHTML = `
-        <div class="variant-head">
-          <input class="input variant-name" placeholder="שם קטגוריה, למשל מידה או צבע" value="${esc(data.name || '')}">
-          <button class="btn btn-danger remove-variant" type="button">✕</button>
-        </div>
-        <div class="variant-options"></div>
-        <button class="btn btn-outline add-variant-option" type="button">הוסף אפשרות</button>`;
-      box.querySelector('.remove-variant').addEventListener('click', () => { box.remove(); renderModalProductPreview(); });
-      box.querySelector('.add-variant-option').addEventListener('click', () => addVariantOption(box));
-      box.querySelector('.variant-name').addEventListener('input', renderModalProductPreview);
-      $('#variantsContainer').appendChild(box);
-      (data.options || [{ label:'', value:'' }]).forEach((option) => addVariantOption(box, option));
-    }
-    function addVariantOption(groupBox, data = {}) {
-      const row = document.createElement('div');
-      row.className = 'variant-option-row';
-      row.innerHTML = `
-        <input class="input variant-option-value" placeholder="תוכן, למשל 1 / 2 / לבן / שחור" value="${esc(data.value || data.label || '')}">
-        <button class="btn btn-danger remove-variant-option" type="button">✕</button>`;
-      row.querySelector('.remove-variant-option').addEventListener('click', () => { row.remove(); renderModalProductPreview(); });
-      row.querySelector('.variant-option-value').addEventListener('input', renderModalProductPreview);
-      groupBox.querySelector('.variant-options').appendChild(row);
-      renderModalProductPreview();
-    }
-    function collectVariants() {
-      return [...document.querySelectorAll('.variant-box')].map((box) => ({
-        name: box.querySelector('.variant-name').value.trim(),
-        type: 'choice',
-        options: [...box.querySelectorAll('.variant-option-row')].map((row) => ({
-          label: row.querySelector('.variant-option-value').value.trim(),
-          value: row.querySelector('.variant-option-value').value.trim()
-        })).filter((option) => option.label || option.value)
-      })).filter((group) => group.name && group.options.length);
-    }
-
-    async function fileToDataUrl(file) {
-      return await new Promise((resolve, reject) => {
-        const reader = new FileReader();
-        reader.onload = () => resolve(reader.result);
-        reader.onerror = reject;
-        reader.readAsDataURL(file);
-      });
-    }
-
-    async function uploadProductImage(file) {
-      if (!file) return { imageUrl: state.currentImageUrl || '', imagePath: '', productId: state.editId || '', imageStorageMode: state.currentImageUrl?.startsWith('data:') ? 'firestore-inline' : 'storage' };
-      const productId = state.editId || crypto.randomUUID();
-      const path = `users/${state.currentUser.uid}/products/${productId}/${Date.now()}-${file.name}`;
-      const storageRef = ref(storage, path);
-      try {
-        await uploadBytes(storageRef, file, { contentType: file.type || 'image/jpeg', customMetadata: { uid: state.currentUser.uid, productId } });
-        return { imageUrl: await getDownloadURL(storageRef), imagePath: path, productId, imageStorageMode: 'storage' };
-      } catch (err) {
-        if (err?.code === 'storage/unauthorized') {
-          showToast('אין הרשאת Storage כרגע — נשמרת תמונה ישירות ב-Firestore כדי שהשמירה תעבוד.', true);
-          return { imageUrl: await fileToDataUrl(file), imagePath: '', productId, imageStorageMode: 'firestore-inline' };
-        }
-        throw err;
-      }
-    }
-
-    async function saveProduct(e) {
-      e.preventDefault();
-      if (!state.currentUser) return;
-      try {
-        $('#saveProductBtn').disabled = true;
-        const upload = await uploadProductImage($('#productImage').files[0]);
-        const productId = state.editId || upload.productId || crypto.randomUUID();
-        const existingProduct = state.editId ? state.products.find((item) => item.id === state.editId) : null;
-        const payload = {
-          uid: state.currentUser.uid,
-          productId,
-          ownerRef: `users/${state.currentUser.uid}`,
-          name: $('#productName').value.trim(),
-          price: Number($('#productPrice').value || 0),
-          salePrice: $('#productSalePrice')?.value.trim() !== '' ? Number($('#productSalePrice').value) : null,
-          category: $('#productCategory')?.value.trim() || '',
-          sortOrder: Number($('#productSortOrder')?.value || 0),
-          description: $('#productDesc').value.trim(),
-          tags: state.modalTags,
-          tagStyles: Object.fromEntries(state.modalTags.map((tag) => [tag.label, { color: tag.color, shape: tag.shape }])),
-          colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
-          freeText: existingProduct ? (existingProduct.freeText || '') : '',
-          font: existingProduct ? (existingProduct.font || 'Inter') : 'Inter',
-          imageUrl: upload.imageUrl || state.currentImageUrl || '',
-          imagePath: upload.imagePath || '',
-          imageStorageMode: upload.imageStorageMode || 'storage',
-          addons: [],
-          template: 'classic',
-          showCart: existingProduct ? (existingProduct.showCart || 'default') : 'default',
-          accentColor: $('#productAccentColor').value || state.theme.primaryColor,
-          cardBackground: $('#productBodyColor').value || state.theme.cardBackground,
-            buttonStyle: $('#productButtonStyle').value || 'rounded',
-            animationStyle: $('#productAnimation').value || 'none',
-            animationDuration: Number($('#productAnimDuration')?.value || 0.8),
-            animationDelay: Number($('#productAnimDelay')?.value || 0.1),
-          active: existingProduct ? (existingProduct.active !== false) : true,
-          status: existingProduct ? (existingProduct.status || 'active') : 'active',
-          published: existingProduct ? (existingProduct.published !== false) : false,
-          disabled: existingProduct ? (existingProduct.disabled === true) : false,
-          useSiteTheme: existingProduct ? (existingProduct.useSiteTheme || 'inherit') : 'inherit',
-          variants: collectVariants(),
-          updatedAt: serverTimestamp(),
-          createdAt: serverTimestamp()
-        };
-        if (state.editId) {
-          delete payload.createdAt;
-          await updateDoc(productDoc(state.editId), payload);
-          showToast('המוצר עודכן');
-          await syncPublicProduct({ ...payload, id: state.editId });
-        } else {
-          await setDoc(productDoc(productId), payload, { merge: true });
-          showToast('המוצר נשמר');
-          await syncPublicProduct({ ...payload, id: productId });
-        }
-        closeModal();
-      } catch (err) {
-        showToast(err.message, true);
-      } finally {
-        $('#saveProductBtn').disabled = false;
-      }
     }
 
     function renderProducts() {
-      const container = $('#productsContainer');
-      const q = $('#searchInput').value.trim().toLowerCase();
-      const promoFilter = $('#filterPromo').value;
-      const sortBy = $('#sortSelect').value;
-      let items = [...state.products].filter((item) => {
-        const tagLabels = (item.tags || []).map((tag) => typeof tag === 'string' ? tag : (tag?.label || ''));
-        const variantLabels = (item.variants || []).flatMap((group) => [group?.name || '', ...((group?.options || []).map((option) => option?.label || option?.value || ''))]);
-        const blob = [item.name, item.description, ...tagLabels, ...variantLabels].join(' ').toLowerCase();
-        const hasPromo = (item.addons || []).some(a => a.style === 'promo');
-        const isActive = productIsActive(item);
-        const promoMatch = promoFilter === 'all' || (promoFilter === 'promo' ? hasPromo : promoFilter === 'regular' ? !hasPromo : promoFilter === 'active' ? isActive : !isActive);
-        return (!q || blob.includes(q)) && promoMatch;
-      });
-      items.sort((a,b) => sortBy === 'name' ? (a.name||'').localeCompare(b.name||'', state.lang) : sortBy === 'priceAsc' ? (a.price||0)-(b.price||0) : sortBy === 'priceDesc' ? (b.price||0)-(a.price||0) : (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
-      container.innerHTML = '';
-      $('#emptyState').classList.toggle('hidden', items.length !== 0);
-      items.forEach((item) => {
-        const chips = [...(item.tags || []).slice(0, 3).map(tag => typeof tag === 'string' ? tag : tag.label), ...((item.variants || []).slice(0, 2).map(group => `קטגוריה: ${group.name}`)), item.animationStyle && item.animationStyle !== 'none' ? `אנימציה: ${item.animationStyle}` : 'תצוגה יציבה'];
-        const card = document.createElement('article');
-        card.className = 'product-card';
-        card.dataset.id = item.id;
-        card.innerHTML = `
-          <div class="product-cover">${item.imageUrl ? `<img src="${item.imageUrl}" alt="${esc(item.name || '')}">` : '<span>ללא תמונה</span>'}</div>
-          <div class="product-body card-editor" style="font-family:${esc(item.font || 'Inter')};">
-            <div class="product-status-row">
-              <div class="status-pill ${productIsActive(item) ? 'active' : 'inactive'}"><span class="status-dot"></span>${productIsActive(item) ? 'פעיל' : 'מושבת'}</div>
-              <div class="price-tag" style="background:${hexToRgba(item.accentColor || state.theme.primaryColor, .14)}; color:${esc(item.accentColor || state.theme.primaryColor)};">₪${Number(item.price || 0).toLocaleString()}</div>
-            </div>
-            <div class="product-title-row"><h4 class="product-title">${esc(item.name || '')}</h4><div class="mini">${item.animationStyle && item.animationStyle !== 'none' ? 'אנימציה פעילה' : 'תצוגה נקייה'}</div></div>
-            <div class="product-desc">${esc(item.description || 'ללא תיאור')}</div>
-            <div class="chip-row">${chips.map(ch => `<span class="chip">${esc(ch)}</span>`).join('')}</div>
-            <div class="inline-field"><label>בחירת לקוח</label><div class="addon-inline-list">${(item.variants || []).flatMap(group => (group.options || []).slice(0, 4).map((option) => `<button class="addon-inline-pill" type="button">${esc(group.name)}: ${esc(option.label)}</button>`)).join('') || '<span class="mini">אין קטגוריות בחירה למוצר הזה.</span>'}</div></div>
-            <div style="display:flex;align-items:center;gap:8px;flex-wrap:wrap;margin-bottom:8px;">
-              <span class="status-pill ${item.published ? 'active' : 'inactive'}" style="font-size:.78rem;"><span class="status-dot"></span>${item.published ? 'מפורסם' : 'טיוטה'}</span>
-              <button class="btn btn-outline publish-btn" style="font-size:.82rem;padding:6px 10px;">${item.published ? '⬇ בטל פרסום' : '⬆ פרסם'}</button>
-              <button class="btn btn-outline embed-product-btn" style="font-size:.82rem;padding:6px 10px;">🔗 הטמעה</button>
-            </div>
-            <div class="card-actions"><button class="btn btn-primary manage-btn">עריכה</button><button class="btn btn-success toggle-btn">${productIsActive(item) ? 'השבתה' : 'הפעלה'}</button><button class="btn btn-danger delete-btn">מחיקה</button></div>
-          </div>`;
-        card.querySelector('.manage-btn').addEventListener('click', () => openModal(item));
-        card.querySelector('.toggle-btn').addEventListener('click', () => toggleProductActive(item));
-        card.querySelector('.delete-btn').addEventListener('click', () => removeProduct(item.id));
-        card.querySelector('.publish-btn').addEventListener('click', () => toggleProductPublished(item));
-        card.querySelector('.embed-product-btn').addEventListener('click', () => { goToView('product-embed'); showProductEmbedPanel(item); });
-        container.appendChild(card);
-      });
-      renderStats();
-    }
-
-    function renderStats() {
-      $('#statProducts').textContent = state.products.filter(productIsActive).length;
-    }
-
-    async function removeProduct(id) {
-      if (!confirm('למחוק את המוצר?')) return;
-      await deleteDoc(productDoc(id));
-      try { await deleteDoc(publicProductDoc(id)); } catch(e) { console.warn('Failed to delete public product (may not exist):', e); }
-      showToast('המוצר נמחק');
-    }
-    async function toggleProductActive(item) {
-      const newActive = !productIsActive(item);
-      await updateDoc(productDoc(item.id), { active: newActive, status: newActive ? 'active' : 'inactive', updatedAt: serverTimestamp() });
-      await syncPublicProduct({ ...item, active: newActive, status: newActive ? 'active' : 'inactive' });
-      showToast(newActive ? 'המוצר הופעל' : 'המוצר הושבת');
-    }
-    async function toggleProductPublished(item) {
-      const newPublished = !(item.published === true);
-      await updateDoc(productDoc(item.id), { published: newPublished, updatedAt: serverTimestamp() });
-      await syncPublicProduct({ ...item, published: newPublished });
-      showToast(newPublished ? 'המוצר פורסם לאתרים חיצוניים' : 'המוצר הוסר מאתרים חיצוניים');
-    }
-    async function cloneProduct(item) {
-      const cloneId = crypto.randomUUID();
-      const copy = { ...item, productId: cloneId, uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, name: `${item.name} עותק`, active: item.active !== false, status: item.status || 'active', createdAt: serverTimestamp(), updatedAt: serverTimestamp() };
-      delete copy.id;
-      await setDoc(productDoc(cloneId), copy, { merge: true });
-      showToast('המוצר שוכפל');
-    }
-
-    function subscribeProducts(uid) {
-      if (state.unsubscribeProducts) state.unsubscribeProducts();
-      const qy = query(productsCollection(uid));
-      state.unsubscribeProducts = onSnapshot(qy, (snapshot) => {
-        state.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        renderProducts();
-        syncDesignerProductOptions();
-        renderPreviewProduct();
-        updateEmbedCode();
-      }, (error) => {
-        console.error(error);
-        showToast('בדוק הרשאות Firestore וחיבור למסמכי המוצרים בענן', true);
-      });
-    }
-
-    function subscribeTheme(uid) {
-      if (state.unsubscribeTheme) state.unsubscribeTheme();
-      state.unsubscribeTheme = onSnapshot(themeDocRef(uid), (snapshot) => {
-        if (snapshot.exists()) state.theme = { ...DEFAULT_THEME, ...snapshot.data() };
-        else state.theme = { ...DEFAULT_THEME };
-        applyThemeToPreview();
-      });
-    }
-
-    async function ensureThemeDoc(uid) {
-      await setDoc(userDoc(uid), { uid, email: auth.currentUser?.email || '', displayName: auth.currentUser?.displayName || '', updatedAt: serverTimestamp() }, { merge: true });
-      const snap = await getDoc(themeDocRef(uid));
-      if (!snap.exists()) await setDoc(themeDocRef(uid), { ...DEFAULT_THEME, uid, updatedAt: serverTimestamp() }, { merge: true });
-    }
-
-    async function insertDemoProducts() {
-      if (!state.currentUser) return;
-      const samples = [
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מארז פרימיום', price: 129, description: 'תבנית קלאסית עם מבצע וצבעי מותג.', tags: [{ label:'חדש', color:'#4f46e5', shape:'pill' }, { label:'פופולרי', color:'#0ea5e9', shape:'square' }], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', active:true, status:'active', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, description: 'מוצר עם כרטיס אחיד לטאבלט ודסקטופ.', tags: [{ label:'קלאסי', color:'#8b5cf6', shape:'triangle' }], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'הכי נמכר', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'classic', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', active:true, status:'active', useSiteTheme:'custom', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, description: 'כרטיס אחיד ללא כפתור סל למי שרוצה רק קטלוג.', tags: [{ label:'מינימלי', color:'#f43f5e', shape:'burst' }], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'classic', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', active:false, status:'inactive', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
-      ];
-      for (const sample of samples) await setDoc(productDoc(sample.productId), sample, { merge: true });
-      showToast('נוספו מוצרי דוגמה');
-    }
-
-    function exportProductsJson() {
-      const blob = new Blob([JSON.stringify({ theme: state.theme, products: state.products }, null, 2)], { type: 'application/json' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url; a.download = 'products-export.json'; a.click();
-      URL.revokeObjectURL(url);
-    }
-
-    function copyText(value, successMessage) {
-      navigator.clipboard.writeText(value).then(() => showToast(successMessage)).catch(() => showToast('לא ניתן להעתיק אוטומטית', true));
-    }
-
-    function currentEmbedUrl() {
-      const base = new URL(window.location.href);
-      base.search = '';
-      base.searchParams.set('embed', '1');
-      base.searchParams.set('uid', state.currentUser?.uid || 'YOUR_ACCOUNT_UID');
-      return base.toString();
-    }
-
-    function updateEmbedCode() {
-      const src = currentEmbedUrl();
-      const uid = state.currentUser?.uid || 'YOUR_ACCOUNT_UID';
-      const code = `<iframe src="${src}" title="Product Manager Embed" style="width:100%;max-width:100%;height:560px;min-height:560px;border:0;display:block;" loading="lazy"></iframe>`;
-      const apiEndpoint = `${window.location.origin}${window.location.pathname}?embed=1&view=data&uid=${uid}`;
-      // JSON file URLs generated by Cloud Functions
-      const jsonProductsUrl = `${JSON_BASE_URL}/${uid}/products.json`;
-      const jsonStyleUrl = `${JSON_BASE_URL}/${uid}/product-style.json`;
-      // External JSON embed mode URL
-      const jsonEmbedUrl = `${window.location.origin}${window.location.pathname}?embed=1&uid=${uid}&source=json`;
-      const dataCode = `// --- מצב פנימי (Firestore) ---
-fetch('${apiEndpoint}')
-  .then((response) => response.text())
-  .then((markup) => {
-    const doc = new DOMParser().parseFromString(markup, 'text/html');
-    const jsonText = doc.querySelector('#embedJsonRuntime')?.textContent;
-    if (!jsonText) throw new Error('Product Manager data payload was not found.');
-    const data = JSON.parse(jsonText);
-    console.log(data.products.filter((p) => p.active !== false));
-  });
-
-// --- מצב חיצוני (JSON מ-Cloud Functions) ---
-// products.json: ${jsonProductsUrl}
-// product-style.json: ${jsonStyleUrl}
-Promise.all([
-  fetch('${jsonProductsUrl}').then((r) => r.json()),
-  fetch('${jsonStyleUrl}').then((r) => r.json())
-]).then(([products, style]) => {
-  console.log({ products, style });
-});`;
-      const apiFields = [
-        ['id', 'string', 'מזהה מוצר ייחודי.'],
-        ['name', 'string', 'שם המוצר — להציג תמיד.'],
-        ['description', 'string', 'תיאור המוצר.'],
-        ['price', 'number', 'מחיר מלא.'],
-        ['salePrice', 'number|null', 'מחיר מבצע — יש להציג אם קיים.'],
-        ['active', 'boolean', 'להציג רק מוצרים עם active=true.'],
-        ['category', 'string', 'קטגוריית המוצר.'],
-        ['imageUrl', 'string', 'כתובת תמונת המוצר.'],
-        ['imagePath', 'string', 'נתיב ב-Firebase Storage.'],
-        ['sortOrder', 'number', 'סדר הצגה — products.json כבר ממוין לפי ערך זה.'],
-        ['createdAt', 'number|null', 'תאריך יצירה (timestamp ב-ms).'],
-        ['updatedAt', 'number|null', 'תאריך עדכון אחרון (timestamp ב-ms).'],
-        ['variants', 'array', 'קבוצות בחירה. כל קבוצה: { name, options: [string] }.']
-      ];
-      const styleFields = [
-        ['cardBackground', 'string', 'צבע רקע הכרטיס.'],
-        ['textColor', 'string', 'צבע טקסט.'],
-        ['buttonColor', 'string', 'צבע כפתור.'],
-        ['buttonTextColor', 'string', 'צבע טקסט הכפתור.'],
-        ['borderRadius', 'number', 'עיגול פינות (px).'],
-        ['cardPadding', 'number', 'ריווח פנימי (px).'],
-        ['imageHeight', 'number', 'גובה תמונה (px).'],
-        ['textAlign', 'string', 'יישור טקסט (right/center/left).'],
-        ['layout', 'string', 'פריסה (grid).'],
-        ['desktopColumns', 'number', 'כמות עמודות בדסקטופ.'],
-        ['mobileColumns', 'number', 'כמות עמודות במובייל.'],
-        ['animationStyle', 'string', 'סגנון אנימציה.'],
-        ['animationDuration', 'number', 'משך אנימציה (שניות).'],
-        ['cardShadow', 'string', 'צל כרטיס (CSS box-shadow).'],
-        ['buttonStyle', 'string', 'סגנון כפתור (rounded/pill/square/soft).']
-      ];
-      const allFieldNames = apiFields.map(([key]) => key).join('\n');
-      $('#embedCodeBlock').textContent = code;
-      $('#embedDataCodeBlock').textContent = dataCode;
-      $('#apiFieldsBlock').innerHTML = `
-        <div class="guide-step"><strong>שלב 1 — שלוש דרכי חיבור</strong><span><strong>iframe פנימי:</strong> מציג את המוצרים עם עיצוב מלא ישירות מ-Firestore.<br><strong>iframe חיצוני (JSON):</strong> <code>${esc(jsonEmbedUrl)}</code><br>מצב זה מייבא מ-JSON שנוצר אוטומטית על ידי Cloud Functions — מיועד לאתרים עצמאיים.<br><strong>API:</strong> שליפת JSON ישירות לבניית תצוגה עצמאית.</span></div>
-        <div class="guide-step"><strong>שלב 2 — JSON API (Cloud Functions)</strong><span>הפונקציות מייצרות שני קבצים:<br>🗂 מוצרים: <code>${esc(jsonProductsUrl)}</code><br>🎨 עיצוב: <code>${esc(jsonStyleUrl)}</code><br>הקבצים מתעדכנים אוטומטית בכל שינוי מוצר או עיצוב. ה-JSON כולל רק מוצרים פעילים, ממוינים לפי sortOrder.</span></div>
-        <div class="guide-step"><strong>שלב 3 — שדות products.json</strong><span>כל המוצרים ממוינים לפי sortOrder ומסוננים לפי active=true.</span><pre class="code-block">${esc(allFieldNames)}</pre></div>
-        <div class="field-table"><div class="field-table-head"><div>${esc(text('embed.fieldLabel'))}</div><div>${esc(text('embed.fieldType'))}</div><div>${esc(text('embed.fieldMeaning'))}</div></div>${apiFields.map(([key,type,desc]) => `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${desc}</div></div>`).join('')}</div>
-        <div class="guide-step"><strong>שלב 4 — שדות product-style.json</strong><span>עיצוב כרטיסי המוצרים בלבד.</span></div>
-        <div class="field-table"><div class="field-table-head"><div>${esc(text('embed.fieldLabel'))}</div><div>${esc(text('embed.fieldType'))}</div><div>${esc(text('embed.fieldMeaning'))}</div></div>${styleFields.map(([key,type,desc]) => `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${desc}</div></div>`).join('')}</div>
-        <div class="guide-step"><strong>שלב 5 — בחירת מצב נכון</strong><span>השתמשו ב-<strong>iframe פנימי</strong> כשאתם מטמיעים את הממשק המלא. השתמשו ב-<strong>JSON API</strong> כשאתם בונים תצוגה עצמאית באתר שלכם. ה-<code>variants</code> בכל מוצר מכיל מערך בחירות: <code>[&#123; name, options: [string] &#125;]</code>.</span></div>
-      `;
-      $('#copyFieldNamesBtn').onclick = () => copyText(allFieldNames, 'כל שמות השדות הועתקו');
-    }
-
-    function goToView(view) {
-      $$('.nav-btn[data-view]').forEach(btn => btn.classList.toggle('active', btn.dataset.view === view));
-      ['products','embed','designer','settings'].forEach(name => $(`#view-${name}`).classList.toggle('hidden', name !== view));
-      $('#sidebar').classList.remove('open');
-      $('#sidebarBackdrop')?.classList.remove('open');
-    }
-
-    function showProductEmbedPanel(item) {
-      if (!item) return;
-      const select = $('#embedProductSelect');
-      if (select) select.value = item.id;
-      updateSingleProductEmbed(item);
-    }
-
-    function getSelectedEmbedProduct() {
-      const select = $('#embedProductSelect');
-      if (!select) return null;
-      return state.products.find(p => p.id === select.value) || null;
-    }
-
-    function updateSingleProductEmbed(item) {
-      if (!item) {
-        item = getSelectedEmbedProduct();
-        if (!item) return;
-      }
-      const productId = item.id || item.productId;
-      const base = new URL(window.location.href);
-      base.search = '';
-      const height = Number($('#iframeHeightInput')?.value || 520);
-      const theme = $('#iframeThemeSelect')?.value || '';
-
-      // iFrame URL
-      const iframeUrl = new URL(base);
-      iframeUrl.searchParams.set('embed', '1');
-      iframeUrl.searchParams.set('productId', productId);
-      if (theme) iframeUrl.searchParams.set('theme', theme);
-      const iframeSrc = iframeUrl.toString();
-      const iframeCode = `<iframe src="${iframeSrc}" title="${esc(item.name || 'Product')}" style="width:100%;max-width:100%;height:${height}px;border:0;display:block;" loading="lazy"></iframe>`;
-
-      $('#singleEmbedIframeCode').textContent = iframeCode;
-
-      // iFrame preview
-      const previewContainer = $('#singleIframePreview');
-      if (previewContainer) {
-        previewContainer.innerHTML = `<iframe src="${iframeSrc}" style="width:100%;height:${height}px;border:0;" loading="lazy"></iframe>`;
-      }
-
-      // API URL
-      const apiUrl = new URL(base);
-      apiUrl.searchParams.set('api', '1');
-      apiUrl.searchParams.set('productId', productId);
-      $('#singleApiUrl').textContent = apiUrl.toString();
-
-      // JSON example
-      const exampleJson = {
-        id: productId,
-        ownerId: item.uid || '',
-        name: item.name || '',
-        price: Number(item.price || 0),
-        description: item.description || '',
-        imageUrl: item.imageUrl || '',
-        tags: (item.tags || []).map(t => typeof t === 'string' ? t : (t?.label || '')),
-        colors: item.colors || [],
-        addons: (item.addons || []).map(a => ({ type: a?.style || 'text', label: a?.value || '' })),
-        upgrades: [],
-        animation: {
-          enabled: !!(item.animationStyle && item.animationStyle !== 'none'),
-          type: item.animationStyle || 'none',
-          duration: item.animationDuration || 0.8,
-          delay: item.animationDelay || 0.1
-        },
-        theme: {
-          cardStyle: item.buttonStyle || 'rounded',
-          primaryColor: item.accentColor || '#60a5fa'
-        },
-        published: true,
-        updatedAt: new Date().toISOString()
-      };
-      $('#singleApiJsonExample').textContent = JSON.stringify(exampleJson, null, 2);
-
-      // Populate product selector
-      const select = $('#embedProductSelect');
-      if (select) {
-        const publishedProducts = state.products.filter(p => p.published === true && productIsActive(p));
-        select.innerHTML = publishedProducts.length
-          ? publishedProducts.map(p => `<option value="${esc(p.id)}" ${p.id === productId ? 'selected' : ''}>${esc(p.name || 'ללא שם')}</option>`).join('')
-          : `<option value="">אין מוצרים מפורסמים</option>`;
-      }
-    }
-
-    function attachEvents() {
-      $('#googleLoginBtn').addEventListener('click', signInGoogle);
-      $('#authForm').addEventListener('submit', handleAuthSubmit);
-      $('#loginTab').addEventListener('click', () => setAuthMode('login'));
-      $('#registerTab').addEventListener('click', () => setAuthMode('register'));
-      $('#logoutBtn').addEventListener('click', async () => { await signOut(auth); });
-      $('#openAddModalPanel').addEventListener('click', () => openModal());
-      $('#quickAddBtn').addEventListener('click', () => openModal());
-      $('#closeModalBtn').addEventListener('click', closeModal);
-      $('#cancelModalBtn').addEventListener('click', closeModal);
-      $('#addVariantBtn').addEventListener('click', () => addVariantGroup());
-      $('#productForm').addEventListener('submit', saveProduct);
-      $('#exportJsonBtn').addEventListener('click', exportProductsJson);
-      $('#refreshBtn').addEventListener('click', renderProducts);
-      $('#searchInput').addEventListener('input', renderProducts);
-      $('#filterPromo').addEventListener('change', renderProducts);
-      $('#sortSelect').addEventListener('change', renderProducts);
-      const closeSidebar = () => {
-        $('#sidebar').classList.remove('open');
-        $('#sidebarBackdrop')?.classList.remove('open');
-      };
-      const toggleSidebar = (event) => {
-        event?.stopPropagation();
-        const isOpen = $('#sidebar').classList.toggle('open');
-        $('#sidebarBackdrop')?.classList.toggle('open', isOpen);
-      };
-      $('#mobileMenuBtn').addEventListener('click', toggleSidebar);
-      $('#sidebar').addEventListener('click', (event) => event.stopPropagation());
-      $('#closeSidebarBtn').addEventListener('click', closeSidebar);
-      $('#sidebarBackdrop')?.addEventListener('click', closeSidebar);
-      $('.main').addEventListener('click', closeSidebar);
-      $('#copyEmbedBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד החיבור הועתק'));
-      $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד ה-iframe הועתק'));
-      $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#embedDataCodeBlock').textContent, 'קוד ה-API הועתק'));
-      $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
-      ['themePrimaryColor','themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign'].forEach((id) => $("#"+id).addEventListener(id === 'themeTextAlign' ? 'change' : 'input', () => {
-        state.theme.primaryColor = $('#themePrimaryColor').value;
-        state.theme.cardBackground = $('#themeBackgroundColor').value;
-        state.theme.textColor = $('#themeTextColor').value;
-        state.theme.buttonColor = $('#themeButtonColor').value;
-        state.theme.cardPadding = Number($('#themeCardPadding').value);
-        state.theme.borderRadius = Number($('#themeBorderRadius').value);
-        state.theme.imageHeight = Number($('#themeImageHeight').value);
-        state.theme.textAlign = $('#themeTextAlign').value;
-        applyThemeToPreview();
-      }));
-      ['desktopColumns','mobileColumns','platformNameInput'].forEach((id) => $('#'+id).addEventListener(id === 'platformNameInput' ? 'input' : 'change', () => {
-        state.theme.desktopColumns = Number($('#desktopColumns').value);
-        state.theme.mobileColumns = Number($('#mobileColumns').value);
-        state.theme.platformName = $('#platformNameInput').value.trim() || 'מוצרלה';
-        applyThemeToPreview();
-      }));
-      $('#designerApplyMode').addEventListener('change', () => { state.theme.applyMode = $('#designerApplyMode').value; toggleDesignerScopeFields(); renderPreviewProduct(); });
-      $('#designerProductSelect').addEventListener('change', () => { state.theme.selectedProductId = $('#designerProductSelect').value; renderPreviewProduct(); });
-      $('#saveThemeBtn').addEventListener('click', async () => {
-        if (state.theme.applyMode === 'selected' && state.theme.selectedProductId) {
-          const item = state.products.find((product) => product.id === state.theme.selectedProductId);
-          if (item) {
-            await updateDoc(productDoc(item.id), {
-              useSiteTheme: 'custom',
-              template: 'classic',
-              showCart: state.theme.showCart ? 'show' : 'hide',
-              accentColor: state.theme.primaryColor,
-              cardBackground: state.theme.cardBackground,
-              textColor: state.theme.textColor,
-              buttonColor: state.theme.buttonColor,
-              cardPadding: state.theme.cardPadding,
-              borderRadius: state.theme.borderRadius,
-              imageHeight: state.theme.imageHeight,
-              textAlign: state.theme.textAlign,
-              updatedAt: serverTimestamp()
-            });
-            showToast('העיצוב נשמר לכרטיסייה שנבחרה');
-            return;
-          }
-        }
-        await saveThemeToFirestore();
-        showToast('העיצוב נשמר');
-      });
-      $('#resetThemeBtn').addEventListener('click', async () => { state.theme = { ...DEFAULT_THEME }; applyThemeToPreview(); await saveThemeToFirestore(); showToast('העיצוב אופס'); });
-      $('#productImage').addEventListener('change', (e) => {
-        const file = e.target.files?.[0];
-        if (state.previewObjectUrl) {
-          URL.revokeObjectURL(state.previewObjectUrl);
-          state.previewObjectUrl = '';
-        }
-        if (!file) {
-          renderModalProductPreview();
-          return;
-        }
-        state.previewObjectUrl = URL.createObjectURL(file);
-        renderModalProductPreview();
-      });
-      ['productName','productPrice'].forEach((id) => $('#'+id).addEventListener('input', renderModalProductPreview));
-      ['productDesc','productAccentColor','productBodyColor','productButtonStyle','productAnimation','productAnimDuration','productAnimDelay','productTagColor','productTagShape'].forEach((id) => {
-        const el = $('#'+id);
-        if (el) el.addEventListener(id.includes('Color') || id === 'productDesc' || id.includes('Anim') ? 'input' : 'change', renderModalProductPreview);
-      });
-      $('#addProductTagBtn').addEventListener('click', addTagFromInput);
-      $('#productTagInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); } });
-      $$('.nav-btn[data-view]').forEach(btn => btn.addEventListener('click', () => goToView(btn.dataset.view)));
-      // Product embed panel events
-      $('#embedTabIframe')?.addEventListener('click', () => {
-        $('#embedTabIframe').classList.add('active');
-        $('#embedTabApi').classList.remove('active');
-        $('#embedPanelIframe').classList.remove('hidden');
-        $('#embedPanelApi').classList.add('hidden');
-      });
-      $('#embedTabApi')?.addEventListener('click', () => {
-        $('#embedTabApi').classList.add('active');
-        $('#embedTabIframe').classList.remove('active');
-        $('#embedPanelApi').classList.remove('hidden');
-        $('#embedPanelIframe').classList.add('hidden');
-      });
-      $('#embedProductSelect')?.addEventListener('change', () => updateSingleProductEmbed());
-      $('#iframeHeightInput')?.addEventListener('input', () => updateSingleProductEmbed());
-      $('#iframeThemeSelect')?.addEventListener('change', () => updateSingleProductEmbed());
-      $('#copySingleIframeBtn')?.addEventListener('click', () => copyText($('#singleEmbedIframeCode').textContent, 'קוד ה-iframe הועתק'));
-      $('#openSingleIframeBtn')?.addEventListener('click', () => {
-        const item = getSelectedEmbedProduct();
-        if (!item) return showToast('בחר מוצר מפורסם', true);
-        const base = new URL(window.location.href);
-        base.search = '';
-        base.searchParams.set('embed', '1');
-        base.searchParams.set('productId', item.id);
-        window.open(base.toString(), '_blank');
-      });
-      $('#copySingleApiUrlBtn')?.addEventListener('click', () => copyText($('#singleApiUrl').textContent, 'כתובת API הועתקה'));
-      $('#copySingleApiJsonBtn')?.addEventListener('click', () => copyText($('#singleApiJsonExample').textContent, 'JSON הועתק'));
-      $('#openSingleApiBtn')?.addEventListener('click', () => {
-        const item = getSelectedEmbedProduct();
-        if (!item) return showToast('בחר מוצר מפורסם', true);
-        const base = new URL(window.location.href);
-        base.search = '';
-        base.searchParams.set('api', '1');
-        base.searchParams.set('productId', item.id);
-        window.open(base.toString(), '_blank');
-      });
-      ['toggleLang','togglePromos','toggleMobile','toggleGoogleAuthInfo'].forEach((id) => $('#'+id).addEventListener('click', (e) => e.currentTarget.classList.toggle('active')));
-    }
-
-    /**
-     * Fetch products and style from the publicly accessible JSON files
-     * generated by Cloud Functions in Firebase Storage.
-     * Used in external/embed mode when source=json is set.
-     *
-     * @param {string} clientId - Firebase UID of the account owner
-     * @returns {{ products: Array, style: object }}
-     */
-    async function fetchExternalData(clientId) {
-      const base = `${JSON_BASE_URL}/${encodeURIComponent(clientId)}`;
-      const [productsRes, styleRes] = await Promise.all([
-        fetch(`${base}/products.json`),
-        fetch(`${base}/product-style.json`)
-      ]);
-      if (!productsRes.ok) throw new Error(`products.json fetch failed: ${productsRes.status}`);
-      if (!styleRes.ok) throw new Error(`product-style.json fetch failed: ${styleRes.status}`);
-      const products = await productsRes.json();
-      const style = await styleRes.json();
-      return { products, style };
-    }
-
-    /**
-     * External embed mode — fetches product data from pre-generated JSON files
-     * in Firebase Storage (written by Cloud Functions) instead of reading Firestore directly.
-     * Activated when ?embed=1&uid=...&source=json is present in the URL.
-     *
-     * @param {string} clientId - Firebase UID of the account owner
-     */
-    async function renderEmbedModeFromJson(clientId) {
-      document.body.innerHTML = '<div id="embedRuntime" style="padding:24px"></div>';
-      document.documentElement.dir = 'rtl';
-      document.documentElement.lang = 'he';
-      const host = document.getElementById('embedRuntime');
-
-      try {
-        const { products, style } = await fetchExternalData(clientId);
-
-        // Merge the JSON style into state.theme
-        state.theme = { ...DEFAULT_THEME, ...style };
-
-        // products.json already contains only active items sorted by sortOrder
-        const html = products.map((item) => {
-          const merged = {
-            ...state.theme,
-            ...item,
-            accentColor: item.accentColor || state.theme.primaryColor,
-            cardBackground: item.cardBackground || state.theme.cardBackground,
-            textColor: item.textColor || state.theme.textColor,
-            buttonColor: item.buttonColor || state.theme.buttonColor,
-            buttonStyle: item.buttonStyle || state.theme.buttonStyle,
-            animationStyle: item.animationStyle || state.theme.animationStyle,
-            showCart: state.theme.showCart ? 'show' : 'hide'
-          };
-          return buildStoreCardHTML(merged, false);
-        }).join('');
-
-        const columns = Math.max(1, Number(state.theme.desktopColumns || 3));
-        host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'המוצרים שלנו')}</h2><div class="embed-runtime-grid" style="--embed-columns:${columns};">${html}</div></div>`;
-      } catch (err) {
-        host.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">שגיאה בטעינת המוצרים: ${esc(err.message)}</div>`;
-      }
-
-      document.body.addEventListener('click', (event) => {
-        const actionEl = event.target.closest('[data-action]');
-        if (!actionEl) return;
-        const productId = actionEl.dataset.productId;
-        const action = actionEl.dataset.action;
-        if (!productId) return;
-        if (action === 'qty-up') setCartQuantity(productId, getCartQuantity(productId) + 1);
-        if (action === 'qty-down') setCartQuantity(productId, Math.max(1, getCartQuantity(productId) - 1));
-        if (action === 'select-variant') setSelectedVariant(productId, actionEl.dataset.group || '', actionEl.dataset.option || '');
-        if (action === 'add-cart') {
-          const variants = Object.entries(state.selectedVariants?.[productId] || {}).filter(([, value]) => value).map(([group, value]) => `${group}: ${value}`);
-          showToast(`נוסף לסל: ${getCartQuantity(productId)} יח׳${variants.length ? ` + ${variants.join(', ')}` : ''}`);
-        }
-        const activeSnapshot = [...document.querySelectorAll(`[data-product-id="${CSS.escape(productId)}"]`)];
-        activeSnapshot.forEach((el) => {
-          if (el.dataset.action === 'select-variant') el.classList.toggle('active', (el.dataset.option || '') === getSelectedVariant(productId, el.dataset.group || ''));
-          if (el.dataset.action === 'qty-up' || el.dataset.action === 'qty-down') {
-            const valueEl = el.parentElement?.querySelector('.qty-value');
-            if (valueEl) valueEl.textContent = String(getCartQuantity(productId));
-          }
-        });
-      });
-    }
-
-    async function renderEmbedMode(uid) {
-      const params = new URLSearchParams(window.location.search);
-      const view = params.get('view') || 'cards';
-      const themeSnap = await getDoc(themeDocRef(uid));
-      const theme = themeSnap.exists() ? { ...DEFAULT_THEME, ...themeSnap.data() } : { ...DEFAULT_THEME };
-      state.theme = { ...theme };
-      const qy = query(productsCollection(uid));
-      if (view === 'data') {
-        document.body.innerHTML = '<pre id="embedJsonRuntime" style="margin:0;padding:24px;font-family:ui-monospace,monospace;white-space:pre-wrap;"></pre>';
-        const host = document.getElementById('embedJsonRuntime');
-        onSnapshot(qy, (snapshot) => {
-          const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).filter(productIsActive).sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
-          host.textContent = JSON.stringify({ theme, products: items }, null, 2);
-        });
+      const body = el("productsBody");
+      body.innerHTML = "";
+      if (!state.products.length) {
+        body.innerHTML = `<tr><td colspan="5" class="muted">אין מוצרים עדיין.</td></tr>`;
         return;
       }
-      document.body.innerHTML = '<div id="embedRuntime" style="padding:24px"></div>';
-      document.documentElement.dir = 'ltr';
-      document.documentElement.lang = 'en';
-      const host = document.getElementById('embedRuntime');
-      onSnapshot(qy, (snapshot) => {
-        const items = snapshot.docs
-          .map((d) => ({ id: d.id, ...d.data() }))
-          .filter(productIsActive)
-          .sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
-        host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'המוצרים שלנו')}</h2><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.embedColumns || 3))};">${items.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false)).join('')}</div></div>`;
-      });
-      document.body.addEventListener('click', (event) => {
-        const actionEl = event.target.closest('[data-action]');
-        if (!actionEl) return;
-        const productId = actionEl.dataset.productId;
-        const action = actionEl.dataset.action;
-        if (!productId) return;
-        if (action === 'qty-up') setCartQuantity(productId, getCartQuantity(productId) + 1);
-        if (action === 'qty-down') setCartQuantity(productId, Math.max(1, getCartQuantity(productId) - 1));
-        if (action === 'select-variant') setSelectedVariant(productId, actionEl.dataset.group || '', actionEl.dataset.option || '');
-        if (action === 'add-cart') {
-          const variants = Object.entries(state.selectedVariants?.[productId] || {}).filter(([, value]) => value).map(([group, value]) => `${group}: ${value}`);
-          showToast(`נוסף לסל: ${getCartQuantity(productId)} יח׳${variants.length ? ` + ${variants.join(', ')}` : ''}`);
-        }
-        const activeSnapshot = [...document.querySelectorAll(`[data-product-id="${CSS.escape(productId)}"]`)];
-        activeSnapshot.forEach((el) => {
-          if (el.dataset.action === 'select-variant') el.classList.toggle('active', (el.dataset.option || '') === getSelectedVariant(productId, el.dataset.group || ''));
-          if (el.dataset.action === 'qty-up' || el.dataset.action === 'qty-down') {
-            const valueEl = el.parentElement?.querySelector('.qty-value');
-            if (valueEl) valueEl.textContent = String(getCartQuantity(productId));
-          }
-        });
-      });
-    }
 
-    async function renderApiMode(productId) {
-      document.body.style.margin = '0';
-      document.body.style.padding = '0';
-      document.body.style.background = '#fff';
-      document.body.innerHTML = '<pre style="margin:0;padding:24px;font-family:ui-monospace,monospace;white-space:pre-wrap;"></pre>';
-      const pre = document.querySelector('pre');
-      try {
-        const snap = await getDoc(publicProductDoc(productId));
-        if (!snap.exists()) {
-          pre.textContent = JSON.stringify({ error: 'Product not found or not published' }, null, 2);
-          return;
-        }
-        pre.textContent = JSON.stringify(snap.data(), null, 2);
-      } catch (err) {
-        pre.textContent = JSON.stringify({ error: 'Failed to load product', message: err.message }, null, 2);
+      for (const product of state.products) {
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+          <td>${product.imageUrl ? `<img class="thumb" src="${product.imageUrl}" alt="${product.name}"/>` : "-"}</td>
+          <td>${product.name || "-"}</td>
+          <td>${Number(product.price || 0).toFixed(2)} ₪</td>
+          <td>${product.status === "active" ? "פעיל" : "לא פעיל"}</td>
+          <td>
+            <div class="row">
+              <button data-action="edit" data-id="${product.id}">עריכה</button>
+              <button data-action="delete" data-id="${product.id}" class="btn-danger">מחיקה</button>
+            </div>
+          </td>
+        `;
+        body.appendChild(tr);
       }
     }
 
-    async function renderSingleProductEmbed(productId) {
-      const params = new URLSearchParams(window.location.search);
-      const themeName = params.get('theme') || '';
-      const primaryColor = params.get('primaryColor') || '';
-      const animSpeed = params.get('animationSpeed') || '';
-      const cardStyle = params.get('cardStyle') || '';
-
-      document.body.style.margin = '0';
-      document.body.style.padding = '0';
-      document.body.style.background = 'transparent';
-      document.body.innerHTML = '<div id="singleEmbedHost" style="padding:24px;font-family:Inter,Heebo,Arial,sans-serif;"></div>';
-      document.documentElement.dir = 'rtl';
-      document.documentElement.lang = 'he';
-
-      const host = document.getElementById('singleEmbedHost');
-
-      // Apply dark theme
-      if (themeName === 'dark') {
-        document.body.style.background = '#1e293b';
-        document.body.style.color = '#f1f5f9';
-      }
-
-      try {
-        const snap = await getDoc(publicProductDoc(productId));
-        if (!snap.exists()) {
-          host.innerHTML = '<div style="text-align:center;padding:40px;color:#94a3b8;">המוצר לא נמצא או לא פורסם</div>';
-          return;
-        }
-        const data = snap.data();
-        const item = {
-          ...data,
-          accentColor: primaryColor || data.theme?.primaryColor || '#60a5fa',
-          cardBackground: themeName === 'dark' ? '#334155' : (data.theme?.cardBackground || '#ffffff'),
-          textColor: themeName === 'dark' ? '#f1f5f9' : (data.theme?.textColor || '#111827'),
-          buttonColor: primaryColor || data.theme?.primaryColor || '#1d4ed8',
-          buttonStyle: cardStyle || data.theme?.cardStyle || 'rounded',
-          animationStyle: data.animation?.enabled ? data.animation.type : 'none',
-          font: data.theme?.font || 'Inter',
-          tags: data.tags || [],
-          variants: (data.upgrades || []).map(u => ({ name: u.name, options: (u.options || []).map(o => ({ label: o, value: o })) })),
-          imageUrl: data.imageUrl || '',
-          showCart: 'hide',
-          useSiteTheme: 'custom'
-        };
-        state.theme = {
-          ...DEFAULT_THEME,
-          primaryColor: item.accentColor,
-          cardBackground: item.cardBackground,
-          textColor: item.textColor,
-          buttonColor: item.buttonColor,
-          cardPadding: 20,
-          borderRadius: cardStyle === 'rounded' ? 24 : 16,
-          imageHeight: 240,
-          textAlign: 'right'
-        };
-        host.innerHTML = `<div class="product-preview-shell" data-template="classic" style="max-width:480px;margin:0 auto;">${buildStoreCardHTML(item, true)}</div>`;
-      } catch (err) {
-        host.innerHTML = `<div style="text-align:center;padding:40px;color:#ef4444;">שגיאה בטעינת המוצר</div>`;
-      }
+    function clearForm() {
+      state.editingId = null;
+      el("productName").value = "";
+      el("price").value = "";
+      el("status").value = "active";
+      el("description").value = "";
+      el("imageFile").value = "";
     }
 
-        onAuthStateChanged(auth, async (user) => {
-      if (state.embedMode) return;
-      state.currentUser = user;
-      switchScreen(!!user);
-      if (user) {
-        updateUserUI(user);
-        await ensureThemeDoc(user.uid);
-        subscribeTheme(user.uid);
-        subscribeProducts(user.uid);
+    async function saveProduct() {
+      const uid = state.uid;
+      if (!uid) return;
+
+      const name = el("productName").value.trim();
+      const price = Number(el("price").value || 0);
+      const status = el("status").value;
+      const description = el("description").value.trim();
+      const file = el("imageFile").files[0] || null;
+
+      if (!name) {
+        setMessage("productMsg", "שם מוצר הוא שדה חובה.", "err");
+        return;
+      }
+
+      let imageUrl = null;
+      if (file) {
+        imageUrl = await uploadImage(uid, file);
+      }
+
+      const payload = {
+        name,
+        price,
+        status,
+        description,
+        updatedAt: serverTimestamp()
+      };
+
+      if (imageUrl) payload.imageUrl = imageUrl;
+
+      if (state.editingId) {
+        await setDoc(doc(db, "users", uid, "products", state.editingId), payload, { merge: true });
+        setMessage("productMsg", "המוצר עודכן בהצלחה.");
       } else {
-        if (state.unsubscribeProducts) state.unsubscribeProducts();
-        if (state.unsubscribeTheme) state.unsubscribeTheme();
-        state.products = [];
-        state.theme = { ...DEFAULT_THEME };
-        applyThemeToPreview();
-        renderProducts();
+        await addDoc(productCollection(uid), { ...payload, createdAt: serverTimestamp() });
+        setMessage("productMsg", "המוצר נוצר בהצלחה.");
+      }
+
+      clearForm();
+      await loadProducts(uid);
+    }
+
+    async function loadDesign(uid) {
+      const snap = await getDoc(designDoc(uid));
+      if (!snap.exists()) return;
+      const d = snap.data();
+      el("themeName").value = d.themeName || "";
+      el("primaryColor").value = d.primaryColor || "#1d4ed8";
+      el("secondaryColor").value = d.secondaryColor || "#0f172a";
+    }
+
+    async function saveDesign() {
+      const uid = state.uid;
+      await setDoc(designDoc(uid), {
+        themeName: el("themeName").value.trim() || "Default",
+        primaryColor: el("primaryColor").value,
+        secondaryColor: el("secondaryColor").value,
+        updatedAt: serverTimestamp()
+      }, { merge: true });
+
+      setMessage("designMsg", "העיצוב נשמר בהצלחה.");
+    }
+
+    async function exportJson() {
+      const endpoint = el("exportEndpoint").value.trim();
+      if (!endpoint) {
+        setMessage("exportMsg", "חסר קישור ל-Cloud Function.", "err");
+        return;
+      }
+
+      const token = await auth.currentUser.getIdToken();
+      const res = await fetch(endpoint, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`
+        },
+        body: JSON.stringify({ uid: state.uid })
+      });
+
+      if (!res.ok) {
+        const text = await res.text();
+        setMessage("exportMsg", `שגיאת יצוא: ${text}`, "err");
+        return;
+      }
+
+      const result = await res.json();
+      el("apiKeyResult").value = result.apiKey || "";
+      setMessage("exportMsg", "הקבצים נוצרו ונשמרו בהצלחה ב-Storage.");
+    }
+
+    // Events
+    el("signupBtn").addEventListener("click", async () => {
+      try {
+        await createUserWithEmailAndPassword(auth, el("email").value.trim(), el("password").value);
+        setMessage("authMsg", "חשבון נוצר בהצלחה.");
+      } catch (e) {
+        setMessage("authMsg", e.message, "err");
       }
     });
 
-    const params = new URLSearchParams(window.location.search);
-    state.embedMode = params.get('embed') === '1';
-    state.embedUid = params.get('uid') || '';
+    el("loginBtn").addEventListener("click", async () => {
+      try {
+        await signInWithEmailAndPassword(auth, el("email").value.trim(), el("password").value);
+        setMessage("authMsg", "התחברת בהצלחה.");
+      } catch (e) {
+        setMessage("authMsg", e.message, "err");
+      }
+    });
 
-    const apiMode = params.get('api') === '1';
-    const singleProductId = params.get('productId') || '';
-    // When source=json, use pre-generated JSON files from Cloud Functions
-    // instead of reading Firestore directly (external / embed mode).
-    const sourceIsJson = params.get('source') === 'json';
+    el("logoutBtn").addEventListener("click", async () => {
+      await signOut(auth);
+    });
 
-    if (apiMode && singleProductId) {
-      renderApiMode(singleProductId);
-    } else if (state.embedMode && singleProductId) {
-      renderSingleProductEmbed(singleProductId);
-    } else if (state.embedMode && state.embedUid && sourceIsJson) {
-      renderEmbedModeFromJson(state.embedUid);
-    } else if (state.embedMode && state.embedUid) {
-      renderEmbedMode(state.embedUid);
-    } else {
-      attachEvents();
-      renderSwatches();
-      applyThemeToPreview();
-      renderPreviewProduct();
-      setAuthMode('login');
-      applyTranslations();
-      updateEmbedCode();
-      handleRedirectResult();
-    }
-    console.log(`Firebase collections in use:
-- users/{uid}
-- users/{uid}/products/{productId}
-- users/{uid}/storefront/settings
-Storage path:
-- users/{uid}/products/{productId}/{filename}
-JSON API (generated by Cloud Functions):
-- public-json/{uid}/products.json
-- public-json/{uid}/product-style.json`);
+    el("saveProductBtn").addEventListener("click", () => saveProduct().catch((e) => setMessage("productMsg", e.message, "err")));
+    el("clearFormBtn").addEventListener("click", clearForm);
+    el("saveDesignBtn").addEventListener("click", () => saveDesign().catch((e) => setMessage("designMsg", e.message, "err")));
+    el("exportBtn").addEventListener("click", () => exportJson().catch((e) => setMessage("exportMsg", e.message, "err")));
+
+    el("productsBody").addEventListener("click", async (event) => {
+      const btn = event.target.closest("button");
+      if (!btn) return;
+      const id = btn.dataset.id;
+      const action = btn.dataset.action;
+      const uid = state.uid;
+      const product = state.products.find((p) => p.id === id);
+      if (!product) return;
+
+      if (action === "edit") {
+        state.editingId = id;
+        el("productName").value = product.name || "";
+        el("price").value = product.price ?? "";
+        el("status").value = product.status || "active";
+        el("description").value = product.description || "";
+        setMessage("productMsg", `מצב עריכה: ${product.name}`);
+        return;
+      }
+
+      if (action === "delete") {
+        await deleteDoc(doc(db, "users", uid, "products", id));
+        await loadProducts(uid);
+      }
+    });
+
+    onAuthStateChanged(auth, async (user) => {
+      if (!user) {
+        state.uid = null;
+        authCard.classList.remove("hidden");
+        appCard.classList.add("hidden");
+        return;
+      }
+
+      state.uid = user.uid;
+      el("userPill").textContent = `${user.email} • ${user.uid}`;
+      authCard.classList.add("hidden");
+      appCard.classList.remove("hidden");
+
+      await Promise.all([loadProducts(user.uid), loadDesign(user.uid)]);
+    });
   </script>
 </body>
 </html>
