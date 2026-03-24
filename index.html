@@ -1,510 +1,490 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="he" dir="rtl">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Product Manager • Firebase</title>
+  <title>מוצרלה מחדש</title>
   <style>
     :root {
-      --bg: #f3f6fb;
-      --panel: #fff;
-      --border: #d9e2ef;
-      --text: #102033;
-      --muted: #5f6f82;
-      --brand: #1d4ed8;
-      --brand-2: #2563eb;
-      --ok: #15803d;
-      --danger: #b91c1c;
+      --bg: #f3f7ff;
+      --panel: #ffffff;
+      --line: #dbe6f5;
+      --text: #172033;
+      --muted: #5b677d;
+      --primary: #2563eb;
+      --danger: #dc2626;
+      --success: #166534;
+      --radius: 18px;
+      --shadow: 0 18px 42px rgba(37, 99, 235, .08);
     }
     * { box-sizing: border-box; }
     body {
       margin: 0;
-      font-family: "Heebo", Arial, sans-serif;
-      background: var(--bg);
+      font-family: Inter, Heebo, Arial, sans-serif;
+      background: linear-gradient(180deg, #eef4ff, #f8fbff);
       color: var(--text);
     }
-    .wrap { max-width: 1100px; margin: 0 auto; padding: 20px; }
-    .hero {
-      background: linear-gradient(135deg, #1d4ed8, #4f46e5);
-      color: #fff;
-      border-radius: 18px;
-      padding: 22px;
-      margin-bottom: 14px;
-      box-shadow: 0 12px 24px rgba(37, 99, 235, 0.22);
-    }
-    .hero h1 { margin-bottom: 8px; }
-    .hero p { margin: 0; opacity: 0.95; }
-    .card {
+    .wrap { max-width: 1220px; margin: 0 auto; padding: 20px; }
+    .grid { display: grid; gap: 16px; }
+    .auth, .panel, .card {
       background: var(--panel);
-      border: 1px solid var(--border);
-      border-radius: 16px;
-      padding: 16px;
-      margin-bottom: 14px;
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      box-shadow: var(--shadow);
     }
-    h1, h2 { margin: 0 0 14px; }
-    .grid { display: grid; gap: 12px; }
-    .grid.cols-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-    .grid.cols-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-    label { font-size: 0.9rem; font-weight: 600; margin-bottom: 6px; display: block; }
+    .auth { max-width: 520px; margin: 48px auto; padding: 24px; }
+    .panel { padding: 18px; margin-bottom: 18px; }
+    .topbar {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      margin-bottom: 18px;
+    }
+    h1, h2, h3, h4, p { margin-top: 0; }
+    .muted { color: var(--muted); }
+    .row { display: grid; gap: 12px; }
+    .row-2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+    .row-3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+    .row-4 { grid-template-columns: repeat(4, minmax(0, 1fr)); }
     input, textarea, select, button {
-      width: 100%;
-      border: 1px solid var(--border);
-      border-radius: 10px;
-      padding: 10px 12px;
       font: inherit;
     }
-    textarea { min-height: 90px; resize: vertical; }
-    button { cursor: pointer; background: #fff; transition: all .2s ease; }
-    button:hover { transform: translateY(-1px); box-shadow: 0 8px 15px rgba(16, 32, 51, 0.08); }
-    .btn-brand { background: linear-gradient(135deg, var(--brand), var(--brand-2)); color: #fff; border-color: var(--brand); }
-    .btn-google {
+    input, textarea, select {
+      width: 100%;
+      padding: 12px 13px;
+      border: 1px solid #cfd8e7;
+      border-radius: 14px;
       background: #fff;
-      border: 1px solid #cfd8e5;
-      color: #111827;
-      font-weight: 600;
+      color: var(--text);
+      outline: none;
     }
-    .btn-ok { background: var(--ok); color: #fff; border-color: var(--ok); }
-    .btn-danger { background: var(--danger); color: #fff; border-color: var(--danger); }
-    .row { display: flex; gap: 10px; flex-wrap: wrap; }
-    .row > * { flex: 1; min-width: 170px; }
-    .muted { color: var(--muted); font-size: 0.9rem; }
-    .hidden { display: none !important; }
-    .pill {
-      display: inline-block;
-      padding: 3px 8px;
+    textarea { min-height: 100px; resize: vertical; }
+    button {
+      border: 0;
+      border-radius: 14px;
+      padding: 12px 16px;
+      cursor: pointer;
+      background: #e8efff;
+      color: var(--text);
+      font-weight: 700;
+    }
+    .btn-primary { background: var(--primary); color: #fff; }
+    .btn-danger { background: #fee2e2; color: #991b1b; }
+    .btn-outline { background: #fff; border: 1px solid #cfd8e7; }
+    .cards { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 16px; }
+    .card { overflow: hidden; }
+    .card img { width: 100%; height: 220px; object-fit: cover; background: #edf2ff; }
+    .card-body { padding: 15px; display: grid; gap: 10px; }
+    .chips { display: flex; gap: 8px; flex-wrap: wrap; }
+    .chip {
+      display: inline-flex;
+      align-items: center;
+      padding: 6px 10px;
       border-radius: 999px;
-      background: #e6eefc;
-      font-size: 0.8rem;
+      background: #eef4ff;
+      color: #294b8f;
+      font-size: .84rem;
     }
-    table { width: 100%; border-collapse: collapse; }
-    th, td { padding: 10px 8px; border-bottom: 1px solid var(--border); text-align: right; }
-    .thumb { width: 54px; height: 54px; object-fit: cover; border-radius: 8px; border: 1px solid var(--border); }
-    .msg { margin-top: 8px; font-size: 0.9rem; }
-    .msg.ok { color: var(--ok); }
-    .msg.err { color: var(--danger); }
-    @media (max-width: 820px) {
-      .grid.cols-2, .grid.cols-3 { grid-template-columns: 1fr; }
-      .row > * { min-width: 100%; }
+    .hidden { display: none !important; }
+    .code {
+      background: #f8fafc;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 14px;
+      white-space: pre-wrap;
+      word-break: break-word;
+      direction: ltr;
+      text-align: left;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+      font-size: .9rem;
+    }
+    .ok { color: var(--success); }
+    .error { color: var(--danger); }
+    @media (max-width: 900px) {
+      .cards, .row-4, .row-3, .row-2 { grid-template-columns: 1fr; }
     }
   </style>
 </head>
 <body>
   <div class="wrap">
-    <section class="hero">
-      <h1>ניהול מוצרים ועיצוב (Firebase)</h1>
-      <p>מערכת ניהול מוצרים מחוברת ל-Firebase עם התחברות רגילה וכניסה דרך Google Redirect.</p>
+    <section id="authSection" class="auth">
+      <h1>מוצרלה מחדש</h1>
+      <p class="muted">מערכת בסיסית, מסודרת ויציבה: משתמשים, מוצרים, עיצוב, פרסום JSON, וקוד הטמעה.</p>
+      <div class="row">
+        <input id="email" type="email" placeholder="אימייל" />
+        <input id="password" type="password" placeholder="סיסמה" />
+        <div class="row row-2">
+          <button id="loginBtn" class="btn-primary">התחברות</button>
+          <button id="registerBtn" class="btn-outline">הרשמה</button>
+        </div>
+      </div>
+      <p id="authStatus" class="muted" style="margin-top:12px"></p>
     </section>
 
-    <section id="authCard" class="card">
-      <h2>כניסה / הרשמה</h2>
-      <div class="grid cols-2">
+    <section id="appSection" class="hidden">
+      <div class="topbar">
         <div>
-          <label for="email">אימייל</label>
-          <input id="email" type="email" autocomplete="email" />
+          <h2>ניהול מוצרים</h2>
+          <div class="muted" id="userLine"></div>
         </div>
-        <div>
-          <label for="password">סיסמה</label>
-          <input id="password" type="password" autocomplete="current-password" />
-        </div>
-      </div>
-      <div class="row" style="margin-top:10px;">
-        <button id="loginBtn" class="btn-brand">התחברות</button>
-        <button id="signupBtn">יצירת חשבון</button>
-        <button id="googleLoginBtn" class="btn-google">התחברות עם Google</button>
-      </div>
-      <p id="authMsg" class="msg"></p>
-    </section>
-
-    <section id="appCard" class="hidden">
-      <div class="card">
-        <div class="row">
-          <div><span class="pill" id="userPill"></span></div>
-          <button id="logoutBtn" class="btn-danger">התנתקות</button>
+        <div style="display:flex;gap:8px;flex-wrap:wrap">
+          <button id="rebuildBtn" class="btn-outline">בנה מחדש JSON</button>
+          <button id="logoutBtn" class="btn-danger">התנתק</button>
         </div>
       </div>
 
-      <div class="card">
-        <h2>מוצר חדש / עריכה</h2>
-        <div class="grid cols-3">
+      <div class="panel">
+        <h3>פרטי חיבור</h3>
+        <div class="row row-2">
           <div>
-            <label for="productName">שם מוצר</label>
-            <input id="productName" />
+            <label>Client ID</label>
+            <input id="clientId" readonly />
           </div>
           <div>
-            <label for="price">מחיר</label>
-            <input id="price" type="number" min="0" step="0.01" />
-          </div>
-          <div>
-            <label for="status">סטטוס</label>
-            <select id="status">
-              <option value="active">פעיל</option>
-              <option value="inactive">לא פעיל</option>
-            </select>
+            <label>Public API</label>
+            <input id="publicApiUrl" readonly />
           </div>
         </div>
-        <div class="grid cols-2" style="margin-top:10px;">
-          <div>
-            <label for="description">תיאור</label>
-            <textarea id="description"></textarea>
-          </div>
-          <div>
-            <label for="imageFile">תמונה</label>
-            <input id="imageFile" type="file" accept="image/*" />
-            <p class="muted">אם לא מעלים תמונה בעריכה, נשארת התמונה הקיימת.</p>
-          </div>
+        <div style="margin-top:12px">
+          <label>קוד Embed</label>
+          <div class="code" id="embedCode"></div>
         </div>
-        <div class="row" style="margin-top:10px;">
-          <button id="saveProductBtn" class="btn-ok">שמירה</button>
-          <button id="clearFormBtn">ניקוי טופס</button>
-        </div>
-        <p id="productMsg" class="msg"></p>
       </div>
 
-      <div class="card">
-        <h2>רשימת מוצרים</h2>
-        <table>
-          <thead>
-            <tr>
-              <th>תמונה</th><th>שם</th><th>מחיר</th><th>סטטוס</th><th>פעולות</th>
-            </tr>
-          </thead>
-          <tbody id="productsBody"></tbody>
-        </table>
+      <div class="panel">
+        <h3>עיצוב כללי</h3>
+        <div class="row row-4">
+          <div><label>כותרת Embed</label><input id="themeEmbedTitle" value="המוצרים שלנו" /></div>
+          <div><label>צבע ראשי</label><input id="themePrimaryColor" type="color" value="#60a5fa" /></div>
+          <div><label>צבע כפתור</label><input id="themeButtonColor" type="color" value="#111827" /></div>
+          <div><label>צבע טקסט</label><input id="themeTextColor" type="color" value="#111827" /></div>
+        </div>
+        <div class="row row-3" style="margin-top:12px">
+          <div><label>צבע כרטיס</label><input id="themeCardBackground" type="color" value="#ffffff" /></div>
+          <div><label>עמודות במחשב</label><input id="themeDesktopColumns" type="number" min="1" max="6" value="4" /></div>
+          <div><label>עמודות במובייל</label><input id="themeMobileColumns" type="number" min="1" max="3" value="2" /></div>
+        </div>
+        <div style="margin-top:12px"><button id="saveThemeBtn" class="btn-primary">שמור עיצוב</button></div>
       </div>
 
-      <div class="card">
-        <h2>הגדרות עיצוב</h2>
-        <div class="grid cols-3">
-          <div>
-            <label for="themeName">שם תבנית</label>
-            <input id="themeName" placeholder="Default" />
-          </div>
-          <div>
-            <label for="primaryColor">צבע ראשי</label>
-            <input id="primaryColor" type="color" value="#1d4ed8" />
-          </div>
-          <div>
-            <label for="secondaryColor">צבע משני</label>
-            <input id="secondaryColor" type="color" value="#0f172a" />
-          </div>
+      <div class="panel">
+        <h3>מוצר חדש / עריכה</h3>
+        <div class="row row-3">
+          <div><label>ID מוצר</label><input id="productId" placeholder="premium-box" /></div>
+          <div><label>שם מוצר</label><input id="productName" placeholder="מארז פרימיום" /></div>
+          <div><label>מחיר</label><input id="productPrice" type="number" min="0" step="0.01" placeholder="129" /></div>
         </div>
-        <div class="row" style="margin-top:10px;">
-          <button id="saveDesignBtn" class="btn-ok">שמירת עיצוב</button>
+        <div class="row row-3" style="margin-top:12px">
+          <div><label>מחיר מבצע</label><input id="productSalePrice" type="number" min="0" step="0.01" placeholder="99" /></div>
+          <div><label>תמונה</label><input id="productImageFile" type="file" accept="image/*" /></div>
+          <div><label>או URL לתמונה</label><input id="productImageUrl" placeholder="https://..." /></div>
         </div>
-        <p id="designMsg" class="msg"></p>
+        <div class="row row-2" style="margin-top:12px">
+          <div><label>תגים (מופרד בפסיקים)</label><input id="productTags" placeholder="חדש, פופולרי" /></div>
+          <div><label>צבעים (מופרד בפסיקים)</label><input id="productColors" placeholder="שחור, כחול" /></div>
+        </div>
+        <div style="margin-top:12px"><label>תיאור</label><textarea id="productDescription"></textarea></div>
+        <div class="row row-2" style="margin-top:12px">
+          <div><label>תוספות JSON</label><textarea id="productAddons" placeholder='[{"type":"promo","label":"20% הנחה"}]'></textarea></div>
+          <div><label>וריאציות JSON</label><textarea id="productVariants" placeholder='[{"name":"מידה","options":["S","M","L"]}]'></textarea></div>
+        </div>
+        <div class="row row-4" style="margin-top:12px">
+          <div><label>צבע הדגשה</label><input id="productAccentColor" type="color" value="#60a5fa" /></div>
+          <div><label>רקע כרטיס</label><input id="productCardBackground" type="color" value="#ffffff" /></div>
+          <div><label>פורסם</label><select id="productPublished"><option value="true">כן</option><option value="false">לא</option></select></div>
+          <div><label>פעיל</label><select id="productActive"><option value="true">כן</option><option value="false">לא</option></select></div>
+        </div>
+        <div style="display:flex;gap:8px;flex-wrap:wrap;margin-top:12px">
+          <button id="saveProductBtn" class="btn-primary">שמור מוצר</button>
+          <button id="resetFormBtn" class="btn-outline">נקה טופס</button>
+        </div>
       </div>
 
-      <div class="card">
-        <h2>ייצוא JSON + API Key</h2>
-        <p class="muted">הכנס כאן את כתובת ה-HTTP Function (index.js בצד שרת) שמייצרת את קבצי ה-JSON ושומרת אותם ב-Storage.</p>
-        <label for="exportEndpoint">Cloud Function URL</label>
-        <input id="exportEndpoint" placeholder="https://REGION-PROJECT.cloudfunctions.net/generateClientJson" />
-        <div class="row" style="margin-top:10px;">
-          <button id="exportBtn" class="btn-brand">יצוא נתונים</button>
-        </div>
-        <p id="exportMsg" class="msg"></p>
-        <label for="apiKeyResult">API Key ללקוח</label>
-        <input id="apiKeyResult" readonly />
+      <div class="panel">
+        <h3>המוצרים שלי</h3>
+        <div id="productsGrid" class="cards"></div>
+        <p id="emptyProducts" class="muted hidden">עדיין אין מוצרים.</p>
+      </div>
+
+      <div class="panel">
+        <h3>סטטוס</h3>
+        <div id="statusLine" class="muted">מוכן.</div>
       </div>
     </section>
   </div>
 
   <script type="module">
-    import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js";
-    import {
-      getAuth,
-      createUserWithEmailAndPassword,
-      signInWithEmailAndPassword,
-      signOut,
-      onAuthStateChanged,
-      GoogleAuthProvider,
-      signInWithRedirect,
-      getRedirectResult
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js";
-    import {
-      getFirestore,
-      collection,
-      doc,
-      getDoc,
-      getDocs,
-      setDoc,
-      addDoc,
-      deleteDoc,
-      query,
-      orderBy,
-      serverTimestamp
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js";
-    import {
-      getStorage,
-      ref,
-      uploadBytes,
-      getDownloadURL
-    } from "https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js";
+    import { initializeApp } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-app.js';
+    import { getAuth, signInWithEmailAndPassword, createUserWithEmailAndPassword, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-auth.js';
+    import { getFirestore, doc, getDoc, getDocs, setDoc, collection, orderBy, query } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-firestore.js';
+    import { getFunctions, httpsCallable } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-functions.js';
+    import { getStorage, ref, uploadBytes, getDownloadURL } from 'https://www.gstatic.com/firebasejs/10.12.5/firebase-storage.js';
 
     const firebaseConfig = {
-      apiKey: "AIzaSyC3LYWwTbQFS9i3Jq1YAg9osQURQ_Gknks",
-      authDomain: "product-manager-a084a.firebaseapp.com",
-      projectId: "product-manager-a084a",
-      storageBucket: "product-manager-a084a.firebasestorage.app",
-      messagingSenderId: "534748662537",
-      appId: "1:534748662537:web:9543f4a4bf137ad22e61d8",
-      measurementId: "G-JLX2H2E69M"
+      apiKey: 'PUT_YOUR_API_KEY_HERE',
+      authDomain: 'PUT_YOUR_AUTH_DOMAIN_HERE',
+      projectId: 'PUT_YOUR_PROJECT_ID_HERE',
+      storageBucket: 'PUT_YOUR_STORAGE_BUCKET_HERE',
+      messagingSenderId: 'PUT_YOUR_MESSAGING_SENDER_ID_HERE',
+      appId: 'PUT_YOUR_APP_ID_HERE'
     };
 
     const app = initializeApp(firebaseConfig);
     const auth = getAuth(app);
-    const googleProvider = new GoogleAuthProvider();
-    googleProvider.setCustomParameters({ prompt: "select_account" });
     const db = getFirestore(app);
     const storage = getStorage(app);
-
-    const el = (id) => document.getElementById(id);
+    const functions = getFunctions(app, 'us-central1');
 
     const state = {
-      uid: null,
-      editingId: null,
-      products: []
+      user: null,
+      clientId: '',
+      apiUrl: '',
+      products: [],
+      editingId: null
     };
 
-    const authCard = el("authCard");
-    const appCard = el("appCard");
+    const $ = (selector) => document.querySelector(selector);
 
-    function setMessage(id, text, type = "ok") {
-      const node = el(id);
-      node.textContent = text;
-      node.className = `msg ${type === "err" ? "err" : "ok"}`;
+    function setStatus(message, isError = false) {
+      const el = $('#statusLine');
+      const authEl = $('#authStatus');
+      if (el) {
+        el.textContent = message;
+        el.className = isError ? 'error' : 'muted';
+      }
+      if (authEl) {
+        authEl.textContent = message;
+        authEl.className = isError ? 'error' : 'muted';
+      }
     }
 
-    async function uploadImage(uid, file) {
-      const imageRef = ref(storage, `users/${uid}/products/${Date.now()}-${file.name}`);
-      await uploadBytes(imageRef, file);
-      return getDownloadURL(imageRef);
+    function parseJsonSafe(text, fallback = []) {
+      if (!text.trim()) return fallback;
+      try {
+        return JSON.parse(text);
+      } catch {
+        throw new Error('JSON לא תקין בתוספות או בווריאציות');
+      }
     }
 
-    function productCollection(uid) {
-      return collection(db, "users", uid, "products");
+    async function uploadImageIfNeeded(uid, productId) {
+      const file = $('#productImageFile').files?.[0];
+      if (!file) return $('#productImageUrl').value.trim();
+      const storageRef = ref(storage, `users/${uid}/products/${productId}/${Date.now()}-${file.name}`);
+      await uploadBytes(storageRef, file);
+      return await getDownloadURL(storageRef);
     }
 
-    function designDoc(uid) {
-      return doc(db, "users", uid, "design", "current");
+    function fillTheme(theme = {}) {
+      $('#themeEmbedTitle').value = theme.embedTitle || 'המוצרים שלנו';
+      $('#themePrimaryColor').value = theme.primaryColor || '#60a5fa';
+      $('#themeButtonColor').value = theme.buttonColor || '#111827';
+      $('#themeTextColor').value = theme.textColor || '#111827';
+      $('#themeCardBackground').value = theme.cardBackground || '#ffffff';
+      $('#themeDesktopColumns').value = theme.desktopColumns || 4;
+      $('#themeMobileColumns').value = theme.mobileColumns || 2;
+    }
+
+    async function loadTheme(uid) {
+      const snap = await getDoc(doc(db, `users/${uid}/storefront/settings`));
+      fillTheme(snap.exists() ? snap.data() : {});
+    }
+
+    function renderEmbedCode() {
+      const code = `<div id="storefront-root"></div>\n<script>\nfetch('${state.apiUrl}')\n  .then(r => r.json())\n  .then(data => console.log(data));\n<\/script>`;
+      $('#embedCode').textContent = code;
+      $('#publicApiUrl').value = state.apiUrl;
+      $('#clientId').value = state.clientId;
+    }
+
+    async function initStorefront() {
+      const fn = httpsCallable(functions, 'initStorefront');
+      const result = await fn({});
+      state.clientId = result.data.clientId;
+      state.apiUrl = `${location.origin}/storefrontApi?clientId=${encodeURIComponent(state.clientId)}`;
+      renderEmbedCode();
     }
 
     async function loadProducts(uid) {
-      const q = query(productCollection(uid), orderBy("createdAt", "desc"));
+      const q = query(collection(db, `users/${uid}/products`), orderBy('updatedAt', 'desc'));
       const snap = await getDocs(q);
       state.products = snap.docs.map((d) => ({ id: d.id, ...d.data() }));
       renderProducts();
     }
 
     function renderProducts() {
-      const body = el("productsBody");
-      body.innerHTML = "";
+      const grid = $('#productsGrid');
+      const empty = $('#emptyProducts');
       if (!state.products.length) {
-        body.innerHTML = `<tr><td colspan="5" class="muted">אין מוצרים עדיין.</td></tr>`;
+        grid.innerHTML = '';
+        empty.classList.remove('hidden');
         return;
       }
-
-      for (const product of state.products) {
-        const tr = document.createElement("tr");
-        tr.innerHTML = `
-          <td>${product.imageUrl ? `<img class="thumb" src="${product.imageUrl}" alt="${product.name}"/>` : "-"}</td>
-          <td>${product.name || "-"}</td>
-          <td>${Number(product.price || 0).toFixed(2)} ₪</td>
-          <td>${product.status === "active" ? "פעיל" : "לא פעיל"}</td>
-          <td>
-            <div class="row">
-              <button data-action="edit" data-id="${product.id}">עריכה</button>
-              <button data-action="delete" data-id="${product.id}" class="btn-danger">מחיקה</button>
+      empty.classList.add('hidden');
+      grid.innerHTML = state.products.map((item) => `
+        <article class="card">
+          <img src="${item.imageUrl || ''}" alt="${item.name || ''}" />
+          <div class="card-body">
+            <div style="display:flex;justify-content:space-between;gap:10px;align-items:flex-start">
+              <strong>${item.name || ''}</strong>
+              <span class="chip">${Number(item.price || 0)} ₪</span>
             </div>
-          </td>
-        `;
-        body.appendChild(tr);
-      }
+            <div class="muted">${item.description || ''}</div>
+            <div class="chips">${(item.tags || []).map((tag) => `<span class="chip">${typeof tag === 'string' ? tag : tag.label}</span>`).join('')}</div>
+            <div style="display:flex;gap:8px;flex-wrap:wrap">
+              <button class="btn-outline" data-edit="${item.id}">ערוך</button>
+            </div>
+          </div>
+        </article>
+      `).join('');
+
+      grid.querySelectorAll('[data-edit]').forEach((btn) => {
+        btn.addEventListener('click', () => startEdit(btn.dataset.edit));
+      });
     }
 
-    function clearForm() {
+    function startEdit(id) {
+      const item = state.products.find((p) => p.id === id);
+      if (!item) return;
+      state.editingId = id;
+      $('#productId').value = item.id || '';
+      $('#productName').value = item.name || '';
+      $('#productPrice').value = item.price ?? '';
+      $('#productSalePrice').value = item.salePrice ?? '';
+      $('#productImageUrl').value = item.imageUrl || '';
+      $('#productTags').value = (item.tags || []).map((t) => typeof t === 'string' ? t : t.label).join(', ');
+      $('#productColors').value = (item.colors || []).join(', ');
+      $('#productDescription').value = item.description || '';
+      $('#productAddons').value = JSON.stringify(item.addons || [], null, 2);
+      $('#productVariants').value = JSON.stringify(item.variants || [], null, 2);
+      $('#productAccentColor').value = item.accentColor || '#60a5fa';
+      $('#productCardBackground').value = item.cardBackground || '#ffffff';
+      $('#productPublished').value = String(item.published === true);
+      $('#productActive').value = String(item.active !== false);
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }
+
+    function resetForm() {
       state.editingId = null;
-      el("productName").value = "";
-      el("price").value = "";
-      el("status").value = "active";
-      el("description").value = "";
-      el("imageFile").value = "";
+      $('#productId').value = '';
+      $('#productName').value = '';
+      $('#productPrice').value = '';
+      $('#productSalePrice').value = '';
+      $('#productImageFile').value = '';
+      $('#productImageUrl').value = '';
+      $('#productTags').value = '';
+      $('#productColors').value = '';
+      $('#productDescription').value = '';
+      $('#productAddons').value = '';
+      $('#productVariants').value = '';
+      $('#productAccentColor').value = '#60a5fa';
+      $('#productCardBackground').value = '#ffffff';
+      $('#productPublished').value = 'true';
+      $('#productActive').value = 'true';
+    }
+
+    async function saveTheme() {
+      const fn = httpsCallable(functions, 'saveTheme');
+      await fn({
+        embedTitle: $('#themeEmbedTitle').value.trim(),
+        primaryColor: $('#themePrimaryColor').value,
+        buttonColor: $('#themeButtonColor').value,
+        textColor: $('#themeTextColor').value,
+        cardBackground: $('#themeCardBackground').value,
+        desktopColumns: Number($('#themeDesktopColumns').value || 4),
+        mobileColumns: Number($('#themeMobileColumns').value || 2)
+      });
+      setStatus('העיצוב נשמר');
     }
 
     async function saveProduct() {
-      const uid = state.uid;
-      if (!uid) return;
-
-      const name = el("productName").value.trim();
-      const price = Number(el("price").value || 0);
-      const status = el("status").value;
-      const description = el("description").value.trim();
-      const file = el("imageFile").files[0] || null;
-
-      if (!name) {
-        setMessage("productMsg", "שם מוצר הוא שדה חובה.", "err");
+      if (!state.user) return;
+      const id = $('#productId').value.trim();
+      if (!id) {
+        setStatus('חסר ID מוצר', true);
         return;
       }
-
-      let imageUrl = null;
-      if (file) {
-        imageUrl = await uploadImage(uid, file);
+      try {
+        const imageUrl = await uploadImageIfNeeded(state.user.uid, id);
+        const fn = httpsCallable(functions, 'saveProduct');
+        await fn({
+          id,
+          name: $('#productName').value.trim(),
+          price: Number($('#productPrice').value || 0),
+          salePrice: $('#productSalePrice').value.trim() ? Number($('#productSalePrice').value) : null,
+          imageUrl,
+          description: $('#productDescription').value.trim(),
+          tags: $('#productTags').value.split(',').map((v) => v.trim()).filter(Boolean),
+          colors: $('#productColors').value.split(',').map((v) => v.trim()).filter(Boolean),
+          addons: parseJsonSafe($('#productAddons').value, []),
+          variants: parseJsonSafe($('#productVariants').value, []),
+          accentColor: $('#productAccentColor').value,
+          cardBackground: $('#productCardBackground').value,
+          published: $('#productPublished').value === 'true',
+          active: $('#productActive').value === 'true'
+        });
+        await loadProducts(state.user.uid);
+        await initStorefront();
+        resetForm();
+        setStatus('המוצר נשמר');
+      } catch (error) {
+        setStatus(error.message || 'שמירת המוצר נכשלה', true);
       }
+    }
 
-      const payload = {
-        name,
-        price,
-        status,
-        description,
-        updatedAt: serverTimestamp()
-      };
+    async function bootApp(user) {
+      state.user = user;
+      $('#authSection').classList.add('hidden');
+      $('#appSection').classList.remove('hidden');
+      $('#userLine').textContent = `${user.email} · UID: ${user.uid}`;
+      await Promise.all([loadTheme(user.uid), loadProducts(user.uid), initStorefront()]);
+      setStatus('המערכת מחוברת ומעודכנת');
+    }
 
-      if (imageUrl) payload.imageUrl = imageUrl;
-
-      if (state.editingId) {
-        await setDoc(doc(db, "users", uid, "products", state.editingId), payload, { merge: true });
-        setMessage("productMsg", "המוצר עודכן בהצלחה.");
+    onAuthStateChanged(auth, async (user) => {
+      if (user) {
+        await bootApp(user);
       } else {
-        await addDoc(productCollection(uid), { ...payload, createdAt: serverTimestamp() });
-        setMessage("productMsg", "המוצר נוצר בהצלחה.");
-      }
-
-      clearForm();
-      await loadProducts(uid);
-    }
-
-    async function loadDesign(uid) {
-      const snap = await getDoc(designDoc(uid));
-      if (!snap.exists()) return;
-      const d = snap.data();
-      el("themeName").value = d.themeName || "";
-      el("primaryColor").value = d.primaryColor || "#1d4ed8";
-      el("secondaryColor").value = d.secondaryColor || "#0f172a";
-    }
-
-    async function saveDesign() {
-      const uid = state.uid;
-      await setDoc(designDoc(uid), {
-        themeName: el("themeName").value.trim() || "Default",
-        primaryColor: el("primaryColor").value,
-        secondaryColor: el("secondaryColor").value,
-        updatedAt: serverTimestamp()
-      }, { merge: true });
-
-      setMessage("designMsg", "העיצוב נשמר בהצלחה.");
-    }
-
-    async function exportJson() {
-      const endpoint = el("exportEndpoint").value.trim();
-      if (!endpoint) {
-        setMessage("exportMsg", "חסר קישור ל-Cloud Function.", "err");
-        return;
-      }
-
-      const token = await auth.currentUser.getIdToken();
-      const res = await fetch(endpoint, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`
-        },
-        body: JSON.stringify({ uid: state.uid })
-      });
-
-      if (!res.ok) {
-        const text = await res.text();
-        setMessage("exportMsg", `שגיאת יצוא: ${text}`, "err");
-        return;
-      }
-
-      const result = await res.json();
-      el("apiKeyResult").value = result.apiKey || "";
-      setMessage("exportMsg", "הקבצים נוצרו ונשמרו בהצלחה ב-Storage.");
-    }
-
-    // Events
-    el("signupBtn").addEventListener("click", async () => {
-      try {
-        await createUserWithEmailAndPassword(auth, el("email").value.trim(), el("password").value);
-        setMessage("authMsg", "חשבון נוצר בהצלחה.");
-      } catch (e) {
-        setMessage("authMsg", e.message, "err");
+        state.user = null;
+        $('#authSection').classList.remove('hidden');
+        $('#appSection').classList.add('hidden');
       }
     });
 
-    el("loginBtn").addEventListener("click", async () => {
+    $('#loginBtn').addEventListener('click', async () => {
       try {
-        await signInWithEmailAndPassword(auth, el("email").value.trim(), el("password").value);
-        setMessage("authMsg", "התחברת בהצלחה.");
-      } catch (e) {
-        setMessage("authMsg", e.message, "err");
+        await signInWithEmailAndPassword(auth, $('#email').value.trim(), $('#password').value);
+      } catch (error) {
+        setStatus(error.message, true);
       }
     });
 
-    el("googleLoginBtn").addEventListener("click", async () => {
+    $('#registerBtn').addEventListener('click', async () => {
       try {
-        await signInWithRedirect(auth, googleProvider);
-      } catch (e) {
-        setMessage("authMsg", e.message, "err");
+        await createUserWithEmailAndPassword(auth, $('#email').value.trim(), $('#password').value);
+      } catch (error) {
+        setStatus(error.message, true);
       }
     });
 
-    el("logoutBtn").addEventListener("click", async () => {
+    $('#logoutBtn').addEventListener('click', async () => {
       await signOut(auth);
     });
 
-    el("saveProductBtn").addEventListener("click", () => saveProduct().catch((e) => setMessage("productMsg", e.message, "err")));
-    el("clearFormBtn").addEventListener("click", clearForm);
-    el("saveDesignBtn").addEventListener("click", () => saveDesign().catch((e) => setMessage("designMsg", e.message, "err")));
-    el("exportBtn").addEventListener("click", () => exportJson().catch((e) => setMessage("exportMsg", e.message, "err")));
-
-    el("productsBody").addEventListener("click", async (event) => {
-      const btn = event.target.closest("button");
-      if (!btn) return;
-      const id = btn.dataset.id;
-      const action = btn.dataset.action;
-      const uid = state.uid;
-      const product = state.products.find((p) => p.id === id);
-      if (!product) return;
-
-      if (action === "edit") {
-        state.editingId = id;
-        el("productName").value = product.name || "";
-        el("price").value = product.price ?? "";
-        el("status").value = product.status || "active";
-        el("description").value = product.description || "";
-        setMessage("productMsg", `מצב עריכה: ${product.name}`);
-        return;
+    $('#saveThemeBtn').addEventListener('click', saveTheme);
+    $('#saveProductBtn').addEventListener('click', saveProduct);
+    $('#resetFormBtn').addEventListener('click', resetForm);
+    $('#rebuildBtn').addEventListener('click', async () => {
+      try {
+        const fn = httpsCallable(functions, 'rebuildStorefront');
+        await fn({});
+        await initStorefront();
+        setStatus('הקבצים נבנו מחדש');
+      } catch (error) {
+        setStatus(error.message, true);
       }
-
-      if (action === "delete") {
-        await deleteDoc(doc(db, "users", uid, "products", id));
-        await loadProducts(uid);
-      }
-    });
-
-    getRedirectResult(auth)
-      .then((result) => {
-        if (result?.user) {
-          setMessage("authMsg", `ברוך הבא ${result.user.displayName || result.user.email || ""}`.trim());
-        }
-      })
-      .catch((e) => setMessage("authMsg", e.message, "err"));
-
-    onAuthStateChanged(auth, async (user) => {
-      if (!user) {
-        state.uid = null;
-        authCard.classList.remove("hidden");
-        appCard.classList.add("hidden");
-        return;
-      }
-
-      state.uid = user.uid;
-      el("userPill").textContent = `${user.email} • ${user.uid}`;
-      authCard.classList.add("hidden");
-      appCard.classList.remove("hidden");
-
-      await Promise.all([loadProducts(user.uid), loadDesign(user.uid)]);
     });
   </script>
 </body>
