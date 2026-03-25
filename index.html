@@ -1120,7 +1120,6 @@
                   <div class="designer-group">
                     <h5>צבע הכרטיסייה</h5>
                     <div class="modal-grid designer-color-grid">
-                      <div class="field"><label for="themePrimaryColor" data-i18n="designer.primaryColor">צבע ראשי</label><input class="input compact-color" id="themePrimaryColor" type="color" value="#60a5fa" /></div>
                       <div class="field"><label for="themeBackgroundColor" data-i18n="designer.cardColor">צבע כרטיס</label><input class="input compact-color" id="themeBackgroundColor" type="color" value="#ffffff" /></div>
                       <div class="field"><label for="themeTextColor" data-i18n="designer.textColor">צבע טקסט</label><input class="input compact-color" id="themeTextColor" type="color" value="#111827" /></div>
                       <div class="field"><label for="themeButtonColor" data-i18n="designer.buttonColor">צבע כפתור</label><input class="input compact-color" id="themeButtonColor" type="color" value="#111827" /></div>
@@ -1755,6 +1754,7 @@
     }
 
     function applyThemeToPreview() {
+      state.theme.primaryColor = state.theme.buttonColor || state.theme.primaryColor;
       document.documentElement.style.setProperty('--preview-bg', `linear-gradient(135deg, ${state.theme.primaryColor}, ${shadeColor(state.theme.primaryColor, -18)})`);
       document.documentElement.style.setProperty('--preview-card', state.theme.cardBackground);
       document.documentElement.style.setProperty('--preview-text', state.theme.textColor);
@@ -1768,7 +1768,6 @@
       $('#productPreviewShell').dataset.template = 'classic';
       $('#designerApplyMode').value = state.theme.applyMode || 'all';
       $('#toggleCartButton').classList.toggle('active', !!state.theme.showCart);
-      $('#themePrimaryColor').value = normalizeHex(state.theme.primaryColor);
       $('#themeBackgroundColor').value = normalizeHex(state.theme.cardBackground);
       $('#themeTextColor').value = normalizeHex(state.theme.textColor);
       $('#themeButtonColor').value = normalizeHex(state.theme.buttonColor);
@@ -2978,11 +2977,11 @@
       $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד iFrame הועתק'));
       $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#embedDataCodeBlock').textContent, 'קוד API ללא עיצוב הועתק'));
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
-      ['themePrimaryColor','themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds','themeCartButtonText'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
-        state.theme.primaryColor = $('#themePrimaryColor').value;
+      ['themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds','themeCartButtonText'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
         state.theme.cardBackground = $('#themeBackgroundColor').value;
         state.theme.textColor = $('#themeTextColor').value;
         state.theme.buttonColor = $('#themeButtonColor').value;
+        state.theme.primaryColor = state.theme.buttonColor;
         state.theme.cartButtonText = $('#themeCartButtonText').value.trim() || 'הוספה לסל';
         state.theme.cardTone = $('#themeCardTone').value;
         state.theme.cardShadow = $('#themeCardShadow').value;
