@@ -1406,7 +1406,8 @@
       cart: {},
       selectedVariants: {},
       modalTags: [],
-      tagColorMode: 'solid'
+      tagColorMode: 'solid',
+      activeColorInputId: ''
     };
 
     const translations = {
@@ -1759,6 +1760,51 @@
       const b = clamp((num & 255) + amt);
       return `#${[r,g,b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
     }
+    function rgbToHex(r = 0, g = 0, b = 0) {
+      return `#${[r, g, b].map((value) => Number(value).toString(16).padStart(2, '0')).join('')}`;
+    }
+    function cssColorToHex(value = '') {
+      const input = String(value || '').trim();
+      if (!input) return '';
+      if (/^#[0-9a-f]{3,8}$/i.test(input)) {
+        if (input.length === 4) return `#${input[1]}${input[1]}${input[2]}${input[2]}${input[3]}${input[3]}`.toLowerCase();
+        return input.slice(0, 7).toLowerCase();
+      }
+      const rgbaMatch = input.match(/^rgba?\(([^)]+)\)$/i);
+      if (!rgbaMatch) return '';
+      const [r, g, b] = rgbaMatch[1].split(',').slice(0, 3).map((part) => Number(part.trim()));
+      if ([r, g, b].some((part) => Number.isNaN(part))) return '';
+      return rgbToHex(Math.max(0, Math.min(255, r)), Math.max(0, Math.min(255, g)), Math.max(0, Math.min(255, b)));
+    }
+    function openExternalColorPicker(input) {
+      if (!input?.id) return;
+      state.activeColorInputId = input.id;
+      window.open('color.html', 'mozarella-color-picker', 'width=1080,height=840,noopener=yes,resizable=yes');
+    }
+    function applySelectedExternalColor(value = '') {
+      const targetId = state.activeColorInputId;
+      if (!targetId) return;
+      const input = $('#'+targetId);
+      if (!input) return;
+      const cssValue = String(value || '').trim();
+      if (!cssValue) return;
+      if (cssValue.startsWith('linear-gradient(')) {
+        input.dataset.gradientValue = cssValue;
+      } else {
+        const hex = cssColorToHex(cssValue);
+        if (!hex) return;
+        input.dataset.gradientValue = '';
+        input.value = hex;
+      }
+      if (input.id === 'themeBackgroundColor' && input.dataset.gradientValue) {
+        state.theme.cardGradient = input.dataset.gradientValue;
+        state.theme.cardTone = 'gradientPreset';
+        $('#themeCardTone').value = 'gradientPreset';
+      }
+      const evtName = input.type === 'color' ? 'input' : 'change';
+      input.dispatchEvent(new Event(evtName, { bubbles: true }));
+      if (input.id === 'productTagBackgroundColor') renderModalProductPreview();
+    }
     function resolveCardToneStyle(theme = {}, tone = 'solid') {
       const baseBg = theme.cardBackground || '#ffffff';
       const gradient = theme.cardGradient || CARD_GRADIENT_PRESETS[0];
@@ -1945,6 +1991,7 @@
       return (images || []).filter(Boolean).slice(0, MAX_PRODUCT_IMAGES);
     }
     function productAdditionalImageUrls(item = {}) {
+      item = item || {};
       const mainImage = item.imageUrl || '';
       return normalizeProductImages((item.imageUrls || []).filter((url) => url && url !== mainImage));
     }
@@ -2790,6 +2837,17 @@
       $('#logoutBtn').addEventListener('click', async () => { await signOut(auth); });
       $('#openAddModalPanel').addEventListener('click', openAddProductModal);
       $('#quickAddBtn').addEventListener('click', openAddProductModal);
+      document.addEventListener('click', (event) => {
+        const input = event.target.closest('input[type="color"]');
+        if (!input?.id) return;
+        if (input.dataset.nativePicker === 'true') return;
+        event.preventDefault();
+        openExternalColorPicker(input);
+      });
+      window.addEventListener('message', (event) => {
+        if (event?.data?.type !== 'color-selected') return;
+        applySelectedExternalColor(event.data.value || '');
+      });
       $('#closeModalBtn').addEventListener('click', closeModal);
       $('#cancelModalBtn').addEventListener('click', closeModal);
       $('#addVariantBtn').addEventListener('click', () => addVariantGroup());
