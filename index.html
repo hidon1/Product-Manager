@@ -230,7 +230,7 @@
     .topbar, .section-head, .modal-head { display:flex; align-items:center; justify-content:space-between; gap: 14px; flex-wrap: wrap; }
     .hero {
       display: flex;
-      justify-content: flex-start;
+      justify-content: flex-end;
       margin-bottom: 22px;
     }
     .stats { display:flex; }
@@ -284,6 +284,18 @@
     .price-tag {
       white-space: nowrap; border-radius: 999px; background: rgba(34,197,94,.12); color:#166534;
       padding: 8px 12px; font-weight: 700; font-size:.9rem;
+    }
+    .price-stack { display:inline-flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+    .price-regular { font-weight: 700; }
+    .price-regular.striked { text-decoration: line-through; opacity:.72; font-weight: 500; }
+    .price-sale { font-weight: 900; color:#b91c1c; }
+    .discount-pill {
+      border-radius: 999px;
+      padding: 4px 8px;
+      font-size: .74rem;
+      font-weight: 800;
+      background: rgba(220,38,38,.12);
+      color: #b91c1c;
     }
     .chip-row { display:flex; gap:8px; flex-wrap:wrap; }
     .chip {
@@ -542,6 +554,9 @@
     .store-card .store-copy > img { margin-bottom: 2px; }
     .store-card .store-meta { color: var(--preview-muted); font-size: .92rem; }
     .store-card .store-price { font-size: 1.35rem; font-weight: 800; }
+    .store-card .store-price-wrap { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+    .store-card .store-price-old { font-size: 1.02rem; opacity:.7; text-decoration: line-through; font-weight: 500; }
+    .store-card .store-price-sale { font-size: 1.35rem; font-weight: 900; color:#b91c1c; }
     .store-card .store-btn {
       border:0; border-radius: 12px; padding: 8px 12px; min-height: var(--store-button-height, 38px); cursor:pointer; background: var(--preview-btn-bg); color: var(--preview-btn-text); font-weight: 700;
       width: min(100%, 160px); white-space: nowrap;
@@ -558,10 +573,14 @@
     .modal-preview-shell .store-card { width: 100%; }
     .product-form-grid .field-name,
     .product-form-grid .field-price,
+    .product-form-grid .field-sale-price,
+    .product-form-grid .field-sale-active,
     .product-form-grid .field-image,
     .product-form-grid .field-button-shape,
     .product-form-grid .field-button-text { max-width: 360px; }
     .product-form-grid .field-price { max-width: 200px; }
+    .product-form-grid .field-sale-price { max-width: 200px; }
+    .sale-toggle-wrap { display:flex; align-items:center; gap:10px; min-height: 50px; padding-top: 24px; }
     .product-form-grid .field-button-shape {
       max-width: 170px;
       align-self: start;
@@ -1092,7 +1111,9 @@
       <form id="productForm">
         <div class="modal-grid product-form-grid">
           <div class="field field-name"><label for="productName" data-i18n="form.name">שם המוצר</label><input class="input" id="productName" required /></div>
-          <div class="field field-price"><label for="productPrice" data-i18n="form.price">מחיר</label><input class="input" id="productPrice" type="number" min="0" step="0.01" required /></div>
+          <div class="field field-price"><label for="productPrice" data-i18n="form.price">מחיר רגיל</label><input class="input" id="productPrice" type="number" min="0" step="0.01" required /></div>
+          <div class="field field-sale-active"><label for="productSaleActive">מחיר מבצע</label><div class="sale-toggle-wrap"><input id="productSaleActive" type="checkbox" /><span class="mini">פעיל / לא פעיל</span></div></div>
+          <div class="field field-sale-price"><label for="productSalePrice">מחיר מבצע</label><input class="input" id="productSalePrice" type="number" min="0" step="0.01" placeholder="לדוגמה 99" disabled /></div>
           <div class="field full"><label for="productDesc" data-i18n="form.desc">תיאור</label><textarea class="textarea" id="productDesc"></textarea></div>
           <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span>צבע טקסט</span><input class="input" id="productTagTextColor" type="color" value="#4f46e5" /></div><div class="tag-color-field"><span>צבע תגית</span><input class="input" id="productTagBackgroundColor" type="color" value="#dbeafe" /></div><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
           <div class="field field-image"><label for="productImage" data-i18n="form.image">תמונות מוצר</label><input class="input" id="productImage" type="file" accept="image/*" multiple /><div id="imageManager" class="image-manager"></div></div>
@@ -1379,6 +1400,8 @@
         ownerId: item.uid || '',
         name: item.name || '',
         price: Number(item.price || 0),
+        saleActive: !!item.saleActive,
+        salePrice: Number(item.salePrice || 0),
         description: item.description || '',
         imageUrl: item.imageUrl || '',
         imageUrls: productImageUrls(item),
@@ -1626,6 +1649,14 @@
     function productEffectiveTemplate(item) { return 'classic'; }
     function productShowCart(item) { return item.showCart === 'show' ? true : item.showCart === 'hide' ? false : !!state.theme.showCart; }
     function productIsActive(item) { return item.active !== false && item.status !== 'inactive'; }
+    function getProductPricing(item = {}) {
+      const regular = Math.max(0, Number(item.price || 0));
+      const saleRaw = Number(item.salePrice || 0);
+      const saleActive = !!item.saleActive && saleRaw > 0 && saleRaw < regular;
+      const sale = saleActive ? saleRaw : regular;
+      const discountPct = saleActive && regular > 0 ? Math.round(((regular - sale) / regular) * 100) : 0;
+      return { regular, sale, saleActive, discountPct };
+    }
     function normalizeProductImages(images = []) {
       return (images || []).filter(Boolean).slice(0, MAX_PRODUCT_IMAGES);
     }
@@ -1731,7 +1762,9 @@
       const template = productEffectiveTemplate(item);
       const showCart = productShowCart(item);
       const productId = item.id || item.productId || item.name || 'preview';
-      const price = `₪${Number(item.price || 0).toLocaleString()}`;
+      const pricing = getProductPricing(item);
+      const regularPrice = `₪${pricing.regular.toLocaleString()}`;
+      const salePrice = `₪${pricing.sale.toLocaleString()}`;
       const image = buildImageGalleryHTML(item);
       const chips = (item.tags || []).slice(0, 4).map((tag) => {
         const label = typeof tag === 'string' ? tag : tag?.label || '';
@@ -1765,7 +1798,9 @@
         <div class="store-copy" style="font-family:${esc(item.font || 'Inter')}; text-align:${esc(theme.textAlign || 'right')};">
           ${template !== 'split' ? image : ''}
           <h4 style="margin:6px 0 4px;">${esc(item.name || '')}</h4>
-          <div class="store-price" style="color:${esc(item.accentColor || theme.primaryColor)};">${price}</div>
+          <div class="store-price-wrap" style="color:${esc(item.accentColor || theme.primaryColor)};">
+            ${pricing.saleActive ? `<span class="store-price-old">${regularPrice}</span><span class="store-price-sale">${salePrice}</span><span class="discount-pill">-${pricing.discountPct}%</span>` : `<span class="store-price">${regularPrice}</span>`}
+          </div>
           <p class="store-meta">${esc(item.description || '')}</p>
           <div class="store-chips">${chips}</div>
           ${variantHtml}
@@ -1841,6 +1876,8 @@
       return {
         name: $('#productName').value.trim() || 'Preview product',
         price: Number($('#productPrice').value || 0) || 149,
+        saleActive: !!$('#productSaleActive').checked,
+        salePrice: Number($('#productSalePrice').value || 0),
         description: $('#productDesc').value.trim() || 'See how the product will look inside the live storefront.',
         tags: state.modalTags,
         colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
@@ -1913,12 +1950,18 @@
       if (item) {
         $('#productName').value = item.name || '';
         $('#productPrice').value = item.price || '';
+        $('#productSaleActive').checked = !!item.saleActive;
+        $('#productSalePrice').value = item.salePrice || '';
+        $('#productSalePrice').disabled = !item.saleActive;
         $('#productDesc').value = item.description || '';
         $('#productButtonStyle').value = item.buttonStyle || 'rounded';
         $('#productCartButtonText').value = item.cartButtonText || 'הוספה לסל';
         (item.variants || []).forEach(addVariantGroup);
       } else {
         state.modalTags = [];
+        $('#productSaleActive').checked = false;
+        $('#productSalePrice').value = '';
+        $('#productSalePrice').disabled = true;
         $('#productButtonStyle').value = state.theme.buttonStyle || 'rounded';
         $('#productCartButtonText').value = state.theme.cartButtonText || 'הוספה לסל';
         addVariantGroup();
@@ -2029,6 +2072,8 @@
           ownerRef: `users/${state.currentUser.uid}`,
           name: $('#productName').value.trim(),
           price: Number($('#productPrice').value || 0),
+          saleActive: !!$('#productSaleActive').checked,
+          salePrice: Number($('#productSalePrice').value || 0),
           description: $('#productDesc').value.trim(),
           tags: state.modalTags,
           tagStyles: Object.fromEntries(state.modalTags.map((tag) => [tag.label, { textColor: tag.textColor, backgroundColor: tag.backgroundColor, opacity: Number(tag.opacity || 0.85), shape: tag.shape }])),
@@ -2100,6 +2145,7 @@
       $('#emptyState').classList.toggle('hidden', items.length !== 0);
       items.forEach((item) => {
         const resolvedTheme = inheritThemeForItem(item);
+        const pricing = getProductPricing(item);
         const chips = [...(item.tags || []).slice(0, 3).map(tag => typeof tag === 'string' ? tag : tag.label), ...((item.variants || []).slice(0, 2).map(group => `קטגוריה: ${group.name}`)), (resolvedTheme.animationStyle && resolvedTheme.animationStyle !== 'none') ? `אנימציה: ${resolvedTheme.animationStyle}` : 'תצוגה יציבה'];
         const card = document.createElement('article');
         card.className = 'product-card';
@@ -2117,7 +2163,12 @@
           <div class="product-body card-editor" style="font-family:${esc(item.font || 'Inter')};background:transparent;color:${esc(resolvedTheme.textColor || '#111827')};">
             <div class="product-status-row">
               <div class="status-pill ${productIsActive(item) ? 'active' : 'inactive'}"><span class="status-dot"></span>${productIsActive(item) ? 'פעיל' : 'מושבת'}</div>
-              <div class="price-tag" style="background:${hexToRgba(item.accentColor || state.theme.primaryColor, .14)}; color:${esc(item.accentColor || state.theme.primaryColor)};">₪${Number(item.price || 0).toLocaleString()}</div>
+              <div class="price-tag" style="background:${hexToRgba(item.accentColor || state.theme.primaryColor, .14)}; color:${esc(item.accentColor || state.theme.primaryColor)};">
+                <div class="price-stack">
+                  <span class="price-regular ${pricing.saleActive ? 'striked' : ''}">₪${pricing.regular.toLocaleString()}</span>
+                  ${pricing.saleActive ? `<span class="price-sale">₪${pricing.sale.toLocaleString()}</span><span class="discount-pill">-${pricing.discountPct}%</span>` : ''}
+                </div>
+              </div>
             </div>
             <div class="product-title-row"><h4 class="product-title">${esc(item.name || '')}</h4><div class="mini">${resolvedTheme.animationStyle && resolvedTheme.animationStyle !== 'none' ? 'אנימציה פעילה' : 'תצוגה נקייה'}</div></div>
             <div class="product-desc">${esc(item.description || 'ללא תיאור')}</div>
@@ -2236,6 +2287,8 @@
         ['productId', 'string', 'לא חובה ברוב האתרים. להעתיק רק אם אתם מסנכרנים מערכת חיצונית או צריכים מזהה מקור.'],
         ['name', 'string', 'להעתיק תמיד כשמציגים שם מוצר ללקוח.'],
         ['price', 'number', 'להעתיק תמיד אם מציגים מחיר בכרטיס, בסל, או בסיכום הזמנה.'],
+        ['saleActive', 'boolean', 'לא חובה. מסמן אם למוצר יש מחיר מבצע פעיל.'],
+        ['salePrice', 'number', 'לא חובה. המחיר המוזל להצגה כשמבצע פעיל.'],
         ['description', 'string', 'להעתיק רק אם רוצים טקסט שיווקי או תיאור מלא של המוצר.'],
         ['imageUrl', 'string', 'להעתיק אם מציגים תמונת מוצר באתר.'],
         ['imageUrls', 'array', 'להעתיק אם רוצים גלריית תמונות עם כמה תמונות לכל מוצר.'],
@@ -2321,6 +2374,8 @@
         ownerId: item.uid || '',
         name: item.name || '',
         price: Number(item.price || 0),
+        saleActive: !!item.saleActive,
+        salePrice: Number(item.salePrice || 0),
         description: item.description || '',
         imageUrl: item.imageUrl || '',
         imageUrls: productImageUrls(item),
@@ -2484,7 +2539,11 @@
         renderImageManager();
         renderModalProductPreview();
       });
-      ['productName','productPrice'].forEach((id) => $('#'+id).addEventListener('input', renderModalProductPreview));
+      ['productName','productPrice','productSalePrice'].forEach((id) => $('#'+id).addEventListener('input', renderModalProductPreview));
+      $('#productSaleActive').addEventListener('change', () => {
+        $('#productSalePrice').disabled = !$('#productSaleActive').checked;
+        renderModalProductPreview();
+      });
       ['productDesc','productButtonStyle','productCartButtonText','productTagTextColor','productTagBackgroundColor','productTagOpacity','productTagShape'].forEach((id) => {
         const el = $('#'+id);
         if (el) el.addEventListener(['productDesc','productCartButtonText','productTagOpacity'].includes(id) ? 'input' : 'change', renderModalProductPreview);
