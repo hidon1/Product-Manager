@@ -596,6 +596,8 @@
     .product-form-grid .field-price,
     .product-form-grid .field-sale-price,
     .product-form-grid .field-sale-active,
+    .product-form-grid .field-currency,
+    .product-form-grid .field-main-image,
     .product-form-grid .field-image,
     .product-form-grid .field-button-shape,
     .product-form-grid .field-button-text { max-width: 360px; }
@@ -1141,6 +1143,7 @@
                   <div class="field-row"><code>ownerId</code><span class="type">string</span><span>מזהה בעל החשבון</span></div>
                   <div class="field-row"><code>name</code><span class="type">string</span><span>שם מוצר</span></div>
                   <div class="field-row"><code>price</code><span class="type">number</span><span>מחיר</span></div>
+                  <div class="field-row"><code>currency</code><span class="type">string</span><span>מטבע המחיר (למשל ILS / USD)</span></div>
                   <div class="field-row"><code>description</code><span class="type">string</span><span>תיאור</span></div>
                   <div class="field-row"><code>imageUrl</code><span class="type">string</span><span>תמונה ראשית</span></div>
                   <div class="field-row"><code>imageUrls</code><span class="type">array</span><span>גלריית תמונות</span></div>
@@ -1171,10 +1174,12 @@
         <div class="modal-grid product-form-grid">
           <div class="field field-name"><label for="productName" data-i18n="form.name">שם המוצר</label><input class="input" id="productName" required /></div>
           <div class="field field-price"><label for="productPrice" data-i18n="form.price">מחיר רגיל</label><input class="input" id="productPrice" type="number" min="0" step="0.01" required /></div>
+          <div class="field field-currency"><label for="productCurrency">מטבע</label><select class="select" id="productCurrency"></select></div>
           <div class="field field-sale-active"><label for="productSaleActiveToggle">מחיר מבצע</label><div class="sale-toggle-wrap"><input id="productSaleActive" class="sale-switch-input" type="checkbox" /><button class="sale-switch" id="productSaleActiveToggle" type="button" role="switch" aria-checked="false" aria-label="הפעלת מחיר מבצע"></button><span class="mini sale-switch-label" id="productSaleStateText">לא פעיל</span></div></div>
           <div class="field field-sale-price"><label for="productSalePrice">מחיר מבצע</label><input class="input" id="productSalePrice" type="number" min="0" step="0.01" placeholder="לדוגמה 99" disabled /></div>
           <div class="field full"><label for="productDesc" data-i18n="form.desc">תיאור</label><textarea class="textarea" id="productDesc"></textarea></div>
           <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span>צבע טקסט</span><input class="input" id="productTagTextColor" type="color" value="#4f46e5" /></div><div class="tag-color-field"><span>צבע תגית</span><input class="input" id="productTagBackgroundColor" type="color" value="#dbeafe" /></div><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
+          <div class="field field-main-image"><label for="productMainImage">תמונה ראשית</label><input class="input" id="productMainImage" type="file" accept="image/*" /><div id="mainImageManager" class="image-manager"></div></div>
           <div class="field field-image"><label for="productImage" data-i18n="form.image">תמונות מוצר</label><input class="input" id="productImage" type="file" accept="image/*" multiple /><div id="imageManager" class="image-manager"></div></div>
           <div class="field field-button-shape"><label for="productButtonStyle">צורת כפתור הוסף לסל</label><select class="select" id="productButtonStyle"><option value="rounded">עגול רך</option><option value="pill">גלולה</option><option value="square">מרובע</option><option value="soft">רך ומודגש</option></select></div>
           <div class="field field-button-text"><label for="productCartButtonText">טקסט לכפתור הוסף לסל</label><input class="input" id="productCartButtonText" placeholder="הוספה לסל" value="הוספה לסל" /></div>
@@ -1249,6 +1254,18 @@
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     const MAX_PRODUCT_IMAGES = 6;
+    const CURRENCY_OPTIONS = [
+      { code: 'ILS', symbol: '₪', country: 'ישראל' },
+      { code: 'USD', symbol: '$', country: 'ארצות הברית' },
+      { code: 'EUR', symbol: '€', country: 'האיחוד האירופי' },
+      { code: 'GBP', symbol: '£', country: 'בריטניה' },
+      { code: 'JPY', symbol: '¥', country: 'יפן' },
+      { code: 'CAD', symbol: 'C$', country: 'קנדה' },
+      { code: 'AUD', symbol: 'A$', country: 'אוסטרליה' },
+      { code: 'CHF', symbol: '', country: 'שווייץ' },
+      { code: 'AED', symbol: '', country: 'איחוד האמירויות' },
+      { code: 'SAR', symbol: '', country: 'ערב הסעודית' }
+    ];
     const CARD_GRADIENT_PRESETS = [
       'linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%)',
       'linear-gradient(135deg, #ede9fe 0%, #dbeafe 100%)',
@@ -1299,6 +1316,7 @@
       editId: null,
       currentImageUrl: '',
       currentImageUrls: [],
+      removedMainImagePath: '',
       unsubscribeProducts: null,
       unsubscribeTheme: null,
       theme: { ...DEFAULT_THEME },
@@ -1307,6 +1325,8 @@
       embedUid: '',
       previewObjectUrl: '',
       previewObjectUrls: [],
+      mainPreviewObjectUrl: '',
+      mainImageFile: null,
       newImageFiles: [],
       removedImagePaths: [],
       cart: {},
@@ -1468,6 +1488,7 @@
         ownerId: item.uid || '',
         name: item.name || '',
         price: Number(item.price || 0),
+        currency: item.currency || 'ILS',
         saleActive: !!item.saleActive,
         salePrice: Number(item.salePrice || 0),
         description: item.description || '',
@@ -1695,6 +1716,15 @@
       renderTagEditor();
       renderModalProductPreview();
     }
+    function renderCurrencyOptions(selectedCode = 'ILS') {
+      const select = $('#productCurrency');
+      if (!select) return;
+      select.innerHTML = CURRENCY_OPTIONS.map((currency) => {
+        const label = `${currency.code} / ${currency.symbol || currency.code} — ${currency.country}`;
+        return `<option value="${currency.code}">${esc(label)}</option>`;
+      }).join('');
+      select.value = CURRENCY_OPTIONS.some((currency) => currency.code === selectedCode) ? selectedCode : 'ILS';
+    }
 
     function getCartQuantity(productId) {
       return Number(state.cart[productId] || 1);
@@ -1715,6 +1745,7 @@
       return getDesignerTargetProduct() || state.products[0] || {
         name: 'Sample product title',
         price: 149,
+        currency: 'ILS',
         description: 'This preview shows how the product content and styling will appear inside the connected storefront.',
         tags: [{ label: 'New', color: '#4f46e5', shape: 'pill' }, { label: 'Promo', color: '#f97316', shape: 'burst' }],
         colors: ['Blue', 'White'],
@@ -1744,12 +1775,26 @@
       const discountPct = saleActive && regular > 0 ? Math.round(((regular - sale) / regular) * 100) : 0;
       return { regular, sale, saleActive, discountPct };
     }
+    function getCurrencyMeta(code = 'ILS') {
+      return CURRENCY_OPTIONS.find((item) => item.code === code) || CURRENCY_OPTIONS[0];
+    }
+    function formatPrice(value = 0, currencyCode = 'ILS') {
+      const amount = Math.max(0, Number(value || 0));
+      const currency = getCurrencyMeta(currencyCode);
+      const formatted = amount.toLocaleString(state.lang === 'he' ? 'he-IL' : 'en-US');
+      return currency.symbol ? `${currency.symbol}${formatted}` : `${currency.code} ${formatted}`;
+    }
     function normalizeProductImages(images = []) {
       return (images || []).filter(Boolean).slice(0, MAX_PRODUCT_IMAGES);
     }
+    function productAdditionalImageUrls(item = {}) {
+      const mainImage = item.imageUrl || '';
+      return normalizeProductImages((item.imageUrls || []).filter((url) => url && url !== mainImage));
+    }
     function productImageUrls(item = {}) {
-      if (Array.isArray(item.imageUrls) && item.imageUrls.length) return normalizeProductImages(item.imageUrls);
-      return normalizeProductImages(item.imageUrl ? [item.imageUrl] : []);
+      const mainImage = item.imageUrl ? [item.imageUrl] : [];
+      const extraImages = Array.isArray(item.imageUrls) ? item.imageUrls.filter((url) => url && url !== item.imageUrl) : [];
+      return normalizeProductImages([...mainImage, ...extraImages]);
     }
     function extractStoragePathFromUrl(url = '') {
       if (!url || typeof url !== 'string' || !url.includes('/o/')) return '';
@@ -1787,6 +1832,27 @@
         ? all.map((item) => `<div class="image-chip"><img src="${esc(item.url)}" alt="image ${item.index + 1}"><button type="button" data-remove-image="${item.index}" aria-label="מחיקה">×</button></div>`).join('')
         : '<div class="mini">לא נבחרו תמונות עדיין.</div>';
       box.querySelectorAll('[data-remove-image]').forEach((btn) => btn.addEventListener('click', () => removeImageAt(Number(btn.dataset.removeImage))));
+    }
+    function renderMainImageManager() {
+      const box = $('#mainImageManager');
+      if (!box) return;
+      const mainUrl = state.mainPreviewObjectUrl || state.currentImageUrl || '';
+      box.innerHTML = mainUrl
+        ? `<div class="image-chip"><img src="${esc(mainUrl)}" alt="main image"><button type="button" id="removeMainImageBtn" aria-label="מחיקה">×</button></div>`
+        : '<div class="mini">לא נבחרה תמונה ראשית.</div>';
+      $('#removeMainImageBtn')?.addEventListener('click', () => {
+        if (state.currentImageUrl) {
+          const oldPath = extractStoragePathFromUrl(state.currentImageUrl);
+          if (oldPath) state.removedMainImagePath = oldPath;
+        }
+        if (state.mainPreviewObjectUrl) URL.revokeObjectURL(state.mainPreviewObjectUrl);
+        state.mainPreviewObjectUrl = '';
+        state.mainImageFile = null;
+        state.currentImageUrl = '';
+        $('#productMainImage').value = '';
+        renderMainImageManager();
+        renderModalProductPreview();
+      });
     }
     function buildImageGalleryHTML(item = {}, className = '') {
       const images = productImageUrls(item);
@@ -1850,8 +1916,9 @@
       const showCart = productShowCart(item);
       const productId = item.id || item.productId || item.name || 'preview';
       const pricing = getProductPricing(item);
-      const regularPrice = `₪${pricing.regular.toLocaleString()}`;
-      const salePrice = `₪${pricing.sale.toLocaleString()}`;
+      const currencyCode = item.currency || 'ILS';
+      const regularPrice = formatPrice(pricing.regular, currencyCode);
+      const salePrice = formatPrice(pricing.sale, currencyCode);
       const image = buildImageGalleryHTML(item);
       const chips = (item.tags || []).slice(0, 4).map((tag) => {
         const label = typeof tag === 'string' ? tag : tag?.label || '';
@@ -1958,6 +2025,7 @@
       return {
         name: $('#productName').value.trim() || 'Preview product',
         price: Number($('#productPrice').value || 0) || 149,
+        currency: $('#productCurrency').value || 'ILS',
         saleActive: !!$('#productSaleActive').checked,
         salePrice: Number($('#productSalePrice').value || 0),
         description: $('#productDesc').value.trim() || 'See how the product will look inside the live storefront.',
@@ -1965,8 +2033,12 @@
         colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
         freeText: '',
         font: 'Inter',
-        imageUrl: (state.previewObjectUrls[0] || state.currentImageUrls[0] || state.previewObjectUrl || state.currentImageUrl || ''),
-        imageUrls: normalizeProductImages([...(state.previewObjectUrls || []), ...(state.currentImageUrls || [])]),
+        imageUrl: (state.mainPreviewObjectUrl || state.currentImageUrl || ''),
+        imageUrls: normalizeProductImages([
+          (state.mainPreviewObjectUrl || state.currentImageUrl || ''),
+          ...(state.previewObjectUrls || []),
+          ...(state.currentImageUrls || [])
+        ]),
         imageSwitchMode: state.theme.imageSwitchMode || 'auto',
         imageSwitchSeconds: Number(state.theme.imageSwitchSeconds || 3),
         template: 'classic',
@@ -2031,15 +2103,19 @@
     function openModal(item = null) {
       state.editId = item?.id || null;
       state.currentImageUrl = item?.imageUrl || '';
-      state.currentImageUrls = productImageUrls(item);
+      state.currentImageUrls = productAdditionalImageUrls(item);
+      state.removedMainImagePath = '';
       if (state.previewObjectUrl) { URL.revokeObjectURL(state.previewObjectUrl); state.previewObjectUrl = ''; }
       if (state.previewObjectUrls.length) state.previewObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+      if (state.mainPreviewObjectUrl) { URL.revokeObjectURL(state.mainPreviewObjectUrl); state.mainPreviewObjectUrl = ''; }
       state.previewObjectUrls = [];
+      state.mainImageFile = null;
       state.newImageFiles = [];
       state.removedImagePaths = [];
       $('#productForm').reset();
       $('#variantsContainer').innerHTML = '';
       state.modalTags = normalizeTagData(item?.tags || [], item?.tagStyles || {});
+      renderCurrencyOptions(item?.currency || 'ILS');
       if (item) {
         $('#productName').value = item.name || '';
         $('#productPrice').value = item.price || '';
@@ -2063,6 +2139,7 @@
       }
       renderTagEditor();
       applyTranslations();
+      renderMainImageManager();
       renderImageManager();
       renderModalProductPreview();
       $('#productModal').classList.add('open');
@@ -2072,9 +2149,12 @@
       state.editId = null;
       state.currentImageUrl = '';
       state.currentImageUrls = [];
+      state.removedMainImagePath = '';
       if (state.previewObjectUrl) { URL.revokeObjectURL(state.previewObjectUrl); state.previewObjectUrl=''; }
       if (state.previewObjectUrls.length) state.previewObjectUrls.forEach((url) => URL.revokeObjectURL(url));
+      if (state.mainPreviewObjectUrl) { URL.revokeObjectURL(state.mainPreviewObjectUrl); state.mainPreviewObjectUrl=''; }
       state.previewObjectUrls = [];
+      state.mainImageFile = null;
       state.newImageFiles = [];
       state.removedImagePaths = [];
     }
@@ -2116,32 +2196,32 @@
       })).filter((group) => group.name && group.options.length);
     }
 
-    async function uploadProductImage(file) {
-      if (!file) return { imageUrl: state.currentImageUrl || '', imagePath: '', productId: state.editId || '', imageStorageMode: state.currentImageUrl?.startsWith('data:') ? 'firestore-inline' : 'storage' };
-      const productId = state.editId || crypto.randomUUID();
+    async function uploadProductImage(file, forcedProductId = state.editId || crypto.randomUUID()) {
+      if (!file) return { imageUrl: state.currentImageUrl || '', imagePath: '', productId: forcedProductId, imageStorageMode: state.currentImageUrl?.startsWith('data:') ? 'firestore-inline' : 'storage' };
+      const productId = forcedProductId;
       const path = `users/${state.currentUser.uid}/products/${productId}/${Date.now()}-${file.name}`;
       const storageRef = ref(storage, path);
       await uploadBytes(storageRef, file, { contentType: file.type || 'image/jpeg', customMetadata: { uid: state.currentUser.uid, productId } });
       return { imageUrl: await getDownloadURL(storageRef), imagePath: path, productId, imageStorageMode: 'storage' };
     }
 
-    async function uploadProductImages(files = []) {
+    async function uploadProductImages(files = [], forcedProductId = state.editId || crypto.randomUUID()) {
       const cappedFiles = [...files].slice(0, MAX_PRODUCT_IMAGES);
-      const existing = normalizeProductImages(state.currentImageUrls.length ? state.currentImageUrls : (state.currentImageUrl ? [state.currentImageUrl] : []));
-      if (!cappedFiles.length) return { imageUrls: existing, imageUrl: existing[0] || '', imagePath: '', imagePaths: [], productId: state.editId || '', imageStorageMode: 'storage' };
+      const existing = normalizeProductImages(state.currentImageUrls || []);
+      if (!cappedFiles.length) return { imageUrls: existing, imageUrl: state.currentImageUrl || '', imagePath: '', imagePaths: [], productId: forcedProductId, imageStorageMode: 'storage' };
       const uploaded = [];
       const paths = [];
-      let productId = state.editId || crypto.randomUUID();
+      let productId = forcedProductId;
       let storageMode = 'storage';
       for (const file of cappedFiles) {
-        const result = await uploadProductImage(file);
+        const result = await uploadProductImage(file, productId);
         uploaded.push(result.imageUrl);
         if (result.imagePath) paths.push(result.imagePath);
         productId = result.productId || productId;
         storageMode = result.imageStorageMode || storageMode;
       }
       const normalized = normalizeProductImages([...existing, ...uploaded]);
-      return { imageUrls: normalized, imageUrl: normalized[0] || '', imagePath: paths[0] || '', imagePaths: paths, productId, imageStorageMode: storageMode };
+      return { imageUrls: normalized, imageUrl: state.currentImageUrl || '', imagePath: paths[0] || '', imagePaths: paths, productId, imageStorageMode: storageMode };
     }
     async function deleteStoragePaths(paths = []) {
       const uniquePaths = [...new Set((paths || []).filter(Boolean))];
@@ -2158,15 +2238,20 @@
       const saveBtn = $('#saveProductBtn');
       try {
         setActionButtonState(saveBtn, 'loading', { thinking: 'שומר מוצר...' });
-        const upload = await uploadProductImages(state.newImageFiles || []);
-        const productId = state.editId || upload.productId || crypto.randomUUID();
+        const productId = state.editId || crypto.randomUUID();
+        const mainUpload = await uploadProductImage(state.mainImageFile, productId);
+        const upload = await uploadProductImages(state.newImageFiles || [], productId);
         const existingProduct = state.editId ? state.products.find((item) => item.id === state.editId) : null;
+        const resolvedMainImage = mainUpload.imageUrl || state.currentImageUrl || '';
+        const resolvedExtraImages = normalizeProductImages((upload.imageUrls || []).filter((url) => url && url !== resolvedMainImage));
+        const resolvedImageUrls = normalizeProductImages([resolvedMainImage, ...resolvedExtraImages]);
         const payload = {
           uid: state.currentUser.uid,
           productId,
           ownerRef: `users/${state.currentUser.uid}`,
           name: $('#productName').value.trim(),
           price: Number($('#productPrice').value || 0),
+          currency: $('#productCurrency').value || 'ILS',
           saleActive: !!$('#productSaleActive').checked,
           salePrice: Number($('#productSalePrice').value || 0),
           description: $('#productDesc').value.trim(),
@@ -2175,10 +2260,10 @@
           colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
           freeText: existingProduct ? (existingProduct.freeText || '') : '',
           font: existingProduct ? (existingProduct.font || 'Inter') : 'Inter',
-          imageUrl: upload.imageUrl || state.currentImageUrl || '',
-          imageUrls: upload.imageUrls || [],
-          imagePath: upload.imagePath || '',
-          imagePaths: upload.imagePaths || [],
+          imageUrl: resolvedMainImage,
+          imageUrls: resolvedImageUrls,
+          imagePath: mainUpload.imagePath || upload.imagePath || '',
+          imagePaths: [mainUpload.imagePath, ...(upload.imagePaths || [])].filter(Boolean),
           imageStorageMode: 'storage',
           addons: [],
           template: 'classic',
@@ -2202,7 +2287,7 @@
         if (state.editId) {
           delete payload.createdAt;
           await updateDoc(productDoc(state.editId), payload);
-          await deleteStoragePaths(state.removedImagePaths);
+          await deleteStoragePaths([...state.removedImagePaths, state.removedMainImagePath]);
           showToast('המוצר עודכן');
           await syncPublicProduct({ ...payload, id: state.editId });
         } else {
@@ -2242,6 +2327,7 @@
       items.forEach((item) => {
         const resolvedTheme = inheritThemeForItem(item);
         const pricing = getProductPricing(item);
+        const currencyCode = item.currency || 'ILS';
         const chips = [...(item.tags || []).slice(0, 3).map(tag => typeof tag === 'string' ? tag : tag.label), ...((item.variants || []).slice(0, 2).map(group => `קטגוריה: ${group.name}`)), (resolvedTheme.animationStyle && resolvedTheme.animationStyle !== 'none') ? `אנימציה: ${resolvedTheme.animationStyle}` : 'תצוגה יציבה'];
         const card = document.createElement('article');
         card.className = 'product-card';
@@ -2256,8 +2342,8 @@
               <div class="status-pill ${productIsActive(item) ? 'active' : 'inactive'}"><span class="status-dot"></span>${productIsActive(item) ? 'פעיל' : 'מושבת'}</div>
               <div class="price-tag" style="background:${hexToRgba(item.accentColor || state.theme.primaryColor, .14)}; color:${esc(item.accentColor || state.theme.primaryColor)};">
                 <div class="price-stack">
-                  <span class="price-regular ${pricing.saleActive ? 'striked' : ''}">₪${pricing.regular.toLocaleString()}</span>
-                  ${pricing.saleActive ? `<span class="price-sale">₪${pricing.sale.toLocaleString()}</span><span class="discount-pill">-${pricing.discountPct}%</span>` : ''}
+                  <span class="price-regular ${pricing.saleActive ? 'striked' : ''}">${formatPrice(pricing.regular, currencyCode)}</span>
+                  ${pricing.saleActive ? `<span class="price-sale">${formatPrice(pricing.sale, currencyCode)}</span><span class="discount-pill">-${pricing.discountPct}%</span>` : ''}
                 </div>
               </div>
             </div>
@@ -2337,9 +2423,9 @@
     async function insertDemoProducts() {
       if (!state.currentUser) return;
       const samples = [
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מארז פרימיום', price: 129, description: 'תבנית קלאסית עם מבצע וצבעי מותג.', tags: [{ label:'חדש', color:'#4f46e5', shape:'pill' }, { label:'פופולרי', color:'#0ea5e9', shape:'square' }], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', active:true, status:'active', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, description: 'מוצר עם כרטיס אחיד לטאבלט ודסקטופ.', tags: [{ label:'קלאסי', color:'#8b5cf6', shape:'triangle' }], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'הכי נמכר', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'classic', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', active:true, status:'active', useSiteTheme:'custom', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, description: 'כרטיס אחיד ללא כפתור סל למי שרוצה רק קטלוג.', tags: [{ label:'מינימלי', color:'#f43f5e', shape:'burst' }], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'classic', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', active:false, status:'inactive', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מארז פרימיום', price: 129, currency: 'ILS', description: 'תבנית קלאסית עם מבצע וצבעי מותג.', tags: [{ label:'חדש', color:'#4f46e5', shape:'pill' }, { label:'פופולרי', color:'#0ea5e9', shape:'square' }], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', active:true, status:'active', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, currency: 'USD', description: 'מוצר עם כרטיס אחיד לטאבלט ודסקטופ.', tags: [{ label:'קלאסי', color:'#8b5cf6', shape:'triangle' }], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'הכי נמכר', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'classic', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', active:true, status:'active', useSiteTheme:'custom', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, currency: 'EUR', description: 'כרטיס אחיד ללא כפתור סל למי שרוצה רק קטלוג.', tags: [{ label:'מינימלי', color:'#f43f5e', shape:'burst' }], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'classic', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', active:false, status:'inactive', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
       ];
       for (const sample of samples) await setDoc(productDoc(sample.productId), sample, { merge: true });
       showToast('נוספו מוצרי דוגמה');
@@ -2378,6 +2464,7 @@
         ['productId', 'string', 'לא חובה ברוב האתרים. להעתיק רק אם אתם מסנכרנים מערכת חיצונית או צריכים מזהה מקור.'],
         ['name', 'string', 'להעתיק תמיד כשמציגים שם מוצר ללקוח.'],
         ['price', 'number', 'להעתיק תמיד אם מציגים מחיר בכרטיס, בסל, או בסיכום הזמנה.'],
+        ['currency', 'string', 'להעתיק תמיד יחד עם price כדי להציג את המטבע הנכון (למשל ILS, USD, EUR).'],
         ['saleActive', 'boolean', 'לא חובה. מסמן אם למוצר יש מחיר מבצע פעיל.'],
         ['salePrice', 'number', 'לא חובה. המחיר המוזל להצגה כשמבצע פעיל.'],
         ['description', 'string', 'להעתיק רק אם רוצים טקסט שיווקי או תיאור מלא של המוצר.'],
@@ -2465,6 +2552,7 @@
         ownerId: item.uid || '',
         name: item.name || '',
         price: Number(item.price || 0),
+        currency: item.currency || 'ILS',
         saleActive: !!item.saleActive,
         salePrice: Number(item.salePrice || 0),
         description: item.description || '',
@@ -2643,7 +2731,22 @@
         renderImageManager();
         renderModalProductPreview();
       });
+      $('#productMainImage').addEventListener('change', (e) => {
+        const file = (e.target.files || [])[0];
+        if (!file) return;
+        if (state.currentImageUrl) {
+          const oldPath = extractStoragePathFromUrl(state.currentImageUrl);
+          if (oldPath) state.removedMainImagePath = oldPath;
+        }
+        if (state.mainPreviewObjectUrl) URL.revokeObjectURL(state.mainPreviewObjectUrl);
+        state.mainImageFile = file;
+        state.mainPreviewObjectUrl = URL.createObjectURL(file);
+        state.currentImageUrl = '';
+        renderMainImageManager();
+        renderModalProductPreview();
+      });
       ['productName','productPrice','productSalePrice'].forEach((id) => $('#'+id).addEventListener('input', renderModalProductPreview));
+      $('#productCurrency').addEventListener('change', renderModalProductPreview);
       $('#productSaleActiveToggle').addEventListener('click', () => {
         const saleInput = $('#productSaleActive');
         saleInput.checked = !saleInput.checked;
@@ -2821,6 +2924,7 @@
         const data = snap.data();
         const item = {
           ...data,
+          currency: data.currency || 'ILS',
           accentColor: data.theme?.primaryColor || '#60a5fa',
           cardBackground: data.theme?.cardBackground || '#ffffff',
           textColor: data.theme?.textColor || '#111827',
