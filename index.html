@@ -758,7 +758,7 @@
 
 
     .modal {
-      position: fixed; inset: 0; display:none; align-items:center; justify-content:center; padding:20px; z-index:70;
+      position: fixed; inset: 0; display:none; align-items:center; justify-content:center; padding:20px; z-index:110;
       background: rgba(148,163,184,.35); backdrop-filter: blur(12px);
     }
     .modal.open { display:flex; }
@@ -2255,6 +2255,8 @@
     }
 
     function openModal(item = null) {
+      $('#sidebar').classList.remove('open');
+      $('#sidebarBackdrop')?.classList.remove('open');
       state.editId = item?.id || null;
       state.currentImageUrl = item?.imageUrl || '';
       state.currentImageUrls = productAdditionalImageUrls(item);
@@ -2301,6 +2303,10 @@
       renderImageManager();
       renderModalProductPreview();
       $('#productModal').classList.add('open');
+    }
+    function openAddProductModal() {
+      goToView('products');
+      openModal();
     }
     function closeModal() {
       $('#productModal').classList.remove('open');
@@ -2769,8 +2775,8 @@
       $('#loginTab').addEventListener('click', () => setAuthMode('login'));
       $('#registerTab').addEventListener('click', () => setAuthMode('register'));
       $('#logoutBtn').addEventListener('click', async () => { await signOut(auth); });
-      $('#openAddModalPanel').addEventListener('click', () => openModal());
-      $('#quickAddBtn').addEventListener('click', () => openModal());
+      $('#openAddModalPanel').addEventListener('click', openAddProductModal);
+      $('#quickAddBtn').addEventListener('click', openAddProductModal);
       $('#closeModalBtn').addEventListener('click', closeModal);
       $('#cancelModalBtn').addEventListener('click', closeModal);
       $('#addVariantBtn').addEventListener('click', () => addVariantGroup());
