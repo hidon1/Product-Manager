@@ -362,8 +362,7 @@
       padding: 9px 10px;
       border-radius: 12px;
     }
-    .designer-scope-bar #designerProductField,
-    .designer-scope-bar #designerCategoryField {
+    .designer-scope-bar #designerProductField {
       margin: 0;
     }
     .designer-groups { display:grid; gap:10px; margin-top:10px; }
@@ -630,8 +629,7 @@
     .product-form-grid .field-main-image,
     .product-form-grid .field-image,
     .product-form-grid .field-button-shape,
-    .product-form-grid .field-button-text,
-    .product-form-grid .field-category-manager { max-width: 360px; }
+    .product-form-grid .field-button-text { max-width: 360px; }
     .product-form-grid .field-price { max-width: 200px; }
     .product-form-grid .field-sale-price { max-width: 200px; }
     .sale-toggle-wrap { display:flex; align-items:center; gap:10px; min-height: 50px; padding-top: 24px; }
@@ -669,44 +667,6 @@
     }
     .sale-switch.active::after { transform: translateX(-26px); }
     .sale-switch-label { min-width: 96px; }
-    .category-manager {
-      display: grid;
-      gap: 8px;
-      margin-top: 6px;
-    }
-    .category-manager-row {
-      display: flex;
-      gap: 8px;
-      align-items: center;
-    }
-    .category-manager-list {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 6px;
-      min-height: 34px;
-    }
-    .category-token {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 6px 10px;
-      border-radius: 999px;
-      border: 1px solid var(--line);
-      background: rgba(79,70,229,.08);
-      font-size: .83rem;
-    }
-    .category-token button {
-      border: 0;
-      width: 20px;
-      height: 20px;
-      border-radius: 999px;
-      cursor: pointer;
-      background: rgba(220,38,38,.16);
-      color: #991b1b;
-      font-weight: 700;
-      line-height: 1;
-      padding: 0;
-    }
     .product-form-grid .field-button-shape {
       max-width: 170px;
       align-self: start;
@@ -1052,16 +1012,11 @@
                     <select class="select" id="designerApplyMode">
                       <option value="all" data-i18n="designer.applyAll">על כל הכרטיסיות</option>
                       <option value="selected" data-i18n="designer.applySelected">רק על הכרטיסייה הנבחרת</option>
-                      <option value="category" data-i18n="designer.applyCategory">רק על קטגוריה מסוימת</option>
                     </select>
                   </div>
                   <div class="field hidden" id="designerProductField">
                     <label for="designerProductSelect" data-i18n="designer.productSelectLabel">בחר כרטיסייה</label>
                     <select class="select" id="designerProductSelect"></select>
-                  </div>
-                  <div class="field hidden" id="designerCategoryField">
-                    <label for="designerCategorySelect" data-i18n="designer.categorySelectLabel">בחר קטגוריה</label>
-                    <select class="select" id="designerCategorySelect"></select>
                   </div>
                 </div>
                 <div class="switch-row">
@@ -1254,7 +1209,6 @@
           <div class="field field-sale-active"><label for="productSaleActiveToggle">מחיר מבצע</label><div class="sale-toggle-wrap"><input id="productSaleActive" class="sale-switch-input" type="checkbox" /><button class="sale-switch" id="productSaleActiveToggle" type="button" role="switch" aria-checked="false" aria-label="הפעלת מחיר מבצע"></button><span class="mini sale-switch-label" id="productSaleStateText">לא פעיל</span></div></div>
           <div class="field field-sale-price"><label for="productSalePrice">מחיר מבצע</label><input class="input" id="productSalePrice" type="number" min="0" step="0.01" placeholder="לדוגמה 99" disabled /></div>
           <div class="field field-category"><label for="productCategory">קטגוריית מוצר</label><select class="select" id="productCategory"></select></div>
-          <div class="field field-category-manager"><label for="newCategoryInput">ניהול קטגוריות מוצר</label><div class="category-manager"><div class="category-manager-row"><input class="input" id="newCategoryInput" placeholder="כתבו שם קטגוריה חדשה" /><button class="btn btn-outline" type="button" id="addCategoryBtn">הוסף קטגוריה</button></div><div class="category-manager-list" id="categoryManagerList"></div></div></div>
           <div class="field full"><label for="productDesc" data-i18n="form.desc">תיאור</label><textarea class="textarea" id="productDesc"></textarea></div>
           <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span>צבע טקסט</span><input class="input" id="productTagTextColor" type="color" value="#4f46e5" /><div class="color-swatch-grid" id="tagTextSwatches"></div></div><div class="tag-color-field"><span>צבע תגית</span><input class="input" id="productTagBackgroundColor" type="color" value="#dbeafe" /><div class="color-swatch-grid" id="tagBackgroundSwatches"></div><div class="color-swatch-title">או גרדיאנט</div><div class="color-swatch-grid" id="tagBackgroundGradientSwatches"></div></div><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
           <div class="field field-main-image"><label for="productMainImage">תמונה ראשית</label><input class="input" id="productMainImage" type="file" accept="image/*" /><div id="mainImageManager" class="image-manager"></div></div>
@@ -1353,16 +1307,19 @@
       'linear-gradient(135deg, #cffafe 0%, #ddd6fe 100%)'
     ];
     const COLOR_SWATCH_PRESETS = ['#0f172a','#111827','#374151','#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#f8fafc','#e2e8f0','#cbd5e1','#fef3c7','#fee2e2'];
-    const DEFAULT_PRODUCT_CATEGORY = 'uncategorized';
-    const DEFAULT_PRODUCT_CATEGORIES = [
-      { id: DEFAULT_PRODUCT_CATEGORY, label: 'ללא קטגוריה' }
+    const PRODUCT_CATEGORY_OPTIONS = [
+      { id: 'special', label: 'מוצרים מיוחדים' },
+      { id: 'new', label: 'מוצרים חדשים' },
+      { id: 'popular', label: 'מוצרים פופולריים' },
+      { id: 'sales', label: 'מבצעים' },
+      { id: 'general', label: 'קטגוריה כללית' }
     ];
+    const DEFAULT_PRODUCT_CATEGORY = 'general';
 
     const DEFAULT_THEME = {
       template: 'classic',
       applyMode: 'all',
       selectedProductId: '',
-      selectedCategoryId: '',
       embedTitle: 'המוצרים שלנו',
       embedColumns: 3,
       showCart: true,
@@ -1388,8 +1345,7 @@
       cardTone: 'solid',
       cardShadow: 'soft',
       animationDuration: 0.8,
-      animationDelay: 0.1,
-      productCategories: DEFAULT_PRODUCT_CATEGORIES
+      animationDelay: 0.1
     };
 
 
@@ -1431,7 +1387,7 @@
         'products.title': 'המוצרים שלי','products.desc': 'חיפוש, סינון, עריכה, שכפול ומחיקה — עם סגנון כרטיס אחיד וגמיש.','products.add': 'הוסף מוצר','products.refresh': 'רענן','products.search': 'חפש לפי שם, תיאור או תג','products.empty': 'עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.','products.desktopColumns': 'כמות כרטיסים בשורה במחשב','products.mobileColumns': 'כמות כרטיסים בשורה בטלפון',
         'filters.all': 'כל המוצרים','filters.active': 'רק פעילים','filters.inactive': 'מושבתים','filters.promo': 'עם מבצע','filters.regular': 'ללא מבצע','sort.newest': 'החדש ביותר','sort.name': 'לפי שם','sort.priceAsc': 'מחיר עולה','sort.priceDesc': 'מחיר יורד',
         'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'יש שתי דרכי חיבור: iFrame שמציג HTML מלא עם העיצוב, או API לנתונים בלבד (JSON).','embed.copyId': 'העתק API בלי עיצוב','embed.copyCode': 'העתק קוד iFrame','embed.iframeTitle': '1. iFrame — HTML מלא מוכן לתצוגה','embed.iframeDesc': 'השתמשו בקוד הבא כדי להטמיע iFrame שמציג את כל ה-HTML והעיצוב מתוך המערכת שלכם, כולל תמונות ומבנה מלא.','embed.apiTitle': '2. API לנתונים בלבד (JSON)','embed.apiDesc': 'השתמשו בכתובת הזו כדי לקבל JSON נקי ולבנות תצוגה עצמאית באתר שלכם.','embed.devGuideTitle': 'הוראות למפתחים','embed.devGuideDesc': 'כל ההסברים כאן בעברית, אבל שמות השדות והקוד נשארים באנגלית כדי שתוכלו להעתיק אותם כמו שהם.','embed.copyFields': 'העתק את כל שמות השדות','embed.fieldLabel': 'שם שדה','embed.fieldType': 'סוג','embed.fieldMeaning': 'מתי צריך להעתיק',
-        'designer.title': 'עיצוב האתר ותצוגת הכרטיס','designer.desc': '','designer.styleTitle': 'עיצוב כרטיס','designer.applyModeLabel': 'איפה להחיל את העיצוב','designer.applyAll': 'על כל הכרטיסיות','designer.applySelected': 'רק על הכרטיסייה הנבחרת','designer.applyCategory': 'רק על קטגוריה מסוימת','designer.productSelectLabel': 'בחר כרטיסייה','designer.categorySelectLabel': 'בחר קטגוריה','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardTone': 'סוג רקע לכרטיס','designer.cardShadow': 'עומק צל','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
+        'designer.title': 'עיצוב האתר ותצוגת הכרטיס','designer.desc': '','designer.styleTitle': 'עיצוב כרטיס','designer.applyModeLabel': 'איפה להחיל את העיצוב','designer.applyAll': 'על כל הכרטיסיות','designer.applySelected': 'רק על הכרטיסייה הנבחרת','designer.productSelectLabel': 'בחר כרטיסייה','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardTone': 'סוג רקע לכרטיס','designer.cardShadow': 'עומק צל','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
         'template.classic': 'כרטיס אחיד',
         'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.platformName': 'שם הפלטפורמה','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה מופיעים כבאנר קטן עם דגלים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
         'ideas.title': 'מצב המערכת','ideas.1': '• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.','ideas.2': '• כל תמונה נשמרת ב-Firebase Storage עם שיוך למוצר ותמיכה בכמה תמונות לכל מוצר.','ideas.3': '• קוד ההטמעה משתמש במזהה החשבון בלבד.','ideas.4': '• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.','ideas.5': '• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.','ideas.6': '• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.',
@@ -1447,47 +1403,21 @@
     function dict() { return translations[state.lang] || translations.he; }
     function text(key) { return dict()[key] || translations.he[key] || key; }
     function esc(value) { return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
-    function normalizeCategoryId(value = '') {
-      return String(value || '').trim().toLowerCase()
-        .replace(/[^\p{L}\p{N}\s-_]/gu, '')
-        .replace(/\s+/g, '-')
-        .replace(/-+/g, '-')
-        .replace(/^-|-$/g, '');
-    }
-    function ensureCategoryDefaults(categories = []) {
-      const sanitized = [];
-      const seen = new Set();
-      (categories || []).forEach((item) => {
-        const label = String(item?.label || '').trim();
-        const id = normalizeCategoryId(item?.id || label);
-        if (!label || !id || seen.has(id)) return;
-        seen.add(id);
-        sanitized.push({ id, label });
-      });
-      if (!seen.has(DEFAULT_PRODUCT_CATEGORY)) sanitized.unshift({ id: DEFAULT_PRODUCT_CATEGORY, label: 'ללא קטגוריה' });
-      return sanitized;
-    }
-    function getProductCategories() {
-      return ensureCategoryDefaults(state.theme?.productCategories || DEFAULT_PRODUCT_CATEGORIES);
-    }
     function getProductCategoryId(rawCategory) {
-      const available = getProductCategories();
       const fallback = DEFAULT_PRODUCT_CATEGORY;
-      const selected = normalizeCategoryId(rawCategory);
+      const selected = String(rawCategory || '').trim();
       if (!selected) return fallback;
-      return available.some((option) => option.id === selected) ? selected : fallback;
+      return PRODUCT_CATEGORY_OPTIONS.some((option) => option.id === selected) ? selected : fallback;
     }
     function getProductCategoryLabel(rawCategory) {
       const categoryId = getProductCategoryId(rawCategory);
-      const categories = getProductCategories();
-      return categories.find((option) => option.id === categoryId)?.label || categories.find((option) => option.id === DEFAULT_PRODUCT_CATEGORY)?.label || 'ללא קטגוריה';
+      return PRODUCT_CATEGORY_OPTIONS.find((option) => option.id === categoryId)?.label || PRODUCT_CATEGORY_OPTIONS.find((option) => option.id === DEFAULT_PRODUCT_CATEGORY)?.label || 'קטגוריה כללית';
     }
     function renderProductCategoryOptions(selectedCategory = DEFAULT_PRODUCT_CATEGORY) {
       const select = $('#productCategory');
       if (!select) return;
       const categoryId = getProductCategoryId(selectedCategory);
-      const categories = getProductCategories();
-      select.innerHTML = categories.map((option) => `<option value="${esc(option.id)}">${esc(option.label)}</option>`).join('');
+      select.innerHTML = PRODUCT_CATEGORY_OPTIONS.map((option) => `<option value="${esc(option.id)}">${esc(option.label)}</option>`).join('');
       select.value = categoryId;
     }
     function showToast(message, isError = false) {
@@ -1694,7 +1624,6 @@
     }
 
     function applyThemeToPreview() {
-      state.theme.productCategories = ensureCategoryDefaults(state.theme.productCategories || DEFAULT_PRODUCT_CATEGORIES);
       document.documentElement.style.setProperty('--preview-bg', `linear-gradient(135deg, ${state.theme.primaryColor}, ${shadeColor(state.theme.primaryColor, -18)})`);
       document.documentElement.style.setProperty('--preview-card', state.theme.cardBackground);
       document.documentElement.style.setProperty('--preview-text', state.theme.textColor);
@@ -1735,9 +1664,6 @@
       renderGradientSwatches();
       toggleDesignerScopeFields();
       syncDesignerProductOptions();
-      syncDesignerCategoryOptions();
-      renderCategoryManager();
-      renderProductCategoryOptions($('#productCategory')?.value || DEFAULT_PRODUCT_CATEGORY);
       renderPreviewProduct();
       renderModalProductPreview();
       renderProducts();
@@ -2145,66 +2071,14 @@
         select.value = state.products[0].id;
       }
     }
-    function syncDesignerCategoryOptions() {
-      const select = $('#designerCategorySelect');
-      if (!select) return;
-      const categories = getProductCategories().filter((item) => item.id !== DEFAULT_PRODUCT_CATEGORY);
-      const current = getProductCategoryId(state.theme.selectedCategoryId || DEFAULT_PRODUCT_CATEGORY);
-      select.innerHTML = categories.length
-        ? categories.map((item) => `<option value="${esc(item.id)}">${esc(item.label)}</option>`).join('')
-        : '<option value="">אין עדיין קטגוריות</option>';
-      if (categories.some((item) => item.id === current)) {
-        select.value = current;
-        state.theme.selectedCategoryId = current;
-      } else if (categories[0]) {
-        select.value = categories[0].id;
-        state.theme.selectedCategoryId = categories[0].id;
-      } else {
-        state.theme.selectedCategoryId = '';
-      }
-    }
-    function renderCategoryManager() {
-      const list = $('#categoryManagerList');
-      if (!list) return;
-      const categories = getProductCategories();
-      list.innerHTML = categories.length
-        ? categories.map((item) => {
-          const isDefault = item.id === DEFAULT_PRODUCT_CATEGORY;
-          return `<div class="category-token"><span>${esc(item.label)}</span>${isDefault ? '' : `<button type="button" data-remove-category="${esc(item.id)}" aria-label="מחיקת קטגוריה">×</button>`}</div>`;
-        }).join('')
-        : '';
-      list.querySelectorAll('[data-remove-category]').forEach((btn) => btn.addEventListener('click', async () => {
-        const idToRemove = btn.dataset.removeCategory;
-        const nextCategories = getProductCategories().filter((item) => item.id !== idToRemove);
-        state.theme.productCategories = ensureCategoryDefaults(nextCategories);
-        if ($('#productCategory').value === idToRemove) {
-          $('#productCategory').value = DEFAULT_PRODUCT_CATEGORY;
-        }
-        if (state.theme.selectedCategoryId === idToRemove) state.theme.selectedCategoryId = '';
-        renderProductCategoryOptions($('#productCategory').value || DEFAULT_PRODUCT_CATEGORY);
-        syncDesignerCategoryOptions();
-        renderCategoryManager();
-        applyThemeToPreview();
-        await saveThemeToFirestore();
-      }));
-    }
 
     function toggleDesignerScopeFields() {
-      const mode = state.theme.applyMode || 'all';
-      $('#designerProductField')?.classList.toggle('hidden', mode !== 'selected');
-      $('#designerCategoryField')?.classList.toggle('hidden', mode !== 'category');
+      $('#designerProductField')?.classList.toggle('hidden', (state.theme.applyMode || 'all') !== 'selected');
     }
 
     function getDesignerTargetProduct() {
-      const mode = state.theme.applyMode || 'all';
-      if (mode === 'selected') {
-        return state.products.find((item) => item.id === state.theme.selectedProductId) || state.products[0] || null;
-      }
-      if (mode === 'category') {
-        const selectedCategoryId = getProductCategoryId(state.theme.selectedCategoryId || DEFAULT_PRODUCT_CATEGORY);
-        return state.products.find((item) => getProductCategoryId(item.categoryId || item.category) === selectedCategoryId) || null;
-      }
-      return null;
+      if ((state.theme.applyMode || 'all') !== 'selected') return null;
+      return state.products.find((item) => item.id === state.theme.selectedProductId) || state.products[0] || null;
     }
 
     function getDesignerPreviewProduct() {
@@ -2640,9 +2514,9 @@
     async function insertDemoProducts() {
       if (!state.currentUser) return;
       const samples = [
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מארז פרימיום', price: 129, currency: 'ILS', description: 'תבנית קלאסית עם מבצע וצבעי מותג.', categoryId: DEFAULT_PRODUCT_CATEGORY, categoryLabel: getProductCategoryLabel(DEFAULT_PRODUCT_CATEGORY), tags: [{ label:'חדש', color:'#4f46e5', shape:'pill' }, { label:'פופולרי', color:'#0ea5e9', shape:'square' }], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', active:true, status:'active', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, currency: 'USD', description: 'מוצר עם כרטיס אחיד לטאבלט ודסקטופ.', categoryId: DEFAULT_PRODUCT_CATEGORY, categoryLabel: getProductCategoryLabel(DEFAULT_PRODUCT_CATEGORY), tags: [{ label:'קלאסי', color:'#8b5cf6', shape:'triangle' }], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'הכי נמכר', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'classic', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', active:true, status:'active', useSiteTheme:'custom', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, currency: 'EUR', description: 'כרטיס אחיד ללא כפתור סל למי שרוצה רק קטלוג.', categoryId: DEFAULT_PRODUCT_CATEGORY, categoryLabel: getProductCategoryLabel(DEFAULT_PRODUCT_CATEGORY), tags: [{ label:'מינימלי', color:'#f43f5e', shape:'burst' }], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'classic', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', active:false, status:'inactive', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מארז פרימיום', price: 129, currency: 'ILS', description: 'תבנית קלאסית עם מבצע וצבעי מותג.', categoryId: 'special', categoryLabel: getProductCategoryLabel('special'), tags: [{ label:'חדש', color:'#4f46e5', shape:'pill' }, { label:'פופולרי', color:'#0ea5e9', shape:'square' }], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', active:true, status:'active', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, currency: 'USD', description: 'מוצר עם כרטיס אחיד לטאבלט ודסקטופ.', categoryId: 'popular', categoryLabel: getProductCategoryLabel('popular'), tags: [{ label:'קלאסי', color:'#8b5cf6', shape:'triangle' }], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'הכי נמכר', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'classic', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', active:true, status:'active', useSiteTheme:'custom', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, currency: 'EUR', description: 'כרטיס אחיד ללא כפתור סל למי שרוצה רק קטלוג.', categoryId: 'general', categoryLabel: getProductCategoryLabel('general'), tags: [{ label:'מינימלי', color:'#f43f5e', shape:'burst' }], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'classic', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', active:false, status:'inactive', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
       ];
       for (const sample of samples) await setDoc(productDoc(sample.productId), sample, { merge: true });
       showToast('נוספו מוצרי דוגמה');
@@ -2905,28 +2779,6 @@
       }));
       $('#designerApplyMode').addEventListener('change', () => { state.theme.applyMode = $('#designerApplyMode').value; toggleDesignerScopeFields(); renderPreviewProduct(); });
       $('#designerProductSelect').addEventListener('change', () => { state.theme.selectedProductId = $('#designerProductSelect').value; renderPreviewProduct(); });
-      $('#designerCategorySelect').addEventListener('change', () => { state.theme.selectedCategoryId = $('#designerCategorySelect').value; renderPreviewProduct(); });
-      $('#addCategoryBtn').addEventListener('click', async () => {
-        const input = $('#newCategoryInput');
-        const label = input.value.trim();
-        if (!label) return;
-        const id = normalizeCategoryId(label);
-        if (!id) {
-          showToast('לא ניתן ליצור קטגוריה מהטקסט הזה', true);
-          return;
-        }
-        const categories = getProductCategories();
-        if (categories.some((item) => item.id === id)) {
-          showToast('הקטגוריה כבר קיימת', true);
-          return;
-        }
-        state.theme.productCategories = ensureCategoryDefaults([...categories, { id, label }]);
-        renderProductCategoryOptions(id);
-        syncDesignerCategoryOptions();
-        renderCategoryManager();
-        input.value = '';
-        await saveThemeToFirestore();
-      });
       $('#saveThemeBtn').addEventListener('click', async () => {
         const themeBtn = $('#saveThemeBtn');
         try {
@@ -2958,39 +2810,6 @@
                 updatedAt: serverTimestamp()
               });
               showToast('העיצוב נשמר לכרטיסייה שנבחרה');
-              setActionButtonState(themeBtn, 'success', { success: 'העיצוב נשמר' });
-              await new Promise((resolve) => setTimeout(resolve, 900));
-              return;
-            }
-          }
-          if (state.theme.applyMode === 'category' && state.theme.selectedCategoryId) {
-            const categoryId = getProductCategoryId(state.theme.selectedCategoryId);
-            const matchingProducts = state.products.filter((item) => getProductCategoryId(item.categoryId || item.category) === categoryId);
-            if (matchingProducts.length) {
-              await Promise.all(matchingProducts.map((item) => updateDoc(productDoc(item.id), {
-                useSiteTheme: 'custom',
-                template: 'classic',
-                showCart: state.theme.showCart ? 'show' : 'hide',
-                accentColor: state.theme.primaryColor,
-                cardBackground: state.theme.cardBackground,
-                textColor: state.theme.textColor,
-                buttonColor: state.theme.buttonColor,
-                cardTone: state.theme.cardTone,
-                cardGradient: state.theme.cardGradient,
-                cardShadow: state.theme.cardShadow,
-                cardPadding: state.theme.cardPadding,
-                borderRadius: state.theme.borderRadius,
-                imageHeight: state.theme.imageHeight,
-                textAlign: state.theme.textAlign,
-                cartButtonText: state.theme.cartButtonText,
-                animationStyle: state.theme.animationStyle,
-                imageSwitchMode: state.theme.imageSwitchMode,
-                imageSwitchSeconds: state.theme.imageSwitchSeconds,
-                animationDuration: state.theme.animationDuration,
-                animationDelay: state.theme.animationDelay,
-                updatedAt: serverTimestamp()
-              })));
-              showToast('העיצוב נשמר לכל הקטגוריה שנבחרה');
               setActionButtonState(themeBtn, 'success', { success: 'העיצוב נשמר' });
               await new Promise((resolve) => setTimeout(resolve, 900));
               return;
