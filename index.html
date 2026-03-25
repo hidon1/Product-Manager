@@ -1779,10 +1779,15 @@
     function openExternalColorPicker(input) {
       if (!input?.id) return;
       state.activeColorInputId = input.id;
-      window.open('color.html', 'mozarella-color-picker', 'width=1080,height=840,noopener=yes,resizable=yes');
+      const popupUrl = new URL('color.html', window.location.href);
+      popupUrl.searchParams.set('target', input.id);
+      const gradientValue = (input.dataset.gradientValue || '').trim();
+      const selectedValue = gradientValue || (input.value || '').trim();
+      if (selectedValue) popupUrl.searchParams.set('value', selectedValue);
+      window.open(popupUrl.toString(), 'mozarella-color-picker', 'width=1080,height=840,noopener=yes,resizable=yes');
     }
-    function applySelectedExternalColor(value = '') {
-      const targetId = state.activeColorInputId;
+    function applySelectedExternalColor(value = '', targetOverride = '') {
+      const targetId = targetOverride || state.activeColorInputId;
       if (!targetId) return;
       const input = $('#'+targetId);
       if (!input) return;
@@ -2846,7 +2851,7 @@
       });
       window.addEventListener('message', (event) => {
         if (event?.data?.type !== 'color-selected') return;
-        applySelectedExternalColor(event.data.value || '');
+        applySelectedExternalColor(event.data.value || '', event.data.targetInputId || '');
       });
       $('#closeModalBtn').addEventListener('click', closeModal);
       $('#cancelModalBtn').addEventListener('click', closeModal);
