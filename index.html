@@ -1080,11 +1080,16 @@
                     <select class="select" id="designerApplyMode">
                       <option value="all" data-i18n="designer.applyAll">על כל הכרטיסיות</option>
                       <option value="selected" data-i18n="designer.applySelected">רק על הכרטיסייה הנבחרת</option>
+                      <option value="category" data-i18n="designer.applyCategory">על קטגוריה שלמה</option>
                     </select>
                   </div>
                   <div class="field hidden" id="designerProductField">
                     <label for="designerProductSelect" data-i18n="designer.productSelectLabel">בחר כרטיסייה</label>
                     <select class="select" id="designerProductSelect"></select>
+                  </div>
+                  <div class="field hidden" id="designerCategoryField">
+                    <label for="designerCategorySelect" data-i18n="designer.categorySelectLabel">בחר קטגוריה</label>
+                    <select class="select" id="designerCategorySelect"></select>
                   </div>
                 </div>
                 <div class="switch-row">
@@ -1119,11 +1124,10 @@
                       <div class="field"><label for="themeImageHeight" data-i18n="designer.imageHeight">גובה תמונה</label><input class="input" id="themeImageHeight" type="range" min="160" max="320" step="10" value="220" /><div class="slider-value" id="themeImageHeightValue">220px</div></div>
                     </div>
                   </div>
-                  <div class="designer-group">
+                    <div class="designer-group">
                     <h5>פרמטרים נוספים</h5>
                     <div class="modal-grid">
                       <div class="field"><label for="themeTextAlign" data-i18n="designer.textAlign">יישור טקסט</label><select class="select" id="themeTextAlign"><option value="right">ימין</option><option value="center">מרכז</option><option value="left">שמאל</option></select></div>
-                      <div class="field"><label for="themeCartButtonText">טקסט אישור</label><input class="input" id="themeCartButtonText" value="הוספה לסל" /></div>
                       <div class="field"><label for="desktopColumns" data-i18n="products.desktopColumns">כמות כרטיסים בשורה במחשב</label><select class="select" id="desktopColumns"><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option></select></div>
                       <div class="field"><label for="mobileColumns" data-i18n="products.mobileColumns">כמות כרטיסים בשורה בטלפון</label><select class="select" id="mobileColumns"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
                     </div>
@@ -1394,6 +1398,7 @@
       template: 'classic',
       applyMode: 'all',
       selectedProductId: '',
+      selectedCategoryId: '',
       embedTitle: 'המוצרים שלנו',
       embedColumns: 3,
       showCart: true,
@@ -1463,7 +1468,7 @@
         'products.title': 'המוצרים שלי','products.desc': 'חיפוש, סינון, עריכה, שכפול ומחיקה — עם סגנון כרטיס אחיד וגמיש.','products.add': 'הוסף מוצר','products.refresh': 'רענן','products.search': 'חפש לפי שם, תיאור או תג','products.empty': 'עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.','products.desktopColumns': 'כמות כרטיסים בשורה במחשב','products.mobileColumns': 'כמות כרטיסים בשורה בטלפון',
         'filters.all': 'כל המוצרים','filters.active': 'רק פעילים','filters.inactive': 'מושבתים','filters.promo': 'עם מבצע','filters.regular': 'ללא מבצע','sort.newest': 'החדש ביותר','sort.name': 'לפי שם','sort.priceAsc': 'מחיר עולה','sort.priceDesc': 'מחיר יורד',
         'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'יש שתי דרכי חיבור: iFrame שמציג HTML מלא עם העיצוב, או API לנתונים בלבד (JSON).','embed.copyId': 'העתק API בלי עיצוב','embed.copyCode': 'העתק קוד iFrame','embed.iframeTitle': '1. iFrame — HTML מלא מוכן לתצוגה','embed.iframeDesc': 'השתמשו בקוד הבא כדי להטמיע iFrame שמציג את כל ה-HTML והעיצוב מתוך המערכת שלכם, כולל תמונות ומבנה מלא.','embed.apiTitle': '2. API לנתונים בלבד (JSON)','embed.apiDesc': 'השתמשו בכתובת הזו כדי לקבל JSON נקי ולבנות תצוגה עצמאית באתר שלכם.','embed.devGuideTitle': 'הוראות למפתחים','embed.devGuideDesc': 'כל ההסברים כאן בעברית, אבל שמות השדות והקוד נשארים באנגלית כדי שתוכלו להעתיק אותם כמו שהם.','embed.copyFields': 'העתק את כל שמות השדות','embed.fieldLabel': 'שם שדה','embed.fieldType': 'סוג','embed.fieldMeaning': 'מתי צריך להעתיק',
-        'designer.title': 'עיצוב האתר ותצוגת הכרטיס','designer.desc': '','designer.styleTitle': 'עיצוב כרטיס','designer.applyModeLabel': 'איפה להחיל את העיצוב','designer.applyAll': 'על כל הכרטיסיות','designer.applySelected': 'רק על הכרטיסייה הנבחרת','designer.productSelectLabel': 'בחר כרטיסייה','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardTone': 'סוג רקע לכרטיס','designer.cardShadow': 'עומק צל','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
+        'designer.title': 'עיצוב האתר ותצוגת הכרטיס','designer.desc': '','designer.styleTitle': 'עיצוב כרטיס','designer.applyModeLabel': 'איפה להחיל את העיצוב','designer.applyAll': 'על כל הכרטיסיות','designer.applySelected': 'רק על הכרטיסייה הנבחרת','designer.applyCategory': 'על קטגוריה שלמה','designer.productSelectLabel': 'בחר כרטיסייה','designer.categorySelectLabel': 'בחר קטגוריה','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardTone': 'סוג רקע לכרטיס','designer.cardShadow': 'עומק צל','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
         'template.classic': 'כרטיס אחיד',
         'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.platformName': 'שם הפלטפורמה','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה מופיעים כבאנר קטן עם דגלים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
         'ideas.title': 'מצב המערכת','ideas.1': '• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.','ideas.2': '• כל תמונה נשמרת ב-Firebase Storage עם שיוך למוצר ותמיכה בכמה תמונות לכל מוצר.','ideas.3': '• קוד ההטמעה משתמש במזהה החשבון בלבד.','ideas.4': '• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.','ideas.5': '• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.','ideas.6': '• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.',
@@ -1753,7 +1758,6 @@
       if ($('#themeImageSwitchSeconds')) $('#themeImageSwitchSeconds').value = Number(state.theme.imageSwitchSeconds || 3);
       if ($('#themeAnimationDuration')) $('#themeAnimationDuration').value = Number(state.theme.animationDuration || 0.8);
       if ($('#themeAnimationDelay')) $('#themeAnimationDelay').value = Number(state.theme.animationDelay || 0.1);
-      if ($('#themeCartButtonText')) $('#themeCartButtonText').value = state.theme.cartButtonText || 'הוספה לסל';
       document.documentElement.style.setProperty('--desktop-columns', Number(state.theme.desktopColumns || 4));
       document.documentElement.style.setProperty('--mobile-columns', Number(state.theme.mobileColumns || 2));
       $('#themeCardPaddingValue').textContent = `${Number(state.theme.cardPadding || 18)}px`;
@@ -1762,6 +1766,7 @@
       renderColorPickers();
       toggleDesignerScopeFields();
       syncDesignerProductOptions();
+      syncDesignerCategoryOptions();
       renderPreviewProduct();
       renderModalProductPreview();
       renderProducts();
@@ -2213,13 +2218,40 @@
       }
     }
 
+    function syncDesignerCategoryOptions() {
+      const select = $('#designerCategorySelect');
+      if (!select) return;
+      const current = state.theme.selectedCategoryId || '';
+      const categories = collectCategoryLabels();
+      select.innerHTML = categories.length
+        ? categories.map((label) => {
+          const value = slugifyCategory(label);
+          return `<option value="${esc(value)}">${esc(label)}</option>`;
+        }).join('')
+        : '<option value="">אין עדיין קטגוריות</option>';
+      if ([...select.options].some((option) => option.value === current)) select.value = current;
+      else if (select.options[0]) {
+        state.theme.selectedCategoryId = select.options[0].value;
+        select.value = select.options[0].value;
+      }
+    }
+
     function toggleDesignerScopeFields() {
-      $('#designerProductField')?.classList.toggle('hidden', (state.theme.applyMode || 'all') !== 'selected');
+      const mode = state.theme.applyMode || 'all';
+      $('#designerProductField')?.classList.toggle('hidden', mode !== 'selected');
+      $('#designerCategoryField')?.classList.toggle('hidden', mode !== 'category');
     }
 
     function getDesignerTargetProduct() {
-      if ((state.theme.applyMode || 'all') !== 'selected') return null;
-      return state.products.find((item) => item.id === state.theme.selectedProductId) || state.products[0] || null;
+      const mode = state.theme.applyMode || 'all';
+      if (mode === 'selected') {
+        return state.products.find((item) => item.id === state.theme.selectedProductId) || state.products[0] || null;
+      }
+      if (mode === 'category') {
+        const categoryId = state.theme.selectedCategoryId || '';
+        return state.products.find((item) => getProductCategoryId(item.categoryLabel || item.categoryId || item.category) === categoryId) || state.products[0] || null;
+      }
+      return null;
     }
 
     function getDesignerPreviewProduct() {
@@ -2656,6 +2688,7 @@
         renderProductCategoryOptions($('#productCategory')?.value || DEFAULT_PRODUCT_CATEGORY);
         renderProducts();
         syncDesignerProductOptions();
+        syncDesignerCategoryOptions();
         renderPreviewProduct();
         updateEmbedCode();
       }, (error) => {
@@ -2900,12 +2933,11 @@
       $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד iFrame הועתק'));
       $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#embedDataCodeBlock').textContent, 'קוד API ללא עיצוב הועתק'));
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
-      ['themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds','themeCartButtonText'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
+      ['themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
         state.theme.cardBackground = $('#themeBackgroundColor').value;
         state.theme.textColor = $('#themeTextColor').value;
         state.theme.buttonColor = $('#themeButtonColor').value;
         state.theme.primaryColor = state.theme.buttonColor;
-        state.theme.cartButtonText = $('#themeCartButtonText').value.trim() || 'הוספה לסל';
         state.theme.cardShadow = $('#themeCardShadow').value;
         state.theme.imageSwitchMode = $('#themeImageSwitchMode').value || 'auto';
         state.theme.imageSwitchSeconds = Number($('#themeImageSwitchSeconds').value || 3);
@@ -2929,37 +2961,49 @@
       }));
       $('#designerApplyMode').addEventListener('change', () => { state.theme.applyMode = $('#designerApplyMode').value; toggleDesignerScopeFields(); renderPreviewProduct(); });
       $('#designerProductSelect').addEventListener('change', () => { state.theme.selectedProductId = $('#designerProductSelect').value; renderPreviewProduct(); });
+      $('#designerCategorySelect').addEventListener('change', () => { state.theme.selectedCategoryId = $('#designerCategorySelect').value; renderPreviewProduct(); });
       $('#saveThemeBtn').addEventListener('click', async () => {
         const themeBtn = $('#saveThemeBtn');
         try {
           setActionButtonState(themeBtn, 'loading', { thinking: 'חושב ושומר עיצוב...' });
+          const updatableTheme = {
+            useSiteTheme: 'custom',
+            template: 'classic',
+            showCart: state.theme.showCart ? 'show' : 'hide',
+            accentColor: state.theme.primaryColor,
+            cardBackground: state.theme.cardBackground,
+            textColor: state.theme.textColor,
+            buttonColor: state.theme.buttonColor,
+            cardTone: state.theme.cardTone,
+            cardGradient: state.theme.cardGradient,
+            cardShadow: state.theme.cardShadow,
+            cardPadding: state.theme.cardPadding,
+            borderRadius: state.theme.borderRadius,
+            imageHeight: state.theme.imageHeight,
+            textAlign: state.theme.textAlign,
+            animationStyle: state.theme.animationStyle,
+            imageSwitchMode: state.theme.imageSwitchMode,
+            imageSwitchSeconds: state.theme.imageSwitchSeconds,
+            animationDuration: state.theme.animationDuration,
+            animationDelay: state.theme.animationDelay,
+            updatedAt: serverTimestamp()
+          };
           if (state.theme.applyMode === 'selected' && state.theme.selectedProductId) {
             const item = state.products.find((product) => product.id === state.theme.selectedProductId);
             if (item) {
-              await updateDoc(productDoc(item.id), {
-                useSiteTheme: 'custom',
-                template: 'classic',
-                showCart: state.theme.showCart ? 'show' : 'hide',
-                accentColor: state.theme.primaryColor,
-                cardBackground: state.theme.cardBackground,
-                textColor: state.theme.textColor,
-                buttonColor: state.theme.buttonColor,
-                cardTone: state.theme.cardTone,
-                cardGradient: state.theme.cardGradient,
-                cardShadow: state.theme.cardShadow,
-                cardPadding: state.theme.cardPadding,
-                borderRadius: state.theme.borderRadius,
-                imageHeight: state.theme.imageHeight,
-                textAlign: state.theme.textAlign,
-                cartButtonText: state.theme.cartButtonText,
-                animationStyle: state.theme.animationStyle,
-                imageSwitchMode: state.theme.imageSwitchMode,
-                imageSwitchSeconds: state.theme.imageSwitchSeconds,
-                animationDuration: state.theme.animationDuration,
-                animationDelay: state.theme.animationDelay,
-                updatedAt: serverTimestamp()
-              });
+              await updateDoc(productDoc(item.id), updatableTheme);
               showToast('העיצוב נשמר לכרטיסייה שנבחרה');
+              setActionButtonState(themeBtn, 'success', { success: 'העיצוב נשמר' });
+              await new Promise((resolve) => setTimeout(resolve, 900));
+              return;
+            }
+          }
+          if (state.theme.applyMode === 'category' && state.theme.selectedCategoryId) {
+            const selectedCategoryId = state.theme.selectedCategoryId;
+            const matchingProducts = state.products.filter((item) => getProductCategoryId(item.categoryLabel || item.categoryId || item.category) === selectedCategoryId);
+            if (matchingProducts.length) {
+              await Promise.all(matchingProducts.map((item) => updateDoc(productDoc(item.id), updatableTheme)));
+              showToast(`העיצוב נשמר לכל הקטגוריה (${matchingProducts.length} כרטיסיות)`);
               setActionButtonState(themeBtn, 'success', { success: 'העיצוב נשמר' });
               await new Promise((resolve) => setTimeout(resolve, 900));
               return;
