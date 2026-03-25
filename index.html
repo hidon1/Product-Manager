@@ -323,6 +323,43 @@
       display:flex; align-items:center; justify-content:space-between; gap:12px; padding:14px; border:1px solid var(--line);
       border-radius:16px; background: rgba(255,255,255,.82); margin-bottom: 10px;
     }
+    .designer-groups { display:grid; gap:14px; margin-top:14px; }
+    .designer-group {
+      border: 1px solid rgba(99, 102, 241, 0.18);
+      border-radius: 16px;
+      padding: 12px;
+      background: rgba(255,255,255,.74);
+      display: grid;
+      gap: 12px;
+    }
+    .designer-group h5 {
+      margin: 0;
+      font-size: .9rem;
+      color: #312e81;
+      letter-spacing: .01em;
+    }
+    .designer-group .modal-grid { margin-top: 0 !important; }
+    .compact-color {
+      width: 52px;
+      min-width: 52px;
+      height: 34px;
+      padding: 4px;
+      border-radius: 12px;
+      cursor: pointer;
+      justify-self: start;
+      background: #ffffff;
+    }
+    .compact-color::-webkit-color-swatch-wrapper { padding: 2px; }
+    .compact-color::-webkit-color-swatch { border: 1px solid rgba(148,163,184,.35); border-radius: 8px; }
+    .compact-color::-moz-color-swatch { border: 1px solid rgba(148,163,184,.35); border-radius: 8px; }
+    .compact-number {
+      width: 108px;
+      min-width: 108px;
+      text-align: center;
+      padding: 8px 10px;
+      border-radius: 12px;
+      justify-self: start;
+    }
     .toggle { width:52px; height:30px; background: rgba(148,163,184,.25); border-radius:999px; position:relative; cursor:pointer; }
     .toggle::after {
       content:""; position:absolute; top:4px; right:4px; width:22px; height:22px; border-radius:50%; background:#fff; transition:.22s ease;
@@ -555,7 +592,8 @@
       .sidebar-user { gap: 10px; margin-top: 16px; padding-top: 16px; }
       .sidebar-user .btn { width: 100%; }
       .main { padding: 16px; }
-      .toolbar, .toolbar.compact, .settings-grid, .modal-grid, .addon-row, .template-grid, .variant-head, .variant-option-row { grid-template-columns: 1fr; }
+      .toolbar, .toolbar.compact, .settings-grid, .addon-row, .template-grid, .variant-head, .variant-option-row { grid-template-columns: 1fr; }
+      .modal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .topbar { flex-direction: column; align-items: stretch; }
       .stats { grid-template-columns: 1fr 1fr; }
       .panel { padding: 16px; border-radius: 20px; }
@@ -578,7 +616,7 @@
     @media (max-width: 640px) {
       html { font-size: 14px; }
       .auth-screen { padding: 14px; }
-      .embed-runtime-grid, .grid-products { grid-template-columns: repeat(var(--mobile-columns, 1), minmax(0, 1fr)); }
+      .embed-runtime-grid, .grid-products { grid-template-columns: repeat(var(--mobile-columns, 2), minmax(0, 1fr)); }
       .auth-showcase, .auth-card, .panel, .modal-card { padding: 16px; border-radius: 22px; }
       .feature-list, .stats { grid-template-columns: 1fr; }
       .card-actions { grid-template-columns: 1fr; }
@@ -596,6 +634,7 @@
       .store-card .store-price { font-size: 1.18rem; }
       .store-card .store-btn { min-height: 40px; font-size: .86rem; }
       .inline-note { font-size: .78rem; }
+      .modal-grid { grid-template-columns: 1fr; }
     }
   </style>
 </head>
@@ -782,24 +821,45 @@
                   <div><strong data-i18n="designer.cartToggle">כפתור הוסף לסל</strong><p data-i18n="designer.cartToggleDesc">אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.</p></div>
                   <div class="toggle active" id="toggleCartButton"></div>
                 </div>
-                <div class="modal-grid" style="margin-top:14px;">
-                  <div class="field"><label for="themePrimaryColor" data-i18n="designer.primaryColor">צבע ראשי</label><input class="input" id="themePrimaryColor" type="color" value="#60a5fa" /></div>
-                  <div class="field"><label for="themeBackgroundColor" data-i18n="designer.cardColor">צבע כרטיס</label><input class="input" id="themeBackgroundColor" type="color" value="#ffffff" /></div>
-                  <div class="field"><label for="themeTextColor" data-i18n="designer.textColor">צבע טקסט</label><input class="input" id="themeTextColor" type="color" value="#111827" /></div>
-                  <div class="field"><label for="themeButtonColor" data-i18n="designer.buttonColor">צבע כפתור</label><input class="input" id="themeButtonColor" type="color" value="#111827" /></div>
-                  <div class="field"><label for="themeAnimationStyle">אנימציית כרטיס</label><select class="select" id="themeAnimationStyle"><option value="none">ללא אנימציה</option><option value="fade">Fade</option><option value="fade-up">Fade Up</option><option value="zoom-in">Zoom In</option><option value="slide-up">Slide Up</option><option value="float">Float</option><option value="glow">Glow</option><option value="shimmer">Shimmer</option><option value="lift">Lift-in</option></select></div>
-                  <div class="field"><label for="themeImageSwitchMode">אופן החלפת תמונות</label><select class="select" id="themeImageSwitchMode"><option value="auto">החלפה אוטומטית</option><option value="hover">החלפה אוטומטית בריחוף עכבר</option><option value="arrows">חיצים ימינה/שמאלה</option></select></div>
-                  <div class="field"><label for="themeImageSwitchSeconds">מהירות החלפה (שניות)</label><input class="input" id="themeImageSwitchSeconds" type="number" min="1" max="12" step="1" value="3" /></div>
-                  <div class="field"><label for="themeAnimationDuration">מהירות אנימציה (שניות)</label><input class="input" id="themeAnimationDuration" type="number" min="0.1" max="5" step="0.1" value="0.8" /></div>
-                  <div class="field"><label for="themeAnimationDelay">השהיית אנימציה (שניות)</label><input class="input" id="themeAnimationDelay" type="number" min="0" max="5" step="0.1" value="0.1" /></div>
-                  <div class="field"><label for="themeCardTone" data-i18n="designer.cardTone">סוג רקע לכרטיס</label><select class="select" id="themeCardTone"><option value="solid">אחיד</option><option value="gradient">גרדיאנט</option><option value="glass">זכוכית</option><option value="outline">מסגרת בלבד</option></select></div>
-                  <div class="field"><label for="themeCardShadow" data-i18n="designer.cardShadow">עומק צל</label><select class="select" id="themeCardShadow"><option value="soft">רך</option><option value="medium">בינוני</option><option value="strong">חזק</option><option value="none">ללא</option></select></div>
-                  <div class="field"><label for="themeCardPadding" data-i18n="designer.cardPadding">ריווח פנימי</label><input class="input" id="themeCardPadding" type="range" min="12" max="36" step="2" value="18" /><div class="slider-value" id="themeCardPaddingValue">18px</div></div>
-                  <div class="field"><label for="themeBorderRadius" data-i18n="designer.cardRadius">פינות כרטיס</label><input class="input" id="themeBorderRadius" type="range" min="12" max="36" step="2" value="24" /><div class="slider-value" id="themeBorderRadiusValue">24px</div></div>
-                  <div class="field"><label for="themeImageHeight" data-i18n="designer.imageHeight">גובה תמונה</label><input class="input" id="themeImageHeight" type="range" min="160" max="320" step="10" value="220" /><div class="slider-value" id="themeImageHeightValue">220px</div></div>
-                  <div class="field"><label for="themeTextAlign" data-i18n="designer.textAlign">יישור טקסט</label><select class="select" id="themeTextAlign"><option value="right">ימין</option><option value="center">מרכז</option><option value="left">שמאל</option></select></div>
-                  <div class="field"><label for="desktopColumns" data-i18n="products.desktopColumns">כמות כרטיסים בשורה במחשב</label><select class="select" id="desktopColumns"><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option></select></div>
-                  <div class="field"><label for="mobileColumns" data-i18n="products.mobileColumns">כמות כרטיסים בשורה בטלפון</label><select class="select" id="mobileColumns"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
+                <div class="designer-groups">
+                  <div class="designer-group">
+                    <h5>צבע הכרטיסייה</h5>
+                    <div class="modal-grid">
+                      <div class="field"><label for="themePrimaryColor" data-i18n="designer.primaryColor">צבע ראשי</label><input class="input compact-color" id="themePrimaryColor" type="color" value="#60a5fa" /></div>
+                      <div class="field"><label for="themeBackgroundColor" data-i18n="designer.cardColor">צבע כרטיס</label><input class="input compact-color" id="themeBackgroundColor" type="color" value="#ffffff" /></div>
+                      <div class="field"><label for="themeTextColor" data-i18n="designer.textColor">צבע טקסט</label><input class="input compact-color" id="themeTextColor" type="color" value="#111827" /></div>
+                      <div class="field"><label for="themeButtonColor" data-i18n="designer.buttonColor">צבע כפתור</label><input class="input compact-color" id="themeButtonColor" type="color" value="#111827" /></div>
+                    </div>
+                  </div>
+                  <div class="designer-group">
+                    <h5>אנימציות</h5>
+                    <div class="modal-grid">
+                      <div class="field"><label for="themeAnimationStyle">אנימציית כרטיס</label><select class="select" id="themeAnimationStyle"><option value="none">ללא אנימציה</option><option value="fade">Fade</option><option value="fade-up">Fade Up</option><option value="zoom-in">Zoom In</option><option value="slide-up">Slide Up</option><option value="float">Float</option><option value="glow">Glow</option><option value="shimmer">Shimmer</option><option value="lift">Lift-in</option></select></div>
+                      <div class="field"><label for="themeImageSwitchMode">אנימציה של התמונות</label><select class="select" id="themeImageSwitchMode"><option value="auto">החלפה אוטומטית</option><option value="hover">החלפה אוטומטית בריחוף עכבר</option><option value="arrows">חיצים ימינה/שמאלה</option></select></div>
+                      <div class="field"><label for="themeImageSwitchSeconds">מהירות החלפה (שניות)</label><input class="input compact-number" id="themeImageSwitchSeconds" type="number" min="1" max="12" step="1" value="3" /></div>
+                      <div class="field"><label for="themeAnimationDuration">מהירות אנימציה (שניות)</label><input class="input compact-number" id="themeAnimationDuration" type="number" min="0.1" max="5" step="0.1" value="0.8" /></div>
+                      <div class="field"><label for="themeAnimationDelay">השהיית אנימציה (שניות)</label><input class="input compact-number" id="themeAnimationDelay" type="number" min="0" max="5" step="0.1" value="0.1" /></div>
+                      <div class="field"><label for="themeCardShadow" data-i18n="designer.cardShadow">עומק צל</label><select class="select" id="themeCardShadow"><option value="soft">רך</option><option value="medium">בינוני</option><option value="strong">חזק</option><option value="none">ללא</option></select></div>
+                    </div>
+                  </div>
+                  <div class="designer-group">
+                    <h5>מרחקים</h5>
+                    <div class="modal-grid">
+                      <div class="field"><label for="themeCardPadding" data-i18n="designer.cardPadding">ריווח פנימי</label><input class="input" id="themeCardPadding" type="range" min="12" max="36" step="2" value="18" /><div class="slider-value" id="themeCardPaddingValue">18px</div></div>
+                      <div class="field"><label for="themeBorderRadius" data-i18n="designer.cardRadius">פינות כרטיס</label><input class="input" id="themeBorderRadius" type="range" min="12" max="36" step="2" value="24" /><div class="slider-value" id="themeBorderRadiusValue">24px</div></div>
+                      <div class="field"><label for="themeImageHeight" data-i18n="designer.imageHeight">גובה תמונה</label><input class="input" id="themeImageHeight" type="range" min="160" max="320" step="10" value="220" /><div class="slider-value" id="themeImageHeightValue">220px</div></div>
+                      <div class="field"><label for="themeCardTone" data-i18n="designer.cardTone">סוג רקע לכרטיס</label><select class="select" id="themeCardTone"><option value="solid">אחיד</option><option value="gradient">גרדיאנט</option><option value="glass">זכוכית</option><option value="outline">מסגרת בלבד</option></select></div>
+                    </div>
+                  </div>
+                  <div class="designer-group">
+                    <h5>פרמטרים נוספים</h5>
+                    <div class="modal-grid">
+                      <div class="field"><label for="themeTextAlign" data-i18n="designer.textAlign">יישור טקסט</label><select class="select" id="themeTextAlign"><option value="right">ימין</option><option value="center">מרכז</option><option value="left">שמאל</option></select></div>
+                      <div class="field"><label for="themeCartButtonText">טקסט אישור</label><input class="input" id="themeCartButtonText" value="הוספה לסל" /></div>
+                      <div class="field"><label for="desktopColumns" data-i18n="products.desktopColumns">כמות כרטיסים בשורה במחשב</label><select class="select" id="desktopColumns"><option value="2">2</option><option value="3">3</option><option value="4" selected>4</option><option value="5">5</option></select></div>
+                      <div class="field"><label for="mobileColumns" data-i18n="products.mobileColumns">כמות כרטיסים בשורה בטלפון</label><select class="select" id="mobileColumns"><option value="1">1</option><option value="2" selected>2</option><option value="3">3</option></select></div>
+                    </div>
+                  </div>
                 </div>
                 <div style="display:flex; gap:10px; flex-wrap:wrap; margin-top:14px;">
                   <button class="btn btn-primary" id="saveThemeBtn" data-i18n="designer.save">שמור עיצוב</button>
@@ -1325,6 +1385,7 @@
       if ($('#themeImageSwitchSeconds')) $('#themeImageSwitchSeconds').value = Number(state.theme.imageSwitchSeconds || 3);
       if ($('#themeAnimationDuration')) $('#themeAnimationDuration').value = Number(state.theme.animationDuration || 0.8);
       if ($('#themeAnimationDelay')) $('#themeAnimationDelay').value = Number(state.theme.animationDelay || 0.1);
+      if ($('#themeCartButtonText')) $('#themeCartButtonText').value = state.theme.cartButtonText || 'הוספה לסל';
       document.documentElement.style.setProperty('--desktop-columns', Number(state.theme.desktopColumns || 4));
       document.documentElement.style.setProperty('--mobile-columns', Number(state.theme.mobileColumns || 2));
       $('#themeCardPaddingValue').textContent = `${Number(state.theme.cardPadding || 18)}px`;
@@ -1642,6 +1703,7 @@
         borderRadius: theme.borderRadius,
         imageHeight: theme.imageHeight,
         textAlign: theme.textAlign,
+        cartButtonText: theme.cartButtonText,
         animationStyle: theme.animationStyle,
         animationDuration: theme.animationDuration,
         animationDelay: theme.animationDelay
@@ -2200,11 +2262,12 @@
       $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד iFrame הועתק'));
       $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#embedDataCodeBlock').textContent, 'קוד API ללא עיצוב הועתק'));
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
-      ['themePrimaryColor','themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
+      ['themePrimaryColor','themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds','themeCartButtonText'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
         state.theme.primaryColor = $('#themePrimaryColor').value;
         state.theme.cardBackground = $('#themeBackgroundColor').value;
         state.theme.textColor = $('#themeTextColor').value;
         state.theme.buttonColor = $('#themeButtonColor').value;
+        state.theme.cartButtonText = $('#themeCartButtonText').value.trim() || 'הוספה לסל';
         state.theme.cardTone = $('#themeCardTone').value;
         state.theme.cardShadow = $('#themeCardShadow').value;
         state.theme.imageSwitchMode = $('#themeImageSwitchMode').value || 'auto';
@@ -2246,6 +2309,7 @@
                 borderRadius: state.theme.borderRadius,
                 imageHeight: state.theme.imageHeight,
                 textAlign: state.theme.textAlign,
+                cartButtonText: state.theme.cartButtonText,
                 animationStyle: state.theme.animationStyle,
                 imageSwitchMode: state.theme.imageSwitchMode,
                 imageSwitchSeconds: state.theme.imageSwitchSeconds,
