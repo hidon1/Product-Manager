@@ -116,6 +116,31 @@
     .tab, .btn, .nav-btn, .toggle, .template-select, .swatch-btn {
       transition: .22s ease;
     }
+    .color-input-wrap {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      width: 100%;
+    }
+    .color-picker-launcher {
+      min-width: 44px;
+      width: 44px;
+      height: 44px;
+      border-radius: 12px;
+      border: 1px solid rgba(148,163,184,.35);
+      background: #fff;
+      cursor: pointer;
+      position: relative;
+      padding: 3px;
+    }
+    .color-picker-launcher::after {
+      content: "";
+      position: absolute;
+      inset: 7px;
+      border-radius: 9px;
+      background: var(--picker-preview, #ffffff);
+      border: 1px solid rgba(15,23,42,.12);
+    }
     .tab {
       border:0; border-radius: 12px; background: transparent; color: var(--muted); padding: 12px; cursor: pointer; font-weight: 700;
     }
@@ -434,6 +459,7 @@
       gap: 7px;
       margin-top: 6px;
     }
+    .color-swatch-grid { display: none !important; }
     .color-swatch-dot {
       width: 28px;
       height: 28px;
@@ -454,6 +480,7 @@
       color: var(--muted);
       font-weight: 700;
     }
+    .color-swatch-title { display: none !important; }
     .tag-color-field {
       min-width: 150px;
     }
@@ -771,6 +798,41 @@
     .modal-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
     .full { grid-column: 1 / -1; }
     .preview-box { min-height: 120px; border:1px dashed rgba(148,163,184,.26); border-radius: 18px; padding: 14px; display:grid; place-items:center; background: rgba(255,255,255,.02); color: var(--muted); }
+    .color-picker-overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15,23,42,.42);
+      backdrop-filter: blur(6px);
+      z-index: 120;
+      display: none;
+      align-items: flex-start;
+      justify-content: center;
+      padding: 24px;
+    }
+    .color-picker-overlay.open { display: flex; }
+    .color-picker-banner {
+      width: min(1020px, 100%);
+      background: #fff;
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      box-shadow: 0 24px 64px rgba(15,23,42,.24);
+      overflow: hidden;
+    }
+    .color-picker-banner-head {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 10px 14px;
+      border-bottom: 1px solid var(--line);
+      background: rgba(248,250,252,.95);
+    }
+    .color-picker-banner-frame {
+      width: 100%;
+      height: min(76vh, 760px);
+      border: 0;
+      display: block;
+      background: #fff;
+    }
     .preview-box img { max-width:100%; max-height:240px; border-radius: 16px; object-fit: cover; }
     .variant-box { border:1px solid var(--line); border-radius: 18px; padding: 14px; background: rgba(255,255,255,.84); margin-bottom: 12px; }
     .variant-head { display:grid; grid-template-columns: 1fr auto; gap:10px; margin-bottom:10px; }
@@ -1058,10 +1120,10 @@
                   <div class="designer-group">
                     <h5>צבע הכרטיסייה</h5>
                     <div class="modal-grid designer-color-grid">
-                      <div class="field"><label for="themePrimaryColor" data-i18n="designer.primaryColor">צבע ראשי</label><input class="input compact-color" id="themePrimaryColor" type="color" value="#60a5fa" /><div class="color-swatch-grid" id="themePrimarySwatches"></div></div>
-                      <div class="field"><label for="themeBackgroundColor" data-i18n="designer.cardColor">צבע כרטיס</label><input class="input compact-color" id="themeBackgroundColor" type="color" value="#ffffff" /><div class="color-swatch-grid" id="themeBackgroundSwatches"></div><div class="color-swatch-title">או גרדיאנט</div><div class="color-swatch-grid" id="themeBackgroundGradientSwatches"></div></div>
-                      <div class="field"><label for="themeTextColor" data-i18n="designer.textColor">צבע טקסט</label><input class="input compact-color" id="themeTextColor" type="color" value="#111827" /><div class="color-swatch-grid" id="themeTextSwatches"></div></div>
-                      <div class="field"><label for="themeButtonColor" data-i18n="designer.buttonColor">צבע כפתור</label><input class="input compact-color" id="themeButtonColor" type="color" value="#111827" /><div class="color-swatch-grid" id="themeButtonSwatches"></div></div>
+                      <div class="field"><label for="themePrimaryColor" data-i18n="designer.primaryColor">צבע ראשי</label><input class="input compact-color" id="themePrimaryColor" type="color" value="#60a5fa" /></div>
+                      <div class="field"><label for="themeBackgroundColor" data-i18n="designer.cardColor">צבע כרטיס</label><input class="input compact-color" id="themeBackgroundColor" type="color" value="#ffffff" /></div>
+                      <div class="field"><label for="themeTextColor" data-i18n="designer.textColor">צבע טקסט</label><input class="input compact-color" id="themeTextColor" type="color" value="#111827" /></div>
+                      <div class="field"><label for="themeButtonColor" data-i18n="designer.buttonColor">צבע כפתור</label><input class="input compact-color" id="themeButtonColor" type="color" value="#111827" /></div>
                     </div>
                     <div class="field" style="margin-top:8px;">
                       <label>רקעי גרדיאנט מוכנים</label>
@@ -1243,7 +1305,7 @@
           </div>
           <div class="field field-category"><label for="productCategory">קטגוריית מוצר</label><input class="input" id="productCategory" list="productCategorySuggestions" placeholder="כתבו קטגוריה חדשה או בחרו קיימת" /><datalist id="productCategorySuggestions"></datalist></div>
           <div class="field full"><label for="productDesc" data-i18n="form.desc">תיאור</label><textarea class="textarea" id="productDesc"></textarea></div>
-          <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span>צבע טקסט</span><input class="input" id="productTagTextColor" type="color" value="#4f46e5" /></div><div class="tag-color-field"><span>צבע תגית</span><div class="tag-color-mode"><button type="button" class="active" data-tag-color-mode="solid">מלא</button><button type="button" data-tag-color-mode="gradient">הדרגתי</button></div><input class="input" id="productTagBackgroundColor" type="color" value="#dbeafe" /><div class="color-swatch-grid hidden" id="tagBackgroundGradientSwatches"></div></div><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
+          <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span>צבע טקסט</span><input class="input" id="productTagTextColor" type="color" value="#4f46e5" /></div><div class="tag-color-field"><span>צבע תגית</span><div class="tag-color-mode"><button type="button" class="active" data-tag-color-mode="solid">מלא</button><button type="button" data-tag-color-mode="gradient">הדרגתי</button></div><input class="input" id="productTagBackgroundColor" type="color" value="#dbeafe" /></div><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
           <div class="field field-main-image"><label for="productMainImage">תמונה ראשית</label><input class="input" id="productMainImage" type="file" accept="image/*" /><div id="mainImageManager" class="image-manager"></div></div>
           <div class="field field-image"><label for="productImage" data-i18n="form.image">תמונות מוצר</label><input class="input" id="productImage" type="file" accept="image/*" multiple /><div id="imageManager" class="image-manager"></div></div>
           <div class="field field-button-shape"><label for="productButtonStyle">צורת כפתור הוסף לסל</label><select class="select" id="productButtonStyle"><option value="rounded">עגול רך</option><option value="pill">גלולה</option><option value="square">מרובע</option><option value="soft">רך ומודגש</option></select></div>
@@ -1262,6 +1324,16 @@
           <button class="btn btn-primary" type="submit" id="saveProductBtn" data-i18n="modal.save">שמור מוצר</button>
         </div>
       </form>
+    </div>
+  </div>
+
+  <div class="color-picker-overlay" id="colorPickerOverlay">
+    <div class="color-picker-banner">
+      <div class="color-picker-banner-head">
+        <strong>בחירת צבע</strong>
+        <button class="btn btn-outline" type="button" id="closeColorPickerOverlayBtn">סגירה</button>
+      </div>
+      <iframe id="colorPickerFrame" class="color-picker-banner-frame" title="Color Picker"></iframe>
     </div>
   </div>
 
@@ -1779,12 +1851,23 @@
     function openExternalColorPicker(input) {
       if (!input?.id) return;
       state.activeColorInputId = input.id;
+      const overlay = $('#colorPickerOverlay');
+      const frame = $('#colorPickerFrame');
       const popupUrl = new URL('color.html', window.location.href);
+      popupUrl.searchParams.set('embed', '1');
       popupUrl.searchParams.set('target', input.id);
       const gradientValue = (input.dataset.gradientValue || '').trim();
       const selectedValue = gradientValue || (input.value || '').trim();
       if (selectedValue) popupUrl.searchParams.set('value', selectedValue);
-      window.open(popupUrl.toString(), 'mozarella-color-picker', 'width=1080,height=840,noopener=yes,resizable=yes');
+      if (frame) frame.src = popupUrl.toString();
+      overlay?.classList.add('open');
+      document.body.classList.add('modal-open');
+    }
+    function closeColorPickerOverlay() {
+      $('#colorPickerOverlay')?.classList.remove('open');
+      const frame = $('#colorPickerFrame');
+      if (frame) frame.src = 'about:blank';
+      document.body.classList.remove('modal-open');
     }
     function applySelectedExternalColor(value = '', targetOverride = '') {
       const targetId = targetOverride || state.activeColorInputId;
@@ -1809,6 +1892,7 @@
       const evtName = input.type === 'color' ? 'input' : 'change';
       input.dispatchEvent(new Event(evtName, { bubbles: true }));
       if (input.id === 'productTagBackgroundColor') renderModalProductPreview();
+      syncColorLauncherPreview(input);
     }
     function resolveCardToneStyle(theme = {}, tone = 'solid') {
       const baseBg = theme.cardBackground || '#ffffff';
@@ -1834,23 +1918,35 @@
     function buildGradientSwatches(targetId) {
       return CARD_GRADIENT_PRESETS.map((gradient, index) => `<button type="button" class="color-swatch-dot" data-color-target="${esc(targetId)}" data-gradient-value="${esc(gradient)}" style="background:${esc(gradient)};" aria-label="בחר גרדיאנט ${index + 1}"></button>`).join('');
     }
-    function renderColorPickers() {
-      const groups = [
-        ['themePrimarySwatches', 'themePrimaryColor'],
-        ['themeBackgroundSwatches', 'themeBackgroundColor'],
-        ['themeTextSwatches', 'themeTextColor'],
-        ['themeButtonSwatches', 'themeButtonColor'],
-        ['tagTextSwatches', 'productTagTextColor'],
-        ['tagBackgroundSwatches', 'productTagBackgroundColor']
-      ];
-      groups.forEach(([hostId, targetId]) => {
-        const host = $('#'+hostId);
-        if (host) host.innerHTML = buildSolidSwatches(targetId);
+    function syncColorLauncherPreview(input) {
+      if (!input) return;
+      const button = document.querySelector(`[data-color-launcher="${input.id}"]`);
+      if (!button) return;
+      const preview = (input.dataset.gradientValue || input.value || '#ffffff').trim();
+      button.style.setProperty('--picker-preview', preview || '#ffffff');
+    }
+    function setupColorPickerLaunchers() {
+      document.querySelectorAll('input[type="color"][id]').forEach((input) => {
+        if (input.dataset.pickerBound === 'true') return;
+        input.dataset.pickerBound = 'true';
+        const wrap = document.createElement('div');
+        wrap.className = 'color-input-wrap';
+        input.parentNode.insertBefore(wrap, input);
+        wrap.appendChild(input);
+        const launcher = document.createElement('button');
+        launcher.type = 'button';
+        launcher.className = 'color-picker-launcher';
+        launcher.dataset.colorLauncher = input.id;
+        launcher.setAttribute('aria-label', 'פתח בחירת צבע');
+        launcher.addEventListener('click', () => openExternalColorPicker(input));
+        wrap.appendChild(launcher);
+        input.style.pointerEvents = 'none';
+        input.setAttribute('tabindex', '-1');
+        syncColorLauncherPreview(input);
       });
-      const themeGradientHost = $('#themeBackgroundGradientSwatches');
-      if (themeGradientHost) themeGradientHost.innerHTML = buildGradientSwatches('themeBackgroundColor');
-      const tagGradientHost = $('#tagBackgroundGradientSwatches');
-      if (tagGradientHost) tagGradientHost.innerHTML = buildGradientSwatches('productTagBackgroundColor');
+    }
+    function renderColorPickers() {
+      setupColorPickerLaunchers();
     }
 
     function normalizeTagData(tags = [], tagStyles = {}) {
@@ -1919,10 +2015,9 @@
       document.querySelectorAll('[data-tag-color-mode]').forEach((button) => {
         button.classList.toggle('active', button.dataset.tagColorMode === state.tagColorMode);
       });
-      const gradientHost = $('#tagBackgroundGradientSwatches');
-      if (gradientHost) gradientHost.classList.toggle('hidden', state.tagColorMode !== 'gradient');
       if (state.tagColorMode === 'solid') $('#productTagBackgroundColor').dataset.gradientValue = '';
       if (state.tagColorMode === 'gradient' && !$('#productTagBackgroundColor').dataset.gradientValue) $('#productTagBackgroundColor').dataset.gradientValue = CARD_GRADIENT_PRESETS[0];
+      syncColorLauncherPreview($('#productTagBackgroundColor'));
     }
     function renderCurrencyOptions(selectedCode = 'ILS') {
       const select = $('#productCurrency');
@@ -2842,16 +2937,19 @@
       $('#logoutBtn').addEventListener('click', async () => { await signOut(auth); });
       $('#openAddModalPanel').addEventListener('click', openAddProductModal);
       $('#quickAddBtn').addEventListener('click', openAddProductModal);
-      document.addEventListener('click', (event) => {
-        const input = event.target.closest('input[type="color"]');
-        if (!input?.id) return;
-        if (input.dataset.nativePicker === 'true') return;
-        event.preventDefault();
-        openExternalColorPicker(input);
-      });
       window.addEventListener('message', (event) => {
+        if (event?.data?.type === 'color-close') {
+          closeColorPickerOverlay();
+          return;
+        }
         if (event?.data?.type !== 'color-selected') return;
         applySelectedExternalColor(event.data.value || '', event.data.targetInputId || '');
+        closeColorPickerOverlay();
+      });
+      $('#closeColorPickerOverlayBtn')?.addEventListener('click', closeColorPickerOverlay);
+      $('#colorPickerOverlay')?.addEventListener('click', (event) => {
+        if (event.target !== $('#colorPickerOverlay')) return;
+        closeColorPickerOverlay();
       });
       $('#closeModalBtn').addEventListener('click', closeModal);
       $('#cancelModalBtn').addEventListener('click', closeModal);
@@ -2879,31 +2977,6 @@
       $('.main').addEventListener('click', closeSidebar);
       $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד iFrame הועתק'));
       $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#embedDataCodeBlock').textContent, 'קוד API ללא עיצוב הועתק'));
-      document.body.addEventListener('click', (event) => {
-        const swatch = event.target.closest('[data-color-target]');
-        if (!swatch) return;
-        const target = $('#'+swatch.dataset.colorTarget);
-        if (!target) return;
-        const gradient = swatch.dataset.gradientValue || '';
-        if (gradient) {
-          target.dataset.gradientValue = gradient;
-          if (target.id === 'themeBackgroundColor') {
-            state.theme.cardGradient = gradient;
-            state.theme.cardTone = 'gradientPreset';
-            $('#themeCardTone').value = 'gradientPreset';
-            applyThemeToPreview();
-            return;
-          }
-          renderModalProductPreview();
-          return;
-        }
-        const color = swatch.dataset.colorValue;
-        if (!color) return;
-        target.dataset.gradientValue = '';
-        target.value = color;
-        const evtName = target.type === 'color' ? 'input' : 'change';
-        target.dispatchEvent(new Event(evtName, { bubbles: true }));
-      });
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
       ['themePrimaryColor','themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds','themeCartButtonText'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
         state.theme.primaryColor = $('#themePrimaryColor').value;

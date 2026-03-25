@@ -359,6 +359,25 @@
         border-bottom: 1px solid #e5e7eb;
       }
     }
+    body.embed-mode {
+      padding: 0;
+      background: #fff;
+    }
+    body.embed-mode .page {
+      display: none;
+    }
+    body.embed-mode .overlay {
+      position: static;
+      display: block;
+      padding: 0;
+      background: transparent;
+    }
+    body.embed-mode .modal {
+      max-width: none;
+      border-radius: 0;
+      box-shadow: none;
+      border: 0;
+    }
   </style>
 </head>
 <body>
@@ -482,6 +501,13 @@
   </div>
 
   <script>
+    const urlParams = new URLSearchParams(window.location.search);
+    const embedMode = urlParams.get('embed') === '1';
+    const targetInputId = urlParams.get('target') || '';
+    const initialValue = (urlParams.get('value') || '').trim();
+
+    if (embedMode) document.body.classList.add('embed-mode');
+
     const openBtn = document.getElementById('openColorManager');
     const closeBtn = document.getElementById('closeColorManager');
     const cancelBtn = document.getElementById('cancelBtn');
@@ -696,6 +722,40 @@
       renderPreview();
     }
 
+    function hydrateFromInitialValue(rawValue = '') {
+      if (!rawValue) return;
+      const value = rawValue.trim();
+      if (!value) return;
+      if (value.startsWith('linear-gradient(')) {
+        mode = 'gradient';
+        const angleMatch = value.match(/linear-gradient\((\d+(?:\.\d+)?)deg/i);
+        if (angleMatch) gradientAngle.value = Math.round(Number(angleMatch[1]));
+        const rgbaMatches = value.match(/rgba?\([^)]+\)/g) || [];
+        if (rgbaMatches[0]) {
+          const parts = rgbaMatches[0].match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/i);
+          if (parts) {
+            gradientColor1.value = `#${[parts[1], parts[2], parts[3]].map(v => Number(v).toString(16).padStart(2, '0')).join('')}`;
+            gradientAlpha1.value = Math.round((Number(parts[4] ?? 1)) * 100);
+          }
+        }
+        if (rgbaMatches[1]) {
+          const parts = rgbaMatches[1].match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/i);
+          if (parts) {
+            gradientColor2.value = `#${[parts[1], parts[2], parts[3]].map(v => Number(v).toString(16).padStart(2, '0')).join('')}`;
+            gradientAlpha2.value = Math.round((Number(parts[4] ?? 1)) * 100);
+          }
+        }
+        return;
+      }
+      const hexMatch = value.match(/^#([0-9a-f]{3}|[0-9a-f]{6})$/i);
+      if (hexMatch) {
+        mode = 'solid';
+        solidColor.value = value.length === 4
+          ? `#${value[1]}${value[1]}${value[2]}${value[2]}${value[3]}${value[3]}`
+          : value.toLowerCase();
+      }
+    }
+
     function openManager() {
       overlay.classList.add('active');
       setState(appliedState);
@@ -735,7 +795,10 @@
 
     openBtn.addEventListener('click', openManager);
     closeBtn.addEventListener('click', closeManager);
-    cancelBtn.addEventListener('click', closeManager);
+    cancelBtn.addEventListener('click', () => {
+      closeManager();
+      window.parent?.postMessage({ type: 'color-close', targetInputId }, '*');
+    });
 
     overlay.addEventListener('click', (e) => {
       if (e.target === overlay) {
@@ -760,6 +823,16 @@
     applyBtn.addEventListener('click', () => {
       appliedState = getCurrentState();
       applyToTarget(appliedState);
+      window.parent?.postMessage({
+        type: 'color-selected',
+        value: getBackgroundCss(appliedState),
+        css: {
+          background: getBackgroundCss(appliedState),
+          shineOverlay: getShineOverlayCss(appliedState)
+        },
+        state: appliedState,
+        targetInputId
+      }, '*');
       closeManager();
     });
 
@@ -775,8 +848,10 @@
       shineStrength: 55
     };
 
+    if (initialValue) hydrateFromInitialValue(initialValue);
     applyToTarget(appliedState);
-    setState(appliedState);
+    setState({ ...appliedState, mode, solidColor: solidColor.value, gradientColor1: gradientColor1.value, gradientColor2: gradientColor2.value, gradientAlpha1: Number(gradientAlpha1.value), gradientAlpha2: Number(gradientAlpha2.value), gradientAngle: Number(gradientAngle.value) });
+    if (embedMode) openManager();
   </script>
 </body>
 </html>
