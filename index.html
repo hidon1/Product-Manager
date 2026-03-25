@@ -231,7 +231,8 @@
     .hero {
       display: flex;
       justify-content: flex-end;
-      margin-bottom: 22px;
+      margin-top: -8px;
+      margin-bottom: 16px;
     }
     .stats { display:flex; }
     .stat-card {
@@ -285,7 +286,7 @@
       white-space: nowrap; border-radius: 999px; background: rgba(34,197,94,.12); color:#166534;
       padding: 8px 12px; font-weight: 700; font-size:.9rem;
     }
-    .price-stack { display:inline-flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+    .price-stack { display:inline-flex; align-items:baseline; gap:8px; flex-wrap:nowrap; white-space: nowrap; }
     .price-regular { font-weight: 700; }
     .price-regular.striked { text-decoration: line-through; opacity:.72; font-weight: 500; }
     .price-sale { font-weight: 900; color:#b91c1c; }
@@ -554,7 +555,7 @@
     .store-card .store-copy > img { margin-bottom: 2px; }
     .store-card .store-meta { color: var(--preview-muted); font-size: .92rem; }
     .store-card .store-price { font-size: 1.35rem; font-weight: 800; }
-    .store-card .store-price-wrap { display:flex; align-items:baseline; gap:8px; flex-wrap:wrap; }
+    .store-card .store-price-wrap { display:flex; align-items:baseline; gap:8px; flex-wrap:nowrap; white-space: nowrap; }
     .store-card .store-price-old { font-size: 1.02rem; opacity:.7; text-decoration: line-through; font-weight: 500; }
     .store-card .store-price-sale { font-size: 1.35rem; font-weight: 900; color:#b91c1c; }
     .store-card .store-btn {
@@ -581,6 +582,40 @@
     .product-form-grid .field-price { max-width: 200px; }
     .product-form-grid .field-sale-price { max-width: 200px; }
     .sale-toggle-wrap { display:flex; align-items:center; gap:10px; min-height: 50px; padding-top: 24px; }
+    .sale-switch-input {
+      position: absolute;
+      opacity: 0;
+      pointer-events: none;
+    }
+    .sale-switch {
+      width: 58px;
+      height: 32px;
+      border: 0;
+      border-radius: 999px;
+      background: rgba(148,163,184,.28);
+      position: relative;
+      cursor: pointer;
+      transition: .22s ease;
+      box-shadow: inset 0 0 0 1px rgba(148,163,184,.24);
+    }
+    .sale-switch::after {
+      content: "";
+      position: absolute;
+      top: 4px;
+      right: 4px;
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      background: #ffffff;
+      box-shadow: 0 2px 6px rgba(15,23,42,.2);
+      transition: .22s ease;
+    }
+    .sale-switch.active {
+      background: linear-gradient(135deg, var(--primary), var(--primary-2));
+      box-shadow: 0 0 0 1px rgba(79,70,229,.25);
+    }
+    .sale-switch.active::after { transform: translateX(-26px); }
+    .sale-switch-label { min-width: 96px; }
     .product-form-grid .field-button-shape {
       max-width: 170px;
       align-self: start;
@@ -1112,7 +1147,7 @@
         <div class="modal-grid product-form-grid">
           <div class="field field-name"><label for="productName" data-i18n="form.name">שם המוצר</label><input class="input" id="productName" required /></div>
           <div class="field field-price"><label for="productPrice" data-i18n="form.price">מחיר רגיל</label><input class="input" id="productPrice" type="number" min="0" step="0.01" required /></div>
-          <div class="field field-sale-active"><label for="productSaleActive">מחיר מבצע</label><div class="sale-toggle-wrap"><input id="productSaleActive" type="checkbox" /><span class="mini">פעיל / לא פעיל</span></div></div>
+          <div class="field field-sale-active"><label for="productSaleActiveToggle">מחיר מבצע</label><div class="sale-toggle-wrap"><input id="productSaleActive" class="sale-switch-input" type="checkbox" /><button class="sale-switch" id="productSaleActiveToggle" type="button" role="switch" aria-checked="false" aria-label="הפעלת מחיר מבצע"></button><span class="mini sale-switch-label" id="productSaleStateText">לא פעיל</span></div></div>
           <div class="field field-sale-price"><label for="productSalePrice">מחיר מבצע</label><input class="input" id="productSalePrice" type="number" min="0" step="0.01" placeholder="לדוגמה 99" disabled /></div>
           <div class="field full"><label for="productDesc" data-i18n="form.desc">תיאור</label><textarea class="textarea" id="productDesc"></textarea></div>
           <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span>צבע טקסט</span><input class="input" id="productTagTextColor" type="color" value="#4f46e5" /></div><div class="tag-color-field"><span>צבע תגית</span><input class="input" id="productTagBackgroundColor" type="color" value="#dbeafe" /></div><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
@@ -1914,6 +1949,17 @@
       initializeImageGalleries(shell);
     }
 
+    function syncSaleToggleUI() {
+      const input = $('#productSaleActive');
+      const toggle = $('#productSaleActiveToggle');
+      const label = $('#productSaleStateText');
+      if (!input || !toggle) return;
+      const isActive = !!input.checked;
+      toggle.classList.toggle('active', isActive);
+      toggle.setAttribute('aria-checked', String(isActive));
+      if (label) label.textContent = isActive ? 'פעיל' : 'לא פעיל';
+    }
+
 
     function updateUserUI(user) {
       const displayName = user?.displayName || user?.email?.split('@')[0] || 'User';
@@ -1953,6 +1999,7 @@
         $('#productSaleActive').checked = !!item.saleActive;
         $('#productSalePrice').value = item.salePrice || '';
         $('#productSalePrice').disabled = !item.saleActive;
+        syncSaleToggleUI();
         $('#productDesc').value = item.description || '';
         $('#productButtonStyle').value = item.buttonStyle || 'rounded';
         $('#productCartButtonText').value = item.cartButtonText || 'הוספה לסל';
@@ -1962,6 +2009,7 @@
         $('#productSaleActive').checked = false;
         $('#productSalePrice').value = '';
         $('#productSalePrice').disabled = true;
+        syncSaleToggleUI();
         $('#productButtonStyle').value = state.theme.buttonStyle || 'rounded';
         $('#productCartButtonText').value = state.theme.cartButtonText || 'הוספה לסל';
         addVariantGroup();
@@ -2540,8 +2588,16 @@
         renderModalProductPreview();
       });
       ['productName','productPrice','productSalePrice'].forEach((id) => $('#'+id).addEventListener('input', renderModalProductPreview));
+      $('#productSaleActiveToggle').addEventListener('click', () => {
+        const saleInput = $('#productSaleActive');
+        saleInput.checked = !saleInput.checked;
+        $('#productSalePrice').disabled = !saleInput.checked;
+        syncSaleToggleUI();
+        renderModalProductPreview();
+      });
       $('#productSaleActive').addEventListener('change', () => {
         $('#productSalePrice').disabled = !$('#productSaleActive').checked;
+        syncSaleToggleUI();
         renderModalProductPreview();
       });
       ['productDesc','productButtonStyle','productCartButtonText','productTagTextColor','productTagBackgroundColor','productTagOpacity','productTagShape'].forEach((id) => {
