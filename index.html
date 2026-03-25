@@ -116,31 +116,6 @@
     .tab, .btn, .nav-btn, .toggle, .template-select, .swatch-btn {
       transition: .22s ease;
     }
-    .color-input-wrap {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      width: 100%;
-    }
-    .color-picker-launcher {
-      min-width: 44px;
-      width: 44px;
-      height: 44px;
-      border-radius: 12px;
-      border: 1px solid rgba(148,163,184,.35);
-      background: #fff;
-      cursor: pointer;
-      position: relative;
-      padding: 3px;
-    }
-    .color-picker-launcher::after {
-      content: "";
-      position: absolute;
-      inset: 7px;
-      border-radius: 9px;
-      background: var(--picker-preview, #ffffff);
-      border: 1px solid rgba(15,23,42,.12);
-    }
     .tab {
       border:0; border-radius: 12px; background: transparent; color: var(--muted); padding: 12px; cursor: pointer; font-weight: 700;
     }
@@ -1124,10 +1099,6 @@
                       <div class="field"><label for="themeTextColor" data-i18n="designer.textColor">צבע טקסט</label><input class="input compact-color" id="themeTextColor" type="color" value="#111827" /></div>
                       <div class="field"><label for="themeButtonColor" data-i18n="designer.buttonColor">צבע כפתור</label><input class="input compact-color" id="themeButtonColor" type="color" value="#111827" /></div>
                     </div>
-                    <div class="field" style="margin-top:8px;">
-                      <label>רקעי גרדיאנט מוכנים</label>
-                      <div class="gradient-swatches" id="gradientSwatches"></div>
-                    </div>
                   </div>
                   <div class="designer-group">
                     <h5>אנימציות</h5>
@@ -1146,7 +1117,6 @@
                       <div class="field"><label for="themeCardPadding" data-i18n="designer.cardPadding">ריווח פנימי</label><input class="input" id="themeCardPadding" type="range" min="12" max="36" step="2" value="18" /><div class="slider-value" id="themeCardPaddingValue">18px</div></div>
                       <div class="field"><label for="themeBorderRadius" data-i18n="designer.cardRadius">פינות כרטיס</label><input class="input" id="themeBorderRadius" type="range" min="12" max="36" step="2" value="24" /><div class="slider-value" id="themeBorderRadiusValue">24px</div></div>
                       <div class="field"><label for="themeImageHeight" data-i18n="designer.imageHeight">גובה תמונה</label><input class="input" id="themeImageHeight" type="range" min="160" max="320" step="10" value="220" /><div class="slider-value" id="themeImageHeightValue">220px</div></div>
-                      <div class="field"><label for="themeCardTone" data-i18n="designer.cardTone">סוג רקע לכרטיס</label><select class="select" id="themeCardTone"><option value="solid">אחיד</option><option value="gradient">גרדיאנט מצבע אחד</option><option value="gradientPreset">גרדיאנט מוכן</option><option value="glass">זכוכית</option><option value="outline">מסגרת בלבד</option></select></div>
                     </div>
                   </div>
                   <div class="designer-group">
@@ -1771,7 +1741,6 @@
       $('#themeBackgroundColor').value = normalizeHex(state.theme.cardBackground);
       $('#themeTextColor').value = normalizeHex(state.theme.textColor);
       $('#themeButtonColor').value = normalizeHex(state.theme.buttonColor);
-      $('#themeCardTone').value = state.theme.cardTone || 'solid';
       $('#themeCardShadow').value = state.theme.cardShadow || 'soft';
       $('#themeCardPadding').value = Number(state.theme.cardPadding || 18);
       $('#themeBorderRadius').value = Number(state.theme.borderRadius || 24);
@@ -1791,7 +1760,6 @@
       $('#themeBorderRadiusValue').textContent = `${Number(state.theme.borderRadius || 24)}px`;
       $('#themeImageHeightValue').textContent = `${Number(state.theme.imageHeight || 220)}px`;
       renderColorPickers();
-      renderGradientSwatches();
       toggleDesignerScopeFields();
       syncDesignerProductOptions();
       renderPreviewProduct();
@@ -1883,33 +1851,13 @@
         input.dataset.gradientValue = '';
         input.value = hex;
       }
-      if (input.id === 'themeBackgroundColor' && input.dataset.gradientValue) {
-        state.theme.cardGradient = input.dataset.gradientValue;
-        state.theme.cardTone = 'gradientPreset';
-        $('#themeCardTone').value = 'gradientPreset';
-      }
       const evtName = input.type === 'color' ? 'input' : 'change';
       input.dispatchEvent(new Event(evtName, { bubbles: true }));
       if (input.id === 'productTagBackgroundColor') renderModalProductPreview();
-      syncColorLauncherPreview(input);
     }
     function resolveCardToneStyle(theme = {}, tone = 'solid') {
       const baseBg = theme.cardBackground || '#ffffff';
-      const gradient = theme.cardGradient || CARD_GRADIENT_PRESETS[0];
-      if (tone === 'gradient') return `background:linear-gradient(150deg, ${esc(baseBg)}, ${esc(shadeColor(baseBg, -10))});`;
-      if (tone === 'gradientPreset') return `background:${esc(gradient)};`;
-      if (tone === 'glass') return `background:${esc(hexToRgba(baseBg, .86))};backdrop-filter:blur(14px);border:1px solid ${esc(hexToRgba(theme.primaryColor, .26))};`;
-      if (tone === 'outline') return `background:${esc(baseBg)};border:2px solid ${esc(theme.primaryColor)};`;
       return `background:${esc(baseBg)};`;
-    }
-    function renderGradientSwatches() {
-      const host = $('#gradientSwatches');
-      if (!host) return;
-      const selected = state.theme.cardGradient || CARD_GRADIENT_PRESETS[0];
-      host.innerHTML = CARD_GRADIENT_PRESETS.map((gradient, index) => {
-        const active = gradient === selected ? 'active' : '';
-        return `<button type="button" class="gradient-swatch ${active}" data-gradient-index="${index}" style="background:${esc(gradient)};" aria-label="בחר גרדיאנט ${index + 1}"></button>`;
-      }).join('');
     }
     function buildSolidSwatches(targetId, palette = COLOR_SWATCH_PRESETS) {
       return palette.map((color, index) => `<button type="button" class="color-swatch-dot" data-color-target="${esc(targetId)}" data-color-value="${esc(color)}" style="background:${esc(color)};" aria-label="בחר צבע ${index + 1}"></button>`).join('');
@@ -1917,32 +1865,8 @@
     function buildGradientSwatches(targetId) {
       return CARD_GRADIENT_PRESETS.map((gradient, index) => `<button type="button" class="color-swatch-dot" data-color-target="${esc(targetId)}" data-gradient-value="${esc(gradient)}" style="background:${esc(gradient)};" aria-label="בחר גרדיאנט ${index + 1}"></button>`).join('');
     }
-    function syncColorLauncherPreview(input) {
-      if (!input) return;
-      const button = document.querySelector(`[data-color-launcher="${input.id}"]`);
-      if (!button) return;
-      const preview = (input.dataset.gradientValue || input.value || '#ffffff').trim();
-      button.style.setProperty('--picker-preview', preview || '#ffffff');
-    }
     function setupColorPickerLaunchers() {
-      document.querySelectorAll('input[type="color"][id]').forEach((input) => {
-        if (input.dataset.pickerBound === 'true') return;
-        input.dataset.pickerBound = 'true';
-        const wrap = document.createElement('div');
-        wrap.className = 'color-input-wrap';
-        input.parentNode.insertBefore(wrap, input);
-        wrap.appendChild(input);
-        const launcher = document.createElement('button');
-        launcher.type = 'button';
-        launcher.className = 'color-picker-launcher';
-        launcher.dataset.colorLauncher = input.id;
-        launcher.setAttribute('aria-label', 'פתח בחירת צבע');
-        launcher.addEventListener('click', () => openExternalColorPicker(input));
-        wrap.appendChild(launcher);
-        input.style.pointerEvents = 'none';
-        input.setAttribute('tabindex', '-1');
-        syncColorLauncherPreview(input);
-      });
+      return;
     }
     function renderColorPickers() {
       setupColorPickerLaunchers();
@@ -2016,7 +1940,6 @@
       });
       if (state.tagColorMode === 'solid') $('#productTagBackgroundColor').dataset.gradientValue = '';
       if (state.tagColorMode === 'gradient' && !$('#productTagBackgroundColor').dataset.gradientValue) $('#productTagBackgroundColor').dataset.gradientValue = CARD_GRADIENT_PRESETS[0];
-      syncColorLauncherPreview($('#productTagBackgroundColor'));
     }
     function renderCurrencyOptions(selectedCode = 'ILS') {
       const select = $('#productCurrency');
@@ -2977,13 +2900,12 @@
       $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד iFrame הועתק'));
       $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#embedDataCodeBlock').textContent, 'קוד API ללא עיצוב הועתק'));
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
-      ['themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds','themeCartButtonText'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardTone','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
+      ['themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds','themeCartButtonText'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
         state.theme.cardBackground = $('#themeBackgroundColor').value;
         state.theme.textColor = $('#themeTextColor').value;
         state.theme.buttonColor = $('#themeButtonColor').value;
         state.theme.primaryColor = state.theme.buttonColor;
         state.theme.cartButtonText = $('#themeCartButtonText').value.trim() || 'הוספה לסל';
-        state.theme.cardTone = $('#themeCardTone').value;
         state.theme.cardShadow = $('#themeCardShadow').value;
         state.theme.imageSwitchMode = $('#themeImageSwitchMode').value || 'auto';
         state.theme.imageSwitchSeconds = Number($('#themeImageSwitchSeconds').value || 3);
@@ -2997,17 +2919,6 @@
         state.theme.cardGradient = state.theme.cardGradient || CARD_GRADIENT_PRESETS[0];
         applyThemeToPreview();
       }));
-      $('#gradientSwatches').addEventListener('click', (event) => {
-        const swatch = event.target.closest('.gradient-swatch');
-        if (!swatch) return;
-        const index = Number(swatch.dataset.gradientIndex);
-        const gradient = CARD_GRADIENT_PRESETS[index];
-        if (!gradient) return;
-        state.theme.cardGradient = gradient;
-        state.theme.cardTone = 'gradientPreset';
-        $('#themeCardTone').value = 'gradientPreset';
-        applyThemeToPreview();
-      });
       $('#themeBackgroundColor')?.addEventListener('input', () => { $('#themeBackgroundColor').dataset.gradientValue = ''; });
       $('#productTagBackgroundColor')?.addEventListener('input', () => { $('#productTagBackgroundColor').dataset.gradientValue = ''; renderModalProductPreview(); });
       document.querySelectorAll('[data-tag-color-mode]').forEach((btn) => btn.addEventListener('click', () => syncTagColorModeUI(btn.dataset.tagColorMode)));
