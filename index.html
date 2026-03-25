@@ -245,8 +245,8 @@
     .stat-card .value { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; }
     .panel { background: var(--surface-grad); border-radius: 24px; padding: 18px; margin-bottom: 18px; }
 
-    .toolbar { display:grid; grid-template-columns: 1.4fr 180px 180px auto; gap:12px; margin-bottom:16px; }
-    .toolbar.compact { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+    .toolbar { display:grid; grid-template-columns: minmax(260px, 1.4fr) 180px 180px 180px auto; gap:12px; margin-bottom:16px; }
+    .toolbar.compact { grid-template-columns: repeat(5, minmax(0, 1fr)); }
     .grid-products { display:grid; grid-template-columns: repeat(var(--desktop-columns, 4), minmax(0, 1fr)); gap: 12px; align-items: stretch; }
     .product-card {
       border-radius: 18px; overflow:hidden; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
@@ -620,6 +620,14 @@
     .modal-preview-shell { min-height: 280px; display:grid; justify-items:center; align-items:start; }
     .modal-preview-shell .product-preview-shell { width: min(100%, 320px); max-width: 320px; padding: 12px; }
     .modal-preview-shell .store-card { width: 100%; }
+    .product-form-grid .field-headline {
+      grid-column: 1 / -1;
+      display: grid;
+      grid-template-columns: minmax(0, 1.6fr) minmax(130px, .8fr) minmax(130px, .8fr) minmax(150px, .9fr) minmax(120px, .7fr);
+      gap: 10px;
+      align-items: end;
+    }
+    .field-headline-item { display: grid; gap: 8px; }
     .product-form-grid .field-name,
     .product-form-grid .field-price,
     .product-form-grid .field-sale-price,
@@ -632,7 +640,7 @@
     .product-form-grid .field-button-text { max-width: 360px; }
     .product-form-grid .field-price { max-width: 200px; }
     .product-form-grid .field-sale-price { max-width: 200px; }
-    .sale-toggle-wrap { display:flex; align-items:center; gap:10px; min-height: 50px; padding-top: 24px; }
+    .sale-toggle-wrap { display:flex; align-items:center; gap:8px; min-height: 44px; }
     .sale-switch-input {
       position: absolute;
       opacity: 0;
@@ -688,11 +696,7 @@
       display:grid; gap:12px; padding:14px; border:1px solid rgba(148,163,184,.22); border-radius:18px; background: rgba(255,255,255,.9);
       position: relative;
     }
-    .tag-color-field {
-      display: grid;
-      gap: 4px;
-      justify-items: center;
-    }
+    .tag-color-field { display: grid; gap: 6px; }
     .tag-color-field span {
       font-size: .76rem;
       color: var(--muted);
@@ -705,6 +709,28 @@
       padding: 2px;
       cursor: pointer;
       background: var(--input);
+    }
+    .tag-color-mode {
+      display: inline-flex;
+      gap: 6px;
+      background: rgba(148,163,184,.14);
+      border-radius: 999px;
+      padding: 4px;
+    }
+    .tag-color-mode button {
+      border: 0;
+      border-radius: 999px;
+      padding: 5px 10px;
+      cursor: pointer;
+      background: transparent;
+      color: var(--muted);
+      font-weight: 700;
+      font-size: .8rem;
+    }
+    .tag-color-mode button.active {
+      background: #fff;
+      color: var(--text);
+      box-shadow: 0 2px 8px rgba(15,23,42,.14);
     }
     .tag-list { display:flex; gap:10px; flex-wrap:wrap; }
     .tag-token {
@@ -757,6 +783,7 @@
     @media (max-width: 1180px) {
       .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .hero, .auth-layout, .embed-grid { grid-template-columns: 1fr; }
+      .product-form-grid .field-headline { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 960px) {
       html { font-size: 15px; }
@@ -782,7 +809,7 @@
       .sidebar-user { gap: 10px; margin-top: 16px; padding-top: 16px; }
       .sidebar-user .btn { width: 100%; }
       .main { padding: 16px; }
-      .toolbar, .toolbar.compact, .settings-grid, .addon-row, .template-grid, .variant-head, .variant-option-row { grid-template-columns: 1fr; }
+      .toolbar, .toolbar.compact, .settings-grid, .addon-row, .template-grid, .variant-head, .variant-option-row, .product-form-grid .field-headline { grid-template-columns: 1fr; }
       .modal-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .topbar { flex-direction: column; align-items: stretch; }
       .stats { grid-template-columns: 1fr 1fr; }
@@ -950,6 +977,7 @@
             <div class="toolbar">
               <input class="input" id="searchInput" data-i18n-placeholder="products.search" placeholder="חפש לפי שם, תיאור או תג" />
               <select class="select" id="filterPromo"><option value="all" data-i18n="filters.all">כל המוצרים</option><option value="active" data-i18n="filters.active">רק פעילים</option><option value="inactive" data-i18n="filters.inactive">מושבתים</option><option value="promo" data-i18n="filters.promo">עם מבצע</option><option value="regular" data-i18n="filters.regular">ללא מבצע</option></select>
+              <select class="select" id="filterCategory"><option value="all">כל הקטגוריות</option></select>
               <select class="select" id="sortSelect"><option value="newest" data-i18n="sort.newest">החדש ביותר</option><option value="name" data-i18n="sort.name">לפי שם</option><option value="priceAsc" data-i18n="sort.priceAsc">מחיר עולה</option><option value="priceDesc" data-i18n="sort.priceDesc">מחיר יורד</option></select>
               <button class="btn btn-outline" id="refreshBtn" data-i18n="products.refresh">רענן</button>
             </div>
@@ -1203,14 +1231,16 @@
       </div>
       <form id="productForm">
         <div class="modal-grid product-form-grid">
-          <div class="field field-name"><label for="productName" data-i18n="form.name">שם המוצר</label><input class="input" id="productName" required /></div>
-          <div class="field field-price"><label for="productPrice" data-i18n="form.price">מחיר רגיל</label><input class="input" id="productPrice" type="number" min="0" step="0.01" required /></div>
-          <div class="field field-currency"><label for="productCurrency">מטבע</label><select class="select" id="productCurrency"></select></div>
-          <div class="field field-sale-active"><label for="productSaleActiveToggle">מחיר מבצע</label><div class="sale-toggle-wrap"><input id="productSaleActive" class="sale-switch-input" type="checkbox" /><button class="sale-switch" id="productSaleActiveToggle" type="button" role="switch" aria-checked="false" aria-label="הפעלת מחיר מבצע"></button><span class="mini sale-switch-label" id="productSaleStateText">לא פעיל</span></div></div>
-          <div class="field field-sale-price"><label for="productSalePrice">מחיר מבצע</label><input class="input" id="productSalePrice" type="number" min="0" step="0.01" placeholder="לדוגמה 99" disabled /></div>
-          <div class="field field-category"><label for="productCategory">קטגוריית מוצר</label><select class="select" id="productCategory"></select></div>
+          <div class="field field-headline">
+            <div class="field-headline-item field-name"><label for="productName" data-i18n="form.name">שם המוצר</label><input class="input" id="productName" required /></div>
+            <div class="field-headline-item field-price"><label for="productPrice" data-i18n="form.price">מחיר רגיל</label><input class="input" id="productPrice" type="number" min="0" step="0.01" required /></div>
+            <div class="field-headline-item field-sale-price"><label for="productSalePrice">מחיר מבצע</label><input class="input" id="productSalePrice" type="number" min="0" step="0.01" placeholder="לדוגמה 99" disabled /></div>
+            <div class="field-headline-item field-sale-active"><label for="productSaleActiveToggle">מחיר מבצע</label><div class="sale-toggle-wrap"><input id="productSaleActive" class="sale-switch-input" type="checkbox" /><button class="sale-switch" id="productSaleActiveToggle" type="button" role="switch" aria-checked="false" aria-label="הפעלת מחיר מבצע"></button><span class="mini sale-switch-label" id="productSaleStateText">לא פעיל</span></div></div>
+            <div class="field-headline-item field-currency"><label for="productCurrency">מטבע</label><select class="select" id="productCurrency"></select></div>
+          </div>
+          <div class="field field-category"><label for="productCategory">קטגוריית מוצר</label><input class="input" id="productCategory" list="productCategorySuggestions" placeholder="כתבו קטגוריה חדשה או בחרו קיימת" /><datalist id="productCategorySuggestions"></datalist></div>
           <div class="field full"><label for="productDesc" data-i18n="form.desc">תיאור</label><textarea class="textarea" id="productDesc"></textarea></div>
-          <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span>צבע טקסט</span><input class="input" id="productTagTextColor" type="color" value="#4f46e5" /><div class="color-swatch-grid" id="tagTextSwatches"></div></div><div class="tag-color-field"><span>צבע תגית</span><input class="input" id="productTagBackgroundColor" type="color" value="#dbeafe" /><div class="color-swatch-grid" id="tagBackgroundSwatches"></div><div class="color-swatch-title">או גרדיאנט</div><div class="color-swatch-grid" id="tagBackgroundGradientSwatches"></div></div><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
+          <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span>צבע טקסט</span><input class="input" id="productTagTextColor" type="color" value="#4f46e5" /></div><div class="tag-color-field"><span>צבע תגית</span><div class="tag-color-mode"><button type="button" class="active" data-tag-color-mode="solid">מלא</button><button type="button" data-tag-color-mode="gradient">הדרגתי</button></div><input class="input" id="productTagBackgroundColor" type="color" value="#dbeafe" /><div class="color-swatch-grid hidden" id="tagBackgroundGradientSwatches"></div></div><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
           <div class="field field-main-image"><label for="productMainImage">תמונה ראשית</label><input class="input" id="productMainImage" type="file" accept="image/*" /><div id="mainImageManager" class="image-manager"></div></div>
           <div class="field field-image"><label for="productImage" data-i18n="form.image">תמונות מוצר</label><input class="input" id="productImage" type="file" accept="image/*" multiple /><div id="imageManager" class="image-manager"></div></div>
           <div class="field field-button-shape"><label for="productButtonStyle">צורת כפתור הוסף לסל</label><select class="select" id="productButtonStyle"><option value="rounded">עגול רך</option><option value="pill">גלולה</option><option value="square">מרובע</option><option value="soft">רך ומודגש</option></select></div>
@@ -1314,7 +1344,7 @@
       { id: 'sales', label: 'מבצעים' },
       { id: 'general', label: 'קטגוריה כללית' }
     ];
-    const DEFAULT_PRODUCT_CATEGORY = 'general';
+    const DEFAULT_PRODUCT_CATEGORY = 'קטגוריה כללית';
 
     const DEFAULT_THEME = {
       template: 'classic',
@@ -1372,7 +1402,8 @@
       removedImagePaths: [],
       cart: {},
       selectedVariants: {},
-      modalTags: []
+      modalTags: [],
+      tagColorMode: 'solid'
     };
 
     const translations = {
@@ -1403,22 +1434,46 @@
     function dict() { return translations[state.lang] || translations.he; }
     function text(key) { return dict()[key] || translations.he[key] || key; }
     function esc(value) { return String(value ?? '').replaceAll('&','&amp;').replaceAll('<','&lt;').replaceAll('>','&gt;').replaceAll('"','&quot;'); }
-    function getProductCategoryId(rawCategory) {
-      const fallback = DEFAULT_PRODUCT_CATEGORY;
-      const selected = String(rawCategory || '').trim();
-      if (!selected) return fallback;
-      return PRODUCT_CATEGORY_OPTIONS.some((option) => option.id === selected) ? selected : fallback;
+    function slugifyCategory(label = '') {
+      const normalized = String(label || '').trim().toLowerCase();
+      if (!normalized) return 'general';
+      const heb = normalized
+        .replace(/[^a-z0-9\u0590-\u05ff\s-]/g, '')
+        .replace(/\s+/g, '-')
+        .replace(/-+/g, '-')
+        .replace(/^-|-$/g, '');
+      return heb || 'general';
     }
     function getProductCategoryLabel(rawCategory) {
-      const categoryId = getProductCategoryId(rawCategory);
-      return PRODUCT_CATEGORY_OPTIONS.find((option) => option.id === categoryId)?.label || PRODUCT_CATEGORY_OPTIONS.find((option) => option.id === DEFAULT_PRODUCT_CATEGORY)?.label || 'קטגוריה כללית';
+      const selected = String(rawCategory || '').trim();
+      if (!selected) return DEFAULT_PRODUCT_CATEGORY;
+      const existingById = PRODUCT_CATEGORY_OPTIONS.find((option) => option.id === selected);
+      if (existingById) return existingById.label;
+      return selected;
+    }
+    function getProductCategoryId(rawCategory) {
+      return slugifyCategory(getProductCategoryLabel(rawCategory));
+    }
+    function collectCategoryLabels() {
+      const builtIn = PRODUCT_CATEGORY_OPTIONS.map((option) => option.label);
+      const fromProducts = state.products.map((item) => getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category));
+      return [...new Set([...builtIn, ...fromProducts].map((label) => String(label || '').trim()).filter(Boolean))];
     }
     function renderProductCategoryOptions(selectedCategory = DEFAULT_PRODUCT_CATEGORY) {
-      const select = $('#productCategory');
+      const input = $('#productCategory');
+      const datalist = $('#productCategorySuggestions');
+      if (!input || !datalist) return;
+      const selectedLabel = getProductCategoryLabel(selectedCategory);
+      datalist.innerHTML = collectCategoryLabels().map((label) => `<option value="${esc(label)}"></option>`).join('');
+      input.value = selectedLabel || DEFAULT_PRODUCT_CATEGORY;
+    }
+    function renderCategoryFilterOptions() {
+      const select = $('#filterCategory');
       if (!select) return;
-      const categoryId = getProductCategoryId(selectedCategory);
-      select.innerHTML = PRODUCT_CATEGORY_OPTIONS.map((option) => `<option value="${esc(option.id)}">${esc(option.label)}</option>`).join('');
-      select.value = categoryId;
+      const prev = select.value || 'all';
+      const options = collectCategoryLabels();
+      select.innerHTML = `<option value="all">כל הקטגוריות</option>${options.map((label) => `<option value="${esc(slugifyCategory(label))}">${esc(label)}</option>`).join('')}`;
+      select.value = [...select.options].some((option) => option.value === prev) ? prev : 'all';
     }
     function showToast(message, isError = false) {
       const toast = $('#toast');
@@ -1558,8 +1613,8 @@
         colors: item.colors || [],
         addons: (item.addons || []).map(a => ({ type: a?.style || a?.type || 'text', label: a?.value || a?.label || '' })),
         upgrades: (item.variants || []).map(v => ({ name: v?.name || '', options: (v?.options || []).map(o => o?.label || o?.value || '') })),
-        categoryId: getProductCategoryId(item.categoryId || item.category),
-        categoryLabel: getProductCategoryLabel(item.categoryId || item.category),
+        categoryId: getProductCategoryId(item.categoryLabel || item.categoryId || item.category),
+        categoryLabel: getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category),
         animation: {
           enabled: !!(item.animationStyle && item.animationStyle !== 'none'),
           type: item.animationStyle || 'none',
@@ -1754,7 +1809,8 @@
             textColor: tagStyles?.[tag]?.textColor || legacyColor,
             backgroundColor: tagStyles?.[tag]?.backgroundColor || hexToRgba(legacyColor, .16),
             opacity: Number(tagStyles?.[tag]?.opacity ?? 0.85),
-            shape: tagStyles?.[tag]?.shape || 'pill'
+            shape: tagStyles?.[tag]?.shape || 'pill',
+            colorMode: tagStyles?.[tag]?.colorMode || 'solid'
           };
         }
         const label = tag?.label || '';
@@ -1764,7 +1820,8 @@
           textColor: tag?.textColor || tagStyles?.[label]?.textColor || legacyColor,
           backgroundColor: tag?.backgroundColor || tagStyles?.[label]?.backgroundColor || hexToRgba(legacyColor, .16),
           opacity: Number(tag?.opacity ?? tagStyles?.[label]?.opacity ?? 0.85),
-          shape: tag?.shape || tagStyles?.[label]?.shape || 'pill'
+          shape: tag?.shape || tagStyles?.[label]?.shape || 'pill',
+          colorMode: tag?.colorMode || tagStyles?.[label]?.colorMode || 'solid'
         } : null;
       }).filter(Boolean);
     }
@@ -1793,13 +1850,25 @@
       const value = input.value.trim();
       if (!value) return;
       const textColor = $('#productTagTextColor').value || '#4f46e5';
-      const backgroundColor = $('#productTagBackgroundColor').dataset.gradientValue || $('#productTagBackgroundColor').value || '#dbeafe';
+      const backgroundColor = state.tagColorMode === 'gradient'
+        ? ($('#productTagBackgroundColor').dataset.gradientValue || CARD_GRADIENT_PRESETS[0])
+        : ($('#productTagBackgroundColor').value || '#dbeafe');
       const opacity = Number($('#productTagOpacity').value || 0.85);
       const shape = $('#productTagShape').value || 'pill';
-      if (!state.modalTags.some((tag) => tag.label === value)) state.modalTags.push({ label: value, textColor, backgroundColor, opacity, shape });
+      if (!state.modalTags.some((tag) => tag.label === value)) state.modalTags.push({ label: value, textColor, backgroundColor, opacity, shape, colorMode: state.tagColorMode });
       input.value = '';
       renderTagEditor();
       renderModalProductPreview();
+    }
+    function syncTagColorModeUI(mode = 'solid') {
+      state.tagColorMode = mode === 'gradient' ? 'gradient' : 'solid';
+      document.querySelectorAll('[data-tag-color-mode]').forEach((button) => {
+        button.classList.toggle('active', button.dataset.tagColorMode === state.tagColorMode);
+      });
+      const gradientHost = $('#tagBackgroundGradientSwatches');
+      if (gradientHost) gradientHost.classList.toggle('hidden', state.tagColorMode !== 'gradient');
+      if (state.tagColorMode === 'solid') $('#productTagBackgroundColor').dataset.gradientValue = '';
+      if (state.tagColorMode === 'gradient' && !$('#productTagBackgroundColor').dataset.gradientValue) $('#productTagBackgroundColor').dataset.gradientValue = CARD_GRADIENT_PRESETS[0];
     }
     function renderCurrencyOptions(selectedCode = 'ILS') {
       const select = $('#productCurrency');
@@ -2135,7 +2204,7 @@
         active: true,
         status: 'active',
         useSiteTheme: 'inherit',
-        tagStyles: Object.fromEntries(state.modalTags.map(tag => [tag.label, { textColor: tag.textColor, backgroundColor: tag.backgroundColor, opacity: Number(tag.opacity || 0.85), shape: tag.shape }])),
+        tagStyles: Object.fromEntries(state.modalTags.map(tag => [tag.label, { textColor: tag.textColor, backgroundColor: tag.backgroundColor, opacity: Number(tag.opacity || 0.85), shape: tag.shape, colorMode: tag.colorMode || 'solid' }])),
         variants: collectVariants()
       };
     }
@@ -2197,11 +2266,12 @@
       state.mainImageFile = null;
       state.newImageFiles = [];
       state.removedImagePaths = [];
+      syncTagColorModeUI('solid');
       $('#productForm').reset();
       $('#variantsContainer').innerHTML = '';
       state.modalTags = normalizeTagData(item?.tags || [], item?.tagStyles || {});
       renderCurrencyOptions(item?.currency || 'ILS');
-      renderProductCategoryOptions(item?.categoryId || item?.category || DEFAULT_PRODUCT_CATEGORY);
+      renderProductCategoryOptions(item?.categoryLabel || item?.categoryId || item?.category || DEFAULT_PRODUCT_CATEGORY);
       if (item) {
         $('#productName').value = item.name || '';
         $('#productPrice').value = item.price || '';
@@ -2210,7 +2280,7 @@
         $('#productSalePrice').disabled = !item.saleActive;
         syncSaleToggleUI();
         $('#productDesc').value = item.description || '';
-        $('#productCategory').value = getProductCategoryId(item.categoryId || item.category);
+        $('#productCategory').value = getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category);
         $('#productButtonStyle').value = item.buttonStyle || 'rounded';
         $('#productCartButtonText').value = item.cartButtonText || 'הוספה לסל';
         (item.variants || []).forEach(addVariantGroup);
@@ -2346,7 +2416,7 @@
           categoryId: getProductCategoryId($('#productCategory').value),
           categoryLabel: getProductCategoryLabel($('#productCategory').value),
           tags: state.modalTags,
-          tagStyles: Object.fromEntries(state.modalTags.map((tag) => [tag.label, { textColor: tag.textColor, backgroundColor: tag.backgroundColor, opacity: Number(tag.opacity || 0.85), shape: tag.shape }])),
+          tagStyles: Object.fromEntries(state.modalTags.map((tag) => [tag.label, { textColor: tag.textColor, backgroundColor: tag.backgroundColor, opacity: Number(tag.opacity || 0.85), shape: tag.shape, colorMode: tag.colorMode || 'solid' }])),
           colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
           freeText: existingProduct ? (existingProduct.freeText || '') : '',
           font: existingProduct ? (existingProduct.font || 'Inter') : 'Inter',
@@ -2397,29 +2467,37 @@
       }
     }
 
-    function renderProducts() {
-      const container = $('#productsContainer');
+    function getVisibleProducts() {
       const q = $('#searchInput').value.trim().toLowerCase();
       const promoFilter = $('#filterPromo').value;
+      const categoryFilter = $('#filterCategory')?.value || 'all';
       const sortBy = $('#sortSelect').value;
       let items = [...state.products].filter((item) => {
-        const categoryLabel = getProductCategoryLabel(item.categoryId || item.category);
+        const categoryLabel = getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category);
+        const categoryId = slugifyCategory(categoryLabel);
         const tagLabels = (item.tags || []).map((tag) => typeof tag === 'string' ? tag : (tag?.label || ''));
         const variantLabels = (item.variants || []).flatMap((group) => [group?.name || '', ...((group?.options || []).map((option) => option?.label || option?.value || ''))]);
         const blob = [item.name, item.description, categoryLabel, ...tagLabels, ...variantLabels].join(' ').toLowerCase();
         const hasPromo = (item.addons || []).some(a => a.style === 'promo');
         const isActive = productIsActive(item);
         const promoMatch = promoFilter === 'all' || (promoFilter === 'promo' ? hasPromo : promoFilter === 'regular' ? !hasPromo : promoFilter === 'active' ? isActive : !isActive);
-        return (!q || blob.includes(q)) && promoMatch;
+        const categoryMatch = categoryFilter === 'all' || categoryId === categoryFilter;
+        return (!q || blob.includes(q)) && promoMatch && categoryMatch;
       });
       items.sort((a,b) => sortBy === 'name' ? (a.name||'').localeCompare(b.name||'', state.lang) : sortBy === 'priceAsc' ? (a.price||0)-(b.price||0) : sortBy === 'priceDesc' ? (b.price||0)-(a.price||0) : (b.createdAt?.seconds||0)-(a.createdAt?.seconds||0));
+      return items;
+    }
+
+    function renderProducts() {
+      const container = $('#productsContainer');
+      const items = getVisibleProducts();
       container.innerHTML = '';
       $('#emptyState').classList.toggle('hidden', items.length !== 0);
       items.forEach((item) => {
         const resolvedTheme = inheritThemeForItem(item);
         const pricing = getProductPricing(item);
         const currencyCode = item.currency || 'ILS';
-        const chips = [`קטלוג: ${getProductCategoryLabel(item.categoryId || item.category)}`, ...(item.tags || []).slice(0, 3).map(tag => typeof tag === 'string' ? tag : tag.label), ...((item.variants || []).slice(0, 2).map(group => `קטגוריה: ${group.name}`)), (resolvedTheme.animationStyle && resolvedTheme.animationStyle !== 'none') ? `אנימציה: ${resolvedTheme.animationStyle}` : 'תצוגה יציבה'];
+        const chips = [`קטלוג: ${getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category)}`, ...(item.tags || []).slice(0, 3).map(tag => typeof tag === 'string' ? tag : tag.label), ...((item.variants || []).slice(0, 2).map(group => `קטגוריה: ${group.name}`)), (resolvedTheme.animationStyle && resolvedTheme.animationStyle !== 'none') ? `אנימציה: ${resolvedTheme.animationStyle}` : 'תצוגה יציבה'];
         const card = document.createElement('article');
         card.className = 'product-card';
         const tone = resolvedTheme.cardTone || 'solid';
@@ -2486,6 +2564,8 @@
       state.unsubscribeProducts = onSnapshot(qy, async (snapshot) => {
         state.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
         await syncPublicCatalog(state.products);
+        renderCategoryFilterOptions();
+        renderProductCategoryOptions($('#productCategory')?.value || DEFAULT_PRODUCT_CATEGORY);
         renderProducts();
         syncDesignerProductOptions();
         renderPreviewProduct();
@@ -2523,11 +2603,13 @@
     }
 
     function exportProductsJson() {
-      const blob = new Blob([JSON.stringify({ theme: state.theme, products: state.products }, null, 2)], { type: 'application/json' });
+      const filteredProducts = getVisibleProducts();
+      const blob = new Blob([JSON.stringify({ theme: state.theme, products: filteredProducts }, null, 2)], { type: 'application/json' });
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
       a.href = url; a.download = 'products-export.json'; a.click();
       URL.revokeObjectURL(url);
+      showToast(`יוצאו ${filteredProducts.length} מוצרים לפי הסינון הנוכחי`);
     }
 
     function copyText(value, successMessage) {
@@ -2681,6 +2763,7 @@
     }
 
     function attachEvents() {
+      renderCategoryFilterOptions();
       $('#googleLoginBtn').addEventListener('click', signInGoogle);
       $('#authForm').addEventListener('submit', handleAuthSubmit);
       $('#loginTab').addEventListener('click', () => setAuthMode('login'));
@@ -2696,6 +2779,7 @@
       $('#refreshBtn').addEventListener('click', renderProducts);
       $('#searchInput').addEventListener('input', renderProducts);
       $('#filterPromo').addEventListener('change', renderProducts);
+      $('#filterCategory').addEventListener('change', renderProducts);
       $('#sortSelect').addEventListener('change', renderProducts);
       const closeSidebar = () => {
         $('#sidebar').classList.remove('open');
@@ -2772,6 +2856,7 @@
       });
       $('#themeBackgroundColor')?.addEventListener('input', () => { $('#themeBackgroundColor').dataset.gradientValue = ''; });
       $('#productTagBackgroundColor')?.addEventListener('input', () => { $('#productTagBackgroundColor').dataset.gradientValue = ''; renderModalProductPreview(); });
+      document.querySelectorAll('[data-tag-color-mode]').forEach((btn) => btn.addEventListener('click', () => syncTagColorModeUI(btn.dataset.tagColorMode)));
       ['desktopColumns','mobileColumns'].forEach((id) => $('#'+id).addEventListener('change', () => {
         state.theme.desktopColumns = Number($('#desktopColumns').value);
         state.theme.mobileColumns = Number($('#mobileColumns').value);
@@ -3089,6 +3174,7 @@
         state.products = [];
         state.theme = { ...DEFAULT_THEME };
         applyThemeToPreview();
+        renderCategoryFilterOptions();
         renderProducts();
       }
     });
