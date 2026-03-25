@@ -977,6 +977,7 @@
     const storage = getStorage(app);
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
+    const MAX_PRODUCT_IMAGES = 6;
 
     const DEFAULT_THEME = {
       template: 'classic',
@@ -1384,9 +1385,12 @@
     function productEffectiveTemplate(item) { return 'classic'; }
     function productShowCart(item) { return item.showCart === 'show' ? true : item.showCart === 'hide' ? false : !!state.theme.showCart; }
     function productIsActive(item) { return item.active !== false && item.status !== 'inactive'; }
+    function normalizeProductImages(images = []) {
+      return (images || []).filter(Boolean).slice(0, MAX_PRODUCT_IMAGES);
+    }
     function productImageUrls(item = {}) {
-      if (Array.isArray(item.imageUrls) && item.imageUrls.length) return item.imageUrls;
-      return item.imageUrl ? [item.imageUrl] : [];
+      if (Array.isArray(item.imageUrls) && item.imageUrls.length) return normalizeProductImages(item.imageUrls);
+      return normalizeProductImages(item.imageUrl ? [item.imageUrl] : []);
     }
     function buildImageGalleryHTML(item = {}, className = '') {
       const images = productImageUrls(item);
@@ -1395,7 +1399,8 @@
       const mode = item.imageSwitchMode || 'auto';
       const seconds = Math.max(1, Number(item.imageSwitchSeconds || 3));
       const arrows = mode === 'arrows' && images.length > 1;
-      return `<div class="image-gallery ${esc(className)}" data-gallery-mode="${esc(mode)}" data-gallery-interval="${seconds}" data-gallery-count="${images.length}">
+      const transitionSeconds = Math.max(0.2, Number(item.animationDuration || state.theme.animationDuration || 0.8));
+      return `<div class="image-gallery ${esc(className)}" data-gallery-mode="${esc(mode)}" data-gallery-interval="${seconds}" data-gallery-transition="${transitionSeconds}" data-gallery-count="${images.length}">
         <div class="image-gallery-track">${images.map((url, index) => `<img src="${esc(url)}" alt="${esc(item.name || '')} ${index + 1}">`).join('')}</div>
         ${arrows ? '<button type="button" class="image-gallery-arrow prev" data-gallery-nav="-1" aria-label="קודם">‹</button><button type="button" class="image-gallery-arrow next" data-gallery-nav="1" aria-label="הבא">›</button>' : ''}
       </div>`;
@@ -1410,6 +1415,8 @@
         if (!track || count < 2) return;
         const mode = gallery.dataset.galleryMode || 'auto';
         const intervalMs = Math.max(1000, Number(gallery.dataset.galleryInterval || 3) * 1000);
+        const transitionSeconds = Math.max(0.2, Number(gallery.dataset.galleryTransition || 0.8));
+        track.style.transitionDuration = `${transitionSeconds}s`;
         let index = 0;
         let timer = null;
         const render = () => { track.style.transform = `translateX(${index * -100}%)`; };
@@ -1698,22 +1705,24 @@
     }
 
     async function uploadProductImages(files = []) {
-      if (!files.length) {
-        const existing = state.currentImageUrls.length ? state.currentImageUrls : (state.currentImageUrl ? [state.currentImageUrl] : []);
+      const cappedFiles = [...files].slice(0, MAX_PRODUCT_IMAGES);
+      if (!cappedFiles.length) {
+        const existing = normalizeProductImages(state.currentImageUrls.length ? state.currentImageUrls : (state.currentImageUrl ? [state.currentImageUrl] : []));
         return { imageUrls: existing, imageUrl: existing[0] || '', imagePath: '', imagePaths: [], productId: state.editId || '', imageStorageMode: existing[0]?.startsWith('data:') ? 'firestore-inline' : 'storage' };
       }
       const uploaded = [];
       const paths = [];
       let productId = state.editId || crypto.randomUUID();
       let storageMode = 'storage';
-      for (const file of files) {
+      for (const file of cappedFiles) {
         const result = await uploadProductImage(file);
         uploaded.push(result.imageUrl);
         if (result.imagePath) paths.push(result.imagePath);
         productId = result.productId || productId;
         storageMode = result.imageStorageMode || storageMode;
       }
-      return { imageUrls: uploaded.filter(Boolean), imageUrl: uploaded[0] || '', imagePath: paths[0] || '', imagePaths: paths, productId, imageStorageMode: storageMode };
+      const normalized = normalizeProductImages(uploaded);
+      return { imageUrls: normalized, imageUrl: normalized[0] || '', imagePath: paths[0] || '', imagePaths: paths, productId, imageStorageMode: storageMode };
     }
 
     async function saveProduct(e) {
@@ -2137,7 +2146,14 @@
       });
       $('#resetThemeBtn').addEventListener('click', async () => { state.theme = { ...DEFAULT_THEME }; applyThemeToPreview(); await saveThemeToFirestore(); showToast('העיצוב אופס'); });
       $('#productImage').addEventListener('change', (e) => {
-        const files = [...(e.target.files || [])];
+        let files = [...(e.target.files || [])];
+        if (files.length > MAX_PRODUCT_IMAGES) {
+          files = files.slice(0, MAX_PRODUCT_IMAGES);
+          const dt = new DataTransfer();
+          files.forEach((file) => dt.items.add(file));
+          e.target.files = dt.files;
+          showToast(`אפשר לשמור עד ${MAX_PRODUCT_IMAGES} תמונות למוצר. נשמרו רק ${MAX_PRODUCT_IMAGES} הראשונות.`, true);
+        }
         if (state.previewObjectUrl) {
           URL.revokeObjectURL(state.previewObjectUrl);
           state.previewObjectUrl = '';
