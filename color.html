@@ -22,31 +22,6 @@
       margin: 0 auto;
     }
 
-    .top-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-      margin-bottom: 24px;
-      flex-wrap: wrap;
-    }
-
-    .open-btn {
-      width: 36px;
-      height: 36px;
-      border: 1px solid #dbe3f0;
-      background: linear-gradient(135deg, #2563eb, #60a5fa);
-      color: transparent;
-      padding: 0;
-      border-radius: 10px;
-      cursor: pointer;
-      font-size: 0;
-      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
-    }
-
-    .open-btn:hover {
-      transform: translateY(-1px);
-    }
-
     .target-box {
       width: 100%;
       min-height: 220px;
@@ -372,10 +347,6 @@
 </head>
 <body>
   <div class="page">
-    <div class="top-actions">
-      <button class="open-btn" id="openColorManager" aria-label="פתח מנהל צבעים" title="פתח מנהל צבעים"></button>
-    </div>
-
     <div class="target-box" id="targetBox">
       <div class="target-title">אזור לדוגמה</div>
       <div class="target-text">
@@ -491,8 +462,7 @@
   </div>
 
   <script>
-    const openBtn = document.getElementById('openColorManager');
-    const closeBtn = document.getElementById('closeColorManager');
+        const closeBtn = document.getElementById('closeColorManager');
     const cancelBtn = document.getElementById('cancelBtn');
     const resetBtn = document.getElementById('resetBtn');
     const applyBtn = document.getElementById('applyBtn');
@@ -530,6 +500,10 @@
     let tempState = {};
     let appliedState = {};
 
+    const urlParams = new URLSearchParams(window.location.search);
+    const requestedTargetInputId = (urlParams.get('target') || '').trim();
+    const requestedCssValue = (urlParams.get('value') || '').trim();
+
     function hexToRgb(hex) {
       const cleanHex = hex.replace('#', '');
       const fullHex = cleanHex.length === 3
@@ -548,6 +522,52 @@
       const { r, g, b } = hexToRgb(hex);
       const a = Math.max(0, Math.min(1, alphaPercent / 100));
       return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+
+    function parseCssColorValue(cssValue = '') {
+      const solidMatch = cssValue.match(/^rgba?\(([^)]+)\)$/i);
+      if (solidMatch) {
+        const parts = solidMatch[1].split(',').map((part) => part.trim());
+        if (parts.length >= 3) {
+          const [r, g, b] = parts.slice(0, 3).map(Number);
+          const alpha = parts[3] === undefined ? 1 : Number(parts[3]);
+          if (![r, g, b, alpha].some(Number.isNaN)) {
+            return {
+              mode: 'solid',
+              solidColor: `#${[r, g, b].map((value) => Math.max(0, Math.min(255, value)).toString(16).padStart(2, '0')).join('')}`,
+              solidAlpha: Math.round(Math.max(0, Math.min(1, alpha)) * 100)
+            };
+          }
+        }
+      }
+
+      const gradientMatch = cssValue.match(/^linear-gradient\((\d+(?:\.\d+)?)deg,\s*rgba?\(([^)]+)\),\s*rgba?\(([^)]+)\)\)$/i);
+      if (!gradientMatch) return null;
+
+      const angle = Number(gradientMatch[1]);
+      const parseStop = (value) => {
+        const parts = value.split(',').map((part) => part.trim());
+        const [r, g, b] = parts.slice(0, 3).map(Number);
+        const alpha = parts[3] === undefined ? 1 : Number(parts[3]);
+        if ([r, g, b, alpha].some(Number.isNaN)) return null;
+        return {
+          color: `#${[r, g, b].map((component) => Math.max(0, Math.min(255, component)).toString(16).padStart(2, '0')).join('')}`,
+          alpha: Math.round(Math.max(0, Math.min(1, alpha)) * 100)
+        };
+      };
+
+      const stop1 = parseStop(gradientMatch[2]);
+      const stop2 = parseStop(gradientMatch[3]);
+      if (!stop1 || !stop2) return null;
+
+      return {
+        mode: 'gradient',
+        gradientColor1: stop1.color,
+        gradientColor2: stop2.color,
+        gradientAlpha1: stop1.alpha,
+        gradientAlpha2: stop2.alpha,
+        gradientAngle: Math.round(Math.max(0, Math.min(360, angle)))
+      };
     }
 
     function getCurrentState() {
@@ -715,7 +735,6 @@
       });
     });
 
-    openBtn.addEventListener('click', openManager);
     closeBtn.addEventListener('click', closeManager);
     cancelBtn.addEventListener('click', closeManager);
 
@@ -742,12 +761,20 @@
     applyBtn.addEventListener('click', () => {
       appliedState = getCurrentState();
       applyToTarget(appliedState);
-      window.parent?.postMessage?.({
+      const selectedValue = getBackgroundCss(appliedState);
+      const payload = {
         type: 'color-selected',
         mode: appliedState.mode,
-        value: getBackgroundCss(appliedState)
-      }, '*');
+        value: selectedValue,
+        targetInputId: requestedTargetInputId
+      };
+      window.opener?.postMessage?.(payload, '*');
+      if (!window.opener || window.opener.closed) {
+        window.parent?.postMessage?.(payload, '*');
+      }
       closeManager();
+      window.opener?.focus?.();
+      window.close();
     });
 
     appliedState = {
@@ -762,8 +789,13 @@
       shineStrength: 55
     };
 
+    const requestedState = parseCssColorValue(requestedCssValue);
+    if (requestedState) {
+      appliedState = { ...appliedState, ...requestedState };
+    }
+
     applyToTarget(appliedState);
-    setState(appliedState);
+    openManager();
   </script>
 </body>
 </html>
