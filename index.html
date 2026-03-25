@@ -409,6 +409,26 @@
     .compact-color::-webkit-color-swatch-wrapper { padding: 2px; }
     .compact-color::-webkit-color-swatch { border: 1px solid rgba(148,163,184,.35); border-radius: 8px; }
     .compact-color::-moz-color-swatch { border: 1px solid rgba(148,163,184,.35); border-radius: 8px; }
+    .gradient-swatches {
+      display: flex;
+      flex-wrap: wrap;
+      gap: 8px;
+      margin-top: 2px;
+    }
+    .gradient-swatch {
+      width: 32px;
+      height: 32px;
+      border-radius: 999px;
+      border: 2px solid rgba(148,163,184,.42);
+      cursor: pointer;
+      box-shadow: 0 6px 12px rgba(15,23,42,.12);
+      padding: 0;
+    }
+    .gradient-swatch.active {
+      border-color: rgba(79,70,229,.95);
+      transform: translateY(-1px) scale(1.03);
+      box-shadow: 0 10px 20px rgba(79,70,229,.26);
+    }
     .compact-number {
       width: 96px;
       min-width: 96px;
@@ -981,6 +1001,10 @@
                       <div class="field"><label for="themeTextColor" data-i18n="designer.textColor">צבע טקסט</label><input class="input compact-color" id="themeTextColor" type="color" value="#111827" /></div>
                       <div class="field"><label for="themeButtonColor" data-i18n="designer.buttonColor">צבע כפתור</label><input class="input compact-color" id="themeButtonColor" type="color" value="#111827" /></div>
                     </div>
+                    <div class="field" style="margin-top:8px;">
+                      <label>רקעי גרדיאנט מוכנים</label>
+                      <div class="gradient-swatches" id="gradientSwatches"></div>
+                    </div>
                   </div>
                   <div class="designer-group">
                     <h5>אנימציות</h5>
@@ -999,7 +1023,7 @@
                       <div class="field"><label for="themeCardPadding" data-i18n="designer.cardPadding">ריווח פנימי</label><input class="input" id="themeCardPadding" type="range" min="12" max="36" step="2" value="18" /><div class="slider-value" id="themeCardPaddingValue">18px</div></div>
                       <div class="field"><label for="themeBorderRadius" data-i18n="designer.cardRadius">פינות כרטיס</label><input class="input" id="themeBorderRadius" type="range" min="12" max="36" step="2" value="24" /><div class="slider-value" id="themeBorderRadiusValue">24px</div></div>
                       <div class="field"><label for="themeImageHeight" data-i18n="designer.imageHeight">גובה תמונה</label><input class="input" id="themeImageHeight" type="range" min="160" max="320" step="10" value="220" /><div class="slider-value" id="themeImageHeightValue">220px</div></div>
-                      <div class="field"><label for="themeCardTone" data-i18n="designer.cardTone">סוג רקע לכרטיס</label><select class="select" id="themeCardTone"><option value="solid">אחיד</option><option value="gradient">גרדיאנט</option><option value="glass">זכוכית</option><option value="outline">מסגרת בלבד</option></select></div>
+                      <div class="field"><label for="themeCardTone" data-i18n="designer.cardTone">סוג רקע לכרטיס</label><select class="select" id="themeCardTone"><option value="solid">אחיד</option><option value="gradient">גרדיאנט מצבע אחד</option><option value="gradientPreset">גרדיאנט מוכן</option><option value="glass">זכוכית</option><option value="outline">מסגרת בלבד</option></select></div>
                     </div>
                   </div>
                   <div class="designer-group">
@@ -1225,6 +1249,14 @@
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     const MAX_PRODUCT_IMAGES = 6;
+    const CARD_GRADIENT_PRESETS = [
+      'linear-gradient(135deg, #ffffff 0%, #e0f2fe 100%)',
+      'linear-gradient(135deg, #ede9fe 0%, #dbeafe 100%)',
+      'linear-gradient(135deg, #fef3c7 0%, #fed7aa 100%)',
+      'linear-gradient(135deg, #dcfce7 0%, #bae6fd 100%)',
+      'linear-gradient(135deg, #fee2e2 0%, #e9d5ff 100%)',
+      'linear-gradient(135deg, #cffafe 0%, #ddd6fe 100%)'
+    ];
 
     const DEFAULT_THEME = {
       template: 'classic',
@@ -1237,6 +1269,7 @@
       cardBackground: '#ffffff',
       textColor: '#111827',
       buttonColor: '#111827',
+      cardGradient: CARD_GRADIENT_PRESETS[0],
       cardPadding: 18,
       borderRadius: 24,
       imageHeight: 220,
@@ -1546,6 +1579,7 @@
       $('#themeCardPaddingValue').textContent = `${Number(state.theme.cardPadding || 18)}px`;
       $('#themeBorderRadiusValue').textContent = `${Number(state.theme.borderRadius || 24)}px`;
       $('#themeImageHeightValue').textContent = `${Number(state.theme.imageHeight || 220)}px`;
+      renderGradientSwatches();
       toggleDesignerScopeFields();
       syncDesignerProductOptions();
       renderPreviewProduct();
@@ -1584,6 +1618,24 @@
       const g = clamp(((num >> 8) & 255) + amt);
       const b = clamp((num & 255) + amt);
       return `#${[r,g,b].map((v) => v.toString(16).padStart(2, '0')).join('')}`;
+    }
+    function resolveCardToneStyle(theme = {}, tone = 'solid') {
+      const baseBg = theme.cardBackground || '#ffffff';
+      const gradient = theme.cardGradient || CARD_GRADIENT_PRESETS[0];
+      if (tone === 'gradient') return `background:linear-gradient(150deg, ${esc(baseBg)}, ${esc(shadeColor(baseBg, -10))});`;
+      if (tone === 'gradientPreset') return `background:${esc(gradient)};`;
+      if (tone === 'glass') return `background:${esc(hexToRgba(baseBg, .86))};backdrop-filter:blur(14px);border:1px solid ${esc(hexToRgba(theme.primaryColor, .26))};`;
+      if (tone === 'outline') return `background:${esc(baseBg)};border:2px solid ${esc(theme.primaryColor)};`;
+      return `background:${esc(baseBg)};`;
+    }
+    function renderGradientSwatches() {
+      const host = $('#gradientSwatches');
+      if (!host) return;
+      const selected = state.theme.cardGradient || CARD_GRADIENT_PRESETS[0];
+      host.innerHTML = CARD_GRADIENT_PRESETS.map((gradient, index) => {
+        const active = gradient === selected ? 'active' : '';
+        return `<button type="button" class="gradient-swatch ${active}" data-gradient-index="${index}" style="background:${esc(gradient)};" aria-label="בחר גרדיאנט ${index + 1}"></button>`;
+      }).join('');
     }
 
     function normalizeTagData(tags = [], tagStyles = {}) {
@@ -1848,13 +1900,7 @@
         medium: 'box-shadow:0 16px 34px rgba(15,23,42,.16);',
         strong: 'box-shadow:0 20px 44px rgba(15,23,42,.24);'
       };
-      const toneStyle = tone === 'gradient'
-        ? `background:linear-gradient(150deg, ${esc(theme.cardBackground)}, ${esc(shadeColor(theme.cardBackground, -10))});`
-        : tone === 'glass'
-          ? `background:${esc(hexToRgba(theme.cardBackground, .86))};backdrop-filter:blur(14px);border:1px solid ${esc(hexToRgba(theme.primaryColor, .26))};`
-          : tone === 'outline'
-            ? `background:${esc(theme.cardBackground)};border:2px solid ${esc(theme.primaryColor)};`
-            : `background:${esc(theme.cardBackground)};`;
+      const toneStyle = resolveCardToneStyle(theme, tone);
       const shadowStyle = shadowMap[item.cardShadow || theme.cardShadow || 'soft'] || shadowMap.soft;
       return `<div class="store-card animate-in" data-animation="${esc(theme.animationStyle || 'none')}" style="${toneStyle}${shadowStyle}animation-duration:${Number(theme.animationDuration || 0.8)}s;animation-delay:${Number(theme.animationDelay || 0)}s;color:${esc(theme.textColor)};padding:${Number(theme.cardPadding || 18)}px;border-radius:${Number(theme.borderRadius || 24)}px;">${content}</div>`;
     }
@@ -1895,6 +1941,7 @@
         textColor: theme.textColor,
         buttonColor: theme.buttonColor,
         cardTone: theme.cardTone,
+        cardGradient: theme.cardGradient,
         cardShadow: theme.cardShadow,
         cardPadding: theme.cardPadding,
         borderRadius: theme.borderRadius,
@@ -2138,6 +2185,7 @@
           showCart: existingProduct ? (existingProduct.showCart || 'default') : 'default',
           accentColor: existingProduct?.accentColor || state.theme.primaryColor,
           cardBackground: existingProduct?.cardBackground || state.theme.cardBackground,
+          cardGradient: existingProduct?.cardGradient || state.theme.cardGradient,
           imageSwitchMode: state.theme.imageSwitchMode || 'auto',
           imageSwitchSeconds: Number(state.theme.imageSwitchSeconds || 3),
             buttonStyle: $('#productButtonStyle').value || 'rounded',
@@ -2198,12 +2246,7 @@
         const card = document.createElement('article');
         card.className = 'product-card';
         const tone = resolvedTheme.cardTone || 'solid';
-        const baseBg = resolvedTheme.cardBackground || '#ffffff';
-        const cardBgStyle = tone === 'gradient'
-          ? `background:linear-gradient(150deg, ${baseBg}, ${shadeColor(baseBg, -10)});`
-          : tone === 'glass'
-            ? `background:${hexToRgba(baseBg,.86)};backdrop-filter:blur(14px);`
-            : `background:${baseBg};`;
+        const cardBgStyle = resolveCardToneStyle(resolvedTheme, tone);
         card.style.cssText = `${cardBgStyle}color:${resolvedTheme.textColor || '#111827'};`;
         card.dataset.id = item.id;
         card.innerHTML = `
@@ -2509,8 +2552,20 @@
         state.theme.animationStyle = $('#themeAnimationStyle').value;
         state.theme.animationDuration = Number($('#themeAnimationDuration').value || 0.8);
         state.theme.animationDelay = Number($('#themeAnimationDelay').value || 0);
+        state.theme.cardGradient = state.theme.cardGradient || CARD_GRADIENT_PRESETS[0];
         applyThemeToPreview();
       }));
+      $('#gradientSwatches').addEventListener('click', (event) => {
+        const swatch = event.target.closest('.gradient-swatch');
+        if (!swatch) return;
+        const index = Number(swatch.dataset.gradientIndex);
+        const gradient = CARD_GRADIENT_PRESETS[index];
+        if (!gradient) return;
+        state.theme.cardGradient = gradient;
+        state.theme.cardTone = 'gradientPreset';
+        $('#themeCardTone').value = 'gradientPreset';
+        applyThemeToPreview();
+      });
       ['desktopColumns','mobileColumns'].forEach((id) => $('#'+id).addEventListener('change', () => {
         state.theme.desktopColumns = Number($('#desktopColumns').value);
         state.theme.mobileColumns = Number($('#mobileColumns').value);
@@ -2534,6 +2589,7 @@
                 textColor: state.theme.textColor,
                 buttonColor: state.theme.buttonColor,
                 cardTone: state.theme.cardTone,
+                cardGradient: state.theme.cardGradient,
                 cardShadow: state.theme.cardShadow,
                 cardPadding: state.theme.cardPadding,
                 borderRadius: state.theme.borderRadius,
