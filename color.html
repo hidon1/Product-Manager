@@ -1,0 +1,757 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מנהל צבעים</title>
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: Arial, sans-serif;
+      background: #f5f7fb;
+      padding: 30px;
+      color: #1f2937;
+    }
+
+    .page {
+      max-width: 1000px;
+      margin: 0 auto;
+    }
+
+    .top-actions {
+      display: flex;
+      gap: 12px;
+      align-items: center;
+      margin-bottom: 24px;
+      flex-wrap: wrap;
+    }
+
+    .open-btn {
+      border: 0;
+      background: linear-gradient(135deg, #2563eb, #60a5fa);
+      color: white;
+      padding: 12px 18px;
+      border-radius: 12px;
+      cursor: pointer;
+      font-size: 15px;
+      box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
+    }
+
+    .open-btn:hover {
+      transform: translateY(-1px);
+    }
+
+    .target-box {
+      width: 100%;
+      min-height: 220px;
+      border-radius: 22px;
+      border: 1px solid #dbe3f0;
+      background: linear-gradient(135deg, #dbeafe, #93c5fd);
+      box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+      position: relative;
+      overflow: hidden;
+      padding: 24px;
+    }
+
+    .target-box::before {
+      content: "";
+      position: absolute;
+      top: -40%;
+      right: -10%;
+      width: 280px;
+      height: 280px;
+      background: radial-gradient(circle, rgba(255,255,255,0.65), rgba(255,255,255,0.05) 60%, transparent 75%);
+      transform: rotate(20deg);
+      pointer-events: none;
+    }
+
+    .target-title {
+      font-size: 28px;
+      font-weight: bold;
+      margin-bottom: 12px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .target-text {
+      max-width: 700px;
+      line-height: 1.7;
+      font-size: 16px;
+      position: relative;
+      z-index: 1;
+    }
+
+    .css-output {
+      margin-top: 18px;
+      background: #ffffff;
+      border: 1px solid #dbe3f0;
+      border-radius: 14px;
+      padding: 14px;
+      font-family: monospace;
+      word-break: break-word;
+      font-size: 14px;
+      color: #111827;
+    }
+
+    .overlay {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      padding: 20px;
+      z-index: 9999;
+    }
+
+    .overlay.active {
+      display: flex;
+    }
+
+    .modal {
+      width: 100%;
+      max-width: 980px;
+      background: #fff;
+      border-radius: 24px;
+      box-shadow: 0 30px 70px rgba(0,0,0,0.2);
+      overflow: hidden;
+      border: 1px solid #e5e7eb;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 18px 20px;
+      border-bottom: 1px solid #e5e7eb;
+      background: #f8fafc;
+    }
+
+    .modal-title {
+      font-size: 20px;
+      font-weight: bold;
+    }
+
+    .close-btn {
+      background: #eef2ff;
+      border: 0;
+      color: #1e3a8a;
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      cursor: pointer;
+      font-size: 20px;
+    }
+
+    .modal-body {
+      display: grid;
+      grid-template-columns: 1.2fr 1fr;
+      gap: 0;
+    }
+
+    .controls {
+      padding: 20px;
+      border-left: 1px solid #e5e7eb;
+      background: #ffffff;
+    }
+
+    .preview-side {
+      padding: 20px;
+      background: #f8fafc;
+    }
+
+    .section {
+      margin-bottom: 22px;
+      padding-bottom: 18px;
+      border-bottom: 1px solid #edf2f7;
+    }
+
+    .section:last-child {
+      border-bottom: none;
+      margin-bottom: 0;
+      padding-bottom: 0;
+    }
+
+    .label {
+      display: block;
+      font-weight: bold;
+      margin-bottom: 10px;
+      font-size: 14px;
+    }
+
+    .row {
+      display: flex;
+      gap: 12px;
+      flex-wrap: wrap;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+
+    .pill-switch {
+      display: inline-flex;
+      background: #eef2ff;
+      border-radius: 999px;
+      padding: 4px;
+      gap: 4px;
+    }
+
+    .pill-switch button {
+      border: 0;
+      background: transparent;
+      color: #334155;
+      padding: 10px 16px;
+      border-radius: 999px;
+      cursor: pointer;
+      font-weight: bold;
+    }
+
+    .pill-switch button.active {
+      background: #ffffff;
+      box-shadow: 0 2px 10px rgba(0,0,0,0.08);
+      color: #1e3a8a;
+    }
+
+    .field {
+      flex: 1 1 180px;
+      min-width: 160px;
+    }
+
+    .field input[type="color"] {
+      width: 100%;
+      height: 50px;
+      border: 1px solid #dbe3f0;
+      border-radius: 12px;
+      padding: 4px;
+      background: white;
+      cursor: pointer;
+    }
+
+    .field input[type="range"] {
+      width: 100%;
+      cursor: pointer;
+    }
+
+    .field input[type="number"] {
+      width: 100%;
+      border: 1px solid #dbe3f0;
+      border-radius: 12px;
+      padding: 12px;
+      font-size: 14px;
+      outline: none;
+      background: white;
+    }
+
+    .mini-note {
+      font-size: 12px;
+      color: #64748b;
+      margin-top: 4px;
+    }
+
+    .preview-card {
+      border-radius: 22px;
+      min-height: 360px;
+      border: 1px solid #dbe3f0;
+      position: relative;
+      overflow: hidden;
+      background: linear-gradient(135deg, #60a5fa, #1d4ed8);
+      box-shadow: 0 20px 50px rgba(0,0,0,0.12);
+    }
+
+    .preview-card::before {
+      content: "";
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background: linear-gradient(135deg, rgba(255,255,255,0.35), rgba(255,255,255,0.02) 40%, rgba(255,255,255,0.18) 85%);
+      mix-blend-mode: screen;
+    }
+
+    .preview-card::after {
+      content: "";
+      position: absolute;
+      top: -30%;
+      right: -10%;
+      width: 260px;
+      height: 260px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(255,255,255,0.55), rgba(255,255,255,0.06) 60%, transparent 72%);
+      filter: blur(2px);
+      pointer-events: none;
+    }
+
+    .preview-content {
+      position: relative;
+      z-index: 1;
+      padding: 28px;
+      color: white;
+    }
+
+    .preview-content h2 {
+      margin: 0 0 10px;
+      font-size: 28px;
+    }
+
+    .preview-content p {
+      margin: 0;
+      line-height: 1.7;
+      font-size: 15px;
+      max-width: 420px;
+    }
+
+    .css-box {
+      margin-top: 16px;
+      background: #fff;
+      border: 1px solid #dbe3f0;
+      border-radius: 14px;
+      padding: 12px;
+      font-family: monospace;
+      font-size: 13px;
+      word-break: break-word;
+      color: #0f172a;
+    }
+
+    .modal-footer {
+      display: flex;
+      justify-content: space-between;
+      gap: 12px;
+      flex-wrap: wrap;
+      padding: 18px 20px;
+      border-top: 1px solid #e5e7eb;
+      background: #f8fafc;
+    }
+
+    .footer-right,
+    .footer-left {
+      display: flex;
+      gap: 10px;
+      flex-wrap: wrap;
+    }
+
+    .btn {
+      border: 0;
+      border-radius: 12px;
+      padding: 12px 18px;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 14px;
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, #2563eb, #60a5fa);
+      color: white;
+    }
+
+    .btn-secondary {
+      background: #e2e8f0;
+      color: #0f172a;
+    }
+
+    .btn-light {
+      background: #ffffff;
+      color: #0f172a;
+      border: 1px solid #dbe3f0;
+    }
+
+    @media (max-width: 860px) {
+      .modal-body {
+        grid-template-columns: 1fr;
+      }
+
+      .controls {
+        border-left: 0;
+        border-bottom: 1px solid #e5e7eb;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="page">
+    <div class="top-actions">
+      <button class="open-btn" id="openColorManager">פתח מנהל צבעים</button>
+    </div>
+
+    <div class="target-box" id="targetBox">
+      <div class="target-title">אזור לדוגמה</div>
+      <div class="target-text">
+        זה אזור תצוגה לדוגמה. אחרי שהמשתמש בוחר צבע או גרדיאנט בחלון,
+        הצבע הסופי יוחל כאן. אפשר אחר כך לקחת את ערך ה־CSS ולשמור אותו ב־Firebase, ב־JSON, או בכל מערכת ניהול.
+      </div>
+    </div>
+
+    <div class="css-output" id="finalCssOutput">
+      background: linear-gradient(135deg, rgba(96, 165, 250, 1), rgba(29, 78, 216, 1));
+    </div>
+  </div>
+
+  <div class="overlay" id="colorOverlay">
+    <div class="modal">
+      <div class="modal-header">
+        <div class="modal-title">מנהל צבעים</div>
+        <button class="close-btn" id="closeColorManager">×</button>
+      </div>
+
+      <div class="modal-body">
+        <div class="controls">
+          <div class="section">
+            <label class="label">סוג צבע</label>
+            <div class="pill-switch">
+              <button type="button" id="solidModeBtn" class="active">צבע אחיד</button>
+              <button type="button" id="gradientModeBtn">צבע הדרגתי</button>
+            </div>
+          </div>
+
+          <div class="section" id="solidSection">
+            <label class="label">צבע אחיד</label>
+            <div class="row">
+              <div class="field">
+                <input type="color" id="solidColor" value="#3b82f6">
+                <div class="mini-note">בחר צבע בסיס</div>
+              </div>
+              <div class="field">
+                <input type="range" id="solidAlpha" min="0" max="100" value="100">
+                <div class="mini-note">שקיפות: <span id="solidAlphaValue">100</span>%</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section" id="gradientSection" style="display:none;">
+            <label class="label">צבע הדרגתי</label>
+            <div class="row">
+              <div class="field">
+                <input type="color" id="gradientColor1" value="#60a5fa">
+                <div class="mini-note">צבע ראשון</div>
+              </div>
+              <div class="field">
+                <input type="color" id="gradientColor2" value="#1d4ed8">
+                <div class="mini-note">צבע שני</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <input type="range" id="gradientAlpha1" min="0" max="100" value="100">
+                <div class="mini-note">שקיפות צבע ראשון: <span id="gradientAlpha1Value">100</span>%</div>
+              </div>
+              <div class="field">
+                <input type="range" id="gradientAlpha2" min="0" max="100" value="100">
+                <div class="mini-note">שקיפות צבע שני: <span id="gradientAlpha2Value">100</span>%</div>
+              </div>
+            </div>
+
+            <div class="row">
+              <div class="field">
+                <input type="range" id="gradientAngle" min="0" max="360" value="135">
+                <div class="mini-note">זווית: <span id="gradientAngleValue">135</span>°</div>
+              </div>
+            </div>
+          </div>
+
+          <div class="section">
+            <label class="label">אפקט הברקה / השתקפות</label>
+            <div class="row">
+              <div class="field">
+                <input type="range" id="shineStrength" min="0" max="100" value="55">
+                <div class="mini-note">עוצמה: <span id="shineStrengthValue">55</span>%</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="preview-side">
+          <div class="preview-card" id="previewCard">
+            <div class="preview-content">
+              <h2>תצוגה מקדימה</h2>
+              <p>
+                כאן המשתמש רואה איך הצבע נראה בפועל, כולל אחיד או הדרגתי,
+                עם תחושת הברקה והשתקפות.
+              </p>
+            </div>
+          </div>
+
+          <div class="css-box" id="previewCssBox"></div>
+        </div>
+      </div>
+
+      <div class="modal-footer">
+        <div class="footer-right">
+          <button class="btn btn-light" id="resetBtn">איפוס</button>
+          <button class="btn btn-secondary" id="cancelBtn">ביטול</button>
+        </div>
+        <div class="footer-left">
+          <button class="btn btn-primary" id="applyBtn">אשר והחל</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    const openBtn = document.getElementById('openColorManager');
+    const closeBtn = document.getElementById('closeColorManager');
+    const cancelBtn = document.getElementById('cancelBtn');
+    const resetBtn = document.getElementById('resetBtn');
+    const applyBtn = document.getElementById('applyBtn');
+    const overlay = document.getElementById('colorOverlay');
+
+    const solidModeBtn = document.getElementById('solidModeBtn');
+    const gradientModeBtn = document.getElementById('gradientModeBtn');
+
+    const solidSection = document.getElementById('solidSection');
+    const gradientSection = document.getElementById('gradientSection');
+
+    const solidColor = document.getElementById('solidColor');
+    const solidAlpha = document.getElementById('solidAlpha');
+    const solidAlphaValue = document.getElementById('solidAlphaValue');
+
+    const gradientColor1 = document.getElementById('gradientColor1');
+    const gradientColor2 = document.getElementById('gradientColor2');
+    const gradientAlpha1 = document.getElementById('gradientAlpha1');
+    const gradientAlpha2 = document.getElementById('gradientAlpha2');
+    const gradientAlpha1Value = document.getElementById('gradientAlpha1Value');
+    const gradientAlpha2Value = document.getElementById('gradientAlpha2Value');
+    const gradientAngle = document.getElementById('gradientAngle');
+    const gradientAngleValue = document.getElementById('gradientAngleValue');
+
+    const shineStrength = document.getElementById('shineStrength');
+    const shineStrengthValue = document.getElementById('shineStrengthValue');
+
+    const previewCard = document.getElementById('previewCard');
+    const previewCssBox = document.getElementById('previewCssBox');
+
+    const targetBox = document.getElementById('targetBox');
+    const finalCssOutput = document.getElementById('finalCssOutput');
+
+    let mode = 'solid';
+    let tempState = {};
+    let appliedState = {};
+
+    function hexToRgb(hex) {
+      const cleanHex = hex.replace('#', '');
+      const fullHex = cleanHex.length === 3
+        ? cleanHex.split('').map(ch => ch + ch).join('')
+        : cleanHex;
+
+      const bigint = parseInt(fullHex, 16);
+      return {
+        r: (bigint >> 16) & 255,
+        g: (bigint >> 8) & 255,
+        b: bigint & 255
+      };
+    }
+
+    function hexToRgba(hex, alphaPercent) {
+      const { r, g, b } = hexToRgb(hex);
+      const a = Math.max(0, Math.min(1, alphaPercent / 100));
+      return `rgba(${r}, ${g}, ${b}, ${a})`;
+    }
+
+    function getCurrentState() {
+      return {
+        mode,
+        solidColor: solidColor.value,
+        solidAlpha: Number(solidAlpha.value),
+
+        gradientColor1: gradientColor1.value,
+        gradientColor2: gradientColor2.value,
+        gradientAlpha1: Number(gradientAlpha1.value),
+        gradientAlpha2: Number(gradientAlpha2.value),
+        gradientAngle: Number(gradientAngle.value),
+
+        shineStrength: Number(shineStrength.value)
+      };
+    }
+
+    function setState(state) {
+      mode = state.mode || 'solid';
+
+      solidColor.value = state.solidColor || '#3b82f6';
+      solidAlpha.value = state.solidAlpha ?? 100;
+
+      gradientColor1.value = state.gradientColor1 || '#60a5fa';
+      gradientColor2.value = state.gradientColor2 || '#1d4ed8';
+      gradientAlpha1.value = state.gradientAlpha1 ?? 100;
+      gradientAlpha2.value = state.gradientAlpha2 ?? 100;
+      gradientAngle.value = state.gradientAngle ?? 135;
+
+      shineStrength.value = state.shineStrength ?? 55;
+
+      syncLabels();
+      updateModeUI();
+      renderPreview();
+    }
+
+    function syncLabels() {
+      solidAlphaValue.textContent = solidAlpha.value;
+      gradientAlpha1Value.textContent = gradientAlpha1.value;
+      gradientAlpha2Value.textContent = gradientAlpha2.value;
+      gradientAngleValue.textContent = gradientAngle.value;
+      shineStrengthValue.textContent = shineStrength.value;
+    }
+
+    function updateModeUI() {
+      if (mode === 'solid') {
+        solidModeBtn.classList.add('active');
+        gradientModeBtn.classList.remove('active');
+        solidSection.style.display = '';
+        gradientSection.style.display = 'none';
+      } else {
+        gradientModeBtn.classList.add('active');
+        solidModeBtn.classList.remove('active');
+        solidSection.style.display = 'none';
+        gradientSection.style.display = '';
+      }
+    }
+
+    function getBackgroundCss(state) {
+      if (state.mode === 'solid') {
+        return hexToRgba(state.solidColor, state.solidAlpha);
+      }
+
+      const c1 = hexToRgba(state.gradientColor1, state.gradientAlpha1);
+      const c2 = hexToRgba(state.gradientColor2, state.gradientAlpha2);
+      return `linear-gradient(${state.gradientAngle}deg, ${c1}, ${c2})`;
+    }
+
+    function getShineOverlayCss(state) {
+      const shine = Math.max(0, Math.min(1, state.shineStrength / 100));
+      const topAlpha = (shine * 0.55).toFixed(2);
+      const midAlpha = (shine * 0.10).toFixed(2);
+      const endAlpha = (shine * 0.28).toFixed(2);
+
+      return `linear-gradient(135deg, rgba(255,255,255,${topAlpha}), rgba(255,255,255,${midAlpha}) 40%, rgba(255,255,255,${endAlpha}) 85%)`;
+    }
+
+    function renderPreview() {
+      tempState = getCurrentState();
+      const backgroundCss = getBackgroundCss(tempState);
+      const shineCss = getShineOverlayCss(tempState);
+
+      previewCard.style.background = backgroundCss;
+
+      const styleId = 'dynamicPreviewShineStyle';
+      let styleTag = document.getElementById(styleId);
+
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = styleId;
+        document.head.appendChild(styleTag);
+      }
+
+      styleTag.textContent = `
+        #previewCard::before{
+          background: ${shineCss} !important;
+        }
+      `;
+
+      previewCssBox.textContent =
+        `background: ${backgroundCss};\n` +
+        `shineOverlay: ${shineCss};`;
+    }
+
+    function applyToTarget(state) {
+      const backgroundCss = getBackgroundCss(state);
+      const shineCss = getShineOverlayCss(state);
+
+      targetBox.style.background = backgroundCss;
+      finalCssOutput.textContent =
+        `background: ${backgroundCss};\nshineOverlay: ${shineCss};`;
+
+      const styleId = 'dynamicTargetShineStyle';
+      let styleTag = document.getElementById(styleId);
+
+      if (!styleTag) {
+        styleTag = document.createElement('style');
+        styleTag.id = styleId;
+        document.head.appendChild(styleTag);
+      }
+
+      styleTag.textContent = `
+        #targetBox::before{
+          background: radial-gradient(circle, rgba(255,255,255,${(state.shineStrength / 100 * 0.7).toFixed(2)}), rgba(255,255,255,0.06) 60%, transparent 75%) !important;
+        }
+      `;
+    }
+
+    function openManager() {
+      overlay.classList.add('active');
+      setState(appliedState);
+    }
+
+    function closeManager() {
+      overlay.classList.remove('active');
+    }
+
+    solidModeBtn.addEventListener('click', () => {
+      mode = 'solid';
+      updateModeUI();
+      renderPreview();
+    });
+
+    gradientModeBtn.addEventListener('click', () => {
+      mode = 'gradient';
+      updateModeUI();
+      renderPreview();
+    });
+
+    [
+      solidColor, solidAlpha,
+      gradientColor1, gradientColor2,
+      gradientAlpha1, gradientAlpha2,
+      gradientAngle, shineStrength
+    ].forEach(el => {
+      el.addEventListener('input', () => {
+        syncLabels();
+        renderPreview();
+      });
+    });
+
+    openBtn.addEventListener('click', openManager);
+    closeBtn.addEventListener('click', closeManager);
+    cancelBtn.addEventListener('click', closeManager);
+
+    overlay.addEventListener('click', (e) => {
+      if (e.target === overlay) {
+        closeManager();
+      }
+    });
+
+    resetBtn.addEventListener('click', () => {
+      setState({
+        mode: 'solid',
+        solidColor: '#3b82f6',
+        solidAlpha: 100,
+        gradientColor1: '#60a5fa',
+        gradientColor2: '#1d4ed8',
+        gradientAlpha1: 100,
+        gradientAlpha2: 100,
+        gradientAngle: 135,
+        shineStrength: 55
+      });
+    });
+
+    applyBtn.addEventListener('click', () => {
+      appliedState = getCurrentState();
+      applyToTarget(appliedState);
+      closeManager();
+    });
+
+    appliedState = {
+      mode: 'gradient',
+      solidColor: '#3b82f6',
+      solidAlpha: 100,
+      gradientColor1: '#60a5fa',
+      gradientColor2: '#1d4ed8',
+      gradientAlpha1: 100,
+      gradientAlpha2: 100,
+      gradientAngle: 135,
+      shineStrength: 55
+    };
+
+    applyToTarget(appliedState);
+    setState(appliedState);
+  </script>
+</body>
+</html>
