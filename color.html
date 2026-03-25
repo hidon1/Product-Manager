@@ -31,13 +31,15 @@
     }
 
     .open-btn {
-      border: 0;
+      width: 36px;
+      height: 36px;
+      border: 1px solid #dbe3f0;
       background: linear-gradient(135deg, #2563eb, #60a5fa);
-      color: white;
-      padding: 12px 18px;
-      border-radius: 12px;
+      color: transparent;
+      padding: 0;
+      border-radius: 10px;
       cursor: pointer;
-      font-size: 15px;
+      font-size: 0;
       box-shadow: 0 8px 20px rgba(37, 99, 235, 0.2);
     }
 
@@ -371,7 +373,7 @@
 <body>
   <div class="page">
     <div class="top-actions">
-      <button class="open-btn" id="openColorManager">פתח מנהל צבעים</button>
+      <button class="open-btn" id="openColorManager" aria-label="פתח מנהל צבעים" title="פתח מנהל צבעים"></button>
     </div>
 
     <div class="target-box" id="targetBox">
@@ -616,6 +618,7 @@
     }
 
     function getShineOverlayCss(state) {
+      if (state.mode === 'solid') return 'none';
       const shine = Math.max(0, Math.min(1, state.shineStrength / 100));
       const topAlpha = (shine * 0.55).toFixed(2);
       const midAlpha = (shine * 0.10).toFixed(2);
@@ -668,9 +671,13 @@
         document.head.appendChild(styleTag);
       }
 
+      const targetShineCss = state.mode === 'solid'
+        ? 'none'
+        : `radial-gradient(circle, rgba(255,255,255,${(state.shineStrength / 100 * 0.7).toFixed(2)}), rgba(255,255,255,0.06) 60%, transparent 75%)`;
+
       styleTag.textContent = `
         #targetBox::before{
-          background: radial-gradient(circle, rgba(255,255,255,${(state.shineStrength / 100 * 0.7).toFixed(2)}), rgba(255,255,255,0.06) 60%, transparent 75%) !important;
+          background: ${targetShineCss} !important;
         }
       `;
     }
@@ -735,6 +742,11 @@
     applyBtn.addEventListener('click', () => {
       appliedState = getCurrentState();
       applyToTarget(appliedState);
+      window.parent?.postMessage?.({
+        type: 'color-selected',
+        mode: appliedState.mode,
+        value: getBackgroundCss(appliedState)
+      }, '*');
       closeManager();
     });
 
