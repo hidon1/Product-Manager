@@ -505,6 +505,7 @@
     const embedMode = urlParams.get('embed') === '1';
     const targetInputId = urlParams.get('target') || '';
     const initialValue = (urlParams.get('value') || '').trim();
+    const allowGradient = urlParams.get('allowGradient') !== '0';
 
     if (embedMode) document.body.classList.add('embed-mode');
 
@@ -590,6 +591,8 @@
     }
 
     function updateModeUI() {
+      gradientModeBtn.style.display = allowGradient ? '' : 'none';
+      if (!allowGradient) mode = 'solid';
       if (mode === 'solid') {
         solidModeBtn.classList.add('active');
         gradientModeBtn.classList.remove('active');
@@ -606,7 +609,7 @@
     }
 
     function getBackgroundCss(state) {
-      if (state.mode === 'solid') {
+      if (state.mode === 'solid' || !allowGradient) {
         return hexToRgba(state.solidColor, state.solidAlpha);
       }
 
@@ -729,6 +732,7 @@
       const gradientValueMatch = value.match(/linear-gradient\((?:[^)(]+|\([^)(]*\))*\)/i);
       const gradientValue = gradientValueMatch ? gradientValueMatch[0] : '';
       if (gradientValue) {
+        if (!allowGradient) return;
         mode = 'gradient';
         const angleMatch = gradientValue.match(/linear-gradient\(\s*(-?\d+(?:\.\d+)?)deg/i);
         if (angleMatch) gradientAngle.value = Math.round(Number(angleMatch[1]));
@@ -806,6 +810,7 @@
     });
 
     gradientModeBtn.addEventListener('click', () => {
+      if (!allowGradient) return;
       mode = 'gradient';
       updateModeUI();
       renderPreview();
