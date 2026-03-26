@@ -29,6 +29,7 @@
       --hero-accent: linear-gradient(135deg, #7c3aed, #06b6d4, #f97316);
       --surface-highlight: linear-gradient(135deg, rgba(255,255,255,.98), rgba(240,249,255,.94), rgba(250,245,255,.96));
       --preview-bg: linear-gradient(135deg, #4f46e5, #4338ca);
+      --preview-shell-bg: #ffffff;
       --preview-card: #ffffff;
       --preview-text: #172033;
       --preview-muted: #5b657b;
@@ -612,7 +613,7 @@
       border:1px solid var(--line); border-radius: 22px; padding: 18px; background: rgba(255,255,255,.02);
     }
     .product-preview-shell {
-      padding: 14px; border-radius: 20px; background: var(--preview-bg); max-width: 360px; margin-inline: auto;
+      padding: 14px; border-radius: 20px; background: var(--preview-shell-bg); max-width: 360px; margin-inline: auto;
     }
     .product-preview-shell[data-template="classic"] .store-card {
       gap: 12px;
@@ -1760,13 +1761,13 @@
     }
 
     function applyThemeToPreview() {
-      state.theme.primaryColor = state.theme.buttonColor || state.theme.primaryColor;
       document.documentElement.style.setProperty('--preview-bg', `linear-gradient(135deg, ${state.theme.primaryColor}, ${shadeColor(state.theme.primaryColor, -18)})`);
+      document.documentElement.style.setProperty('--preview-shell-bg', '#ffffff');
       document.documentElement.style.setProperty('--preview-card', state.theme.cardBackground);
       document.documentElement.style.setProperty('--preview-text', state.theme.textColor);
-      document.documentElement.style.setProperty('--preview-muted', hexToRgba(state.theme.textColor, .62));
+      document.documentElement.style.setProperty('--preview-muted', cssColorWithAlpha(getSafeCssColor(state.theme.textColor, '#111827'), .62));
       document.documentElement.style.setProperty('--preview-btn-bg', state.theme.buttonColor);
-      document.documentElement.style.setProperty('--preview-btn-text', getContrastColor(state.theme.buttonColor));
+      document.documentElement.style.setProperty('--preview-btn-text', getReadableTextColor(state.theme.buttonColor));
       document.documentElement.style.setProperty('--store-padding', `${Number(state.theme.cardPadding || 18)}px`);
       document.documentElement.style.setProperty('--store-radius', `${Number(state.theme.borderRadius || 24)}px`);
       document.documentElement.style.setProperty('--store-image-height', `${Number(state.theme.imageHeight || 220)}px`);
@@ -1794,8 +1795,8 @@
           themeBackgroundInput.dataset.cssColorValue = '';
         }
       }
-      $('#themeTextColor').value = normalizeHex(state.theme.textColor);
-      $('#themeButtonColor').value = normalizeHex(state.theme.buttonColor);
+      syncColorInputFromCssValue($('#themeTextColor'), state.theme.textColor, '#111827');
+      syncColorInputFromCssValue($('#themeButtonColor'), state.theme.buttonColor, '#111827');
       $('#themeCardShadow').value = state.theme.cardShadow || 'soft';
       $('#themeCardPadding').value = Number(state.theme.cardPadding || 18);
       $('#themeBorderRadius').value = Number(state.theme.borderRadius || 24);
@@ -1853,6 +1854,43 @@
     function getColorInputCssValue(input, fallback = '#334155') {
       if (!input) return fallback;
       return (input.dataset.gradientValue || input.dataset.cssColorValue || input.value || fallback).trim();
+    }
+    function getSafeCssColor(value = '', fallback = '#111827') {
+      const raw = String(value || '').trim();
+      return raw && CSS.supports('color', raw) ? raw : fallback;
+    }
+    function getReadableTextColor(backgroundValue = '') {
+      const raw = String(backgroundValue || '').trim();
+      if (raw && CSS.supports('color', raw)) return getContrastColor(raw);
+      if (isGradientValue(raw)) {
+        const colorTokens = raw.match(/rgba?\([^)]+\)|#[0-9a-f]{3,8}/gi) || [];
+        for (const token of colorTokens) {
+          if (CSS.supports('color', token)) return getContrastColor(token);
+        }
+      }
+      return '#ffffff';
+    }
+    function syncColorInputFromCssValue(input, cssValue = '', fallback = '#334155') {
+      if (!input) return;
+      const next = String(cssValue || fallback).trim();
+      if (isGradientValue(next)) {
+        input.dataset.gradientValue = next;
+        input.dataset.cssColorValue = '';
+        input.value = normalizeHex(fallback);
+        return;
+      }
+      const hex = cssColorToHex(next);
+      input.dataset.gradientValue = '';
+      if (hex) {
+        input.dataset.cssColorValue = '';
+        input.value = hex;
+      } else if (next && CSS.supports('color', next)) {
+        input.value = normalizeHex(fallback);
+        input.dataset.cssColorValue = next;
+      } else {
+        input.value = normalizeHex(fallback);
+        input.dataset.cssColorValue = '';
+      }
     }
     function hexToRgba(hex, alpha = 1) {
       const clean = normalizeHex(hex).slice(1);
@@ -2293,7 +2331,7 @@
             <span class="qty-value">${isPreview ? 1 : getCartQuantity(productId)}</span>
             <button type="button" data-action="qty-up" data-product-id="${esc(productId)}">+</button>
           </div>
-          <button class="store-btn btn-style-${esc(item.buttonStyle || theme.buttonStyle || 'rounded')}" type="button" data-action="add-cart" data-product-id="${esc(productId)}" style="background:${esc(theme.buttonColor)};color:${getContrastColor(theme.buttonColor)};">${esc(item.cartButtonText || theme.cartButtonText || 'הוספה לסל')}</button>
+          <button class="store-btn btn-style-${esc(item.buttonStyle || theme.buttonStyle || 'rounded')}" type="button" data-action="add-cart" data-product-id="${esc(productId)}" style="background:${esc(theme.buttonColor)};color:${getReadableTextColor(theme.buttonColor)};">${esc(item.cartButtonText || theme.cartButtonText || 'הוספה לסל')}</button>
         </div>` : '';
       const content = `
         ${template === 'split' ? image : ''}
@@ -3053,9 +3091,8 @@
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
       ['themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
         state.theme.cardBackground = getColorInputCssValue($('#themeBackgroundColor'), '#ffffff');
-        state.theme.textColor = $('#themeTextColor').value;
-        state.theme.buttonColor = $('#themeButtonColor').value;
-        state.theme.primaryColor = state.theme.buttonColor;
+        state.theme.textColor = getColorInputCssValue($('#themeTextColor'), '#111827');
+        state.theme.buttonColor = getColorInputCssValue($('#themeButtonColor'), '#111827');
         state.theme.cardShadow = $('#themeCardShadow').value;
         state.theme.imageSwitchMode = $('#themeImageSwitchMode').value || 'auto';
         state.theme.imageSwitchSeconds = Number($('#themeImageSwitchSeconds').value || 3);
@@ -3072,6 +3109,13 @@
       $('#themeBackgroundColor')?.addEventListener('input', () => {
         $('#themeBackgroundColor').dataset.gradientValue = '';
         $('#themeBackgroundColor').dataset.cssColorValue = '';
+      });
+      ['themeTextColor', 'themeButtonColor'].forEach((id) => {
+        $('#'+id)?.addEventListener('input', () => {
+          const input = $('#'+id);
+          input.dataset.gradientValue = '';
+          input.dataset.cssColorValue = '';
+        });
       });
       $('#productTagTextColor')?.addEventListener('input', () => { $('#productTagTextColor').dataset.cssColorValue = ''; renderModalProductPreview(); });
       $('#productTagBackgroundColor')?.addEventListener('input', () => { $('#productTagBackgroundColor').dataset.gradientValue = ''; $('#productTagBackgroundColor').dataset.cssColorValue = ''; renderModalProductPreview(); });
@@ -3362,7 +3406,7 @@
           accentColor: data.theme?.primaryColor || '#60a5fa',
           cardBackground: data.theme?.cardBackground || '#ffffff',
           textColor: data.theme?.textColor || '#111827',
-          buttonColor: data.theme?.primaryColor || '#1d4ed8',
+          buttonColor: data.theme?.buttonColor || data.theme?.primaryColor || '#1d4ed8',
           buttonStyle: data.theme?.cardStyle || 'rounded',
           animationStyle: data.animation?.enabled ? data.animation.type : 'none',
           font: data.theme?.font || 'Inter',
