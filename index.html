@@ -35,7 +35,7 @@
       --preview-muted: #5b657b;
       --preview-btn-bg: #1d4ed8;
       --preview-btn-text: #ffffff;
-      --store-button-height: 44px;
+      --store-button-height: 42px;
     }
 
     * { box-sizing: border-box; -webkit-font-smoothing: antialiased; -moz-osx-font-smoothing: grayscale; text-rendering: geometricPrecision; }
@@ -328,6 +328,20 @@
     }
     .addon-inline-pill.active { border-color: rgba(37,99,235,.34); background: rgba(37,99,235,.12); color: var(--primary); }
     .cart-inline-row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .product-card .store-btn {
+      border: 0;
+      border-radius: 12px;
+      min-height: 38px;
+      padding: 8px 12px;
+      width: fit-content;
+      max-width: 100%;
+      font-size: .88rem;
+      font-weight: 700;
+      line-height: 1.2;
+      align-self: flex-start;
+      white-space: nowrap;
+      cursor: default;
+    }
     .qty-stepper { display:inline-flex; align-items:center; gap:8px; border:1px solid var(--line); border-radius:999px; padding:6px; background: rgba(255,255,255,.9); }
     .qty-stepper button { width:32px; height:32px; border-radius:50%; border:0; background: rgba(15,23,42,.08); cursor:pointer; }
     .qty-value { min-width:20px; text-align:center; font-weight:800; }
@@ -1094,6 +1108,7 @@
               <select class="select" id="sortSelect"><option value="newest" data-i18n="sort.newest">החדש ביותר</option><option value="name" data-i18n="sort.name">לפי שם</option><option value="priceAsc" data-i18n="sort.priceAsc">מחיר עולה</option><option value="priceDesc" data-i18n="sort.priceDesc">מחיר יורד</option></select>
               <button class="btn btn-outline" id="refreshBtn" data-i18n="products.refresh">רענן</button>
             </div>
+            <div id="productsLoading" class="empty hidden">טוען נתוני חשבון ומוצרים...</div>
             <div id="productsContainer" class="grid-products"></div>
             <div id="emptyState" class="empty hidden" data-i18n="products.empty">עדיין אין מוצרים. לחץ על "הוסף מוצר" כדי להתחיל.</div>
           </div>
@@ -1529,7 +1544,8 @@
       selectedVariants: {},
       modalTags: [],
       tagColorMode: 'solid',
-      activeColorInputId: ''
+      activeColorInputId: '',
+      isProductsReady: false
     };
 
     const translations = {
@@ -2571,6 +2587,19 @@
       $('#appScreen').classList.toggle('hidden', !loggedIn);
     }
 
+    function setProductsLoadingState(isLoading, label = 'טוען נתוני חשבון ומוצרים...') {
+      state.isProductsReady = !isLoading;
+      const loadingEl = $('#productsLoading');
+      if (loadingEl) {
+        loadingEl.textContent = label;
+        loadingEl.classList.toggle('hidden', !isLoading);
+      }
+      const stat = $('#statProducts');
+      if (stat && isLoading) stat.textContent = '…';
+      $('#productsContainer')?.classList.toggle('hidden', isLoading);
+      $('#emptyState')?.classList.toggle('hidden', true);
+    }
+
     function openModal(item = null) {
       $('#sidebar').classList.remove('open');
       $('#sidebarBackdrop')?.classList.remove('open');
@@ -2827,6 +2856,7 @@
 
     function renderProducts() {
       const container = $('#productsContainer');
+      if (!state.isProductsReady) return;
       const items = getVisibleProducts();
       container.innerHTML = '';
       $('#emptyState').classList.toggle('hidden', items.length !== 0);
@@ -2884,6 +2914,10 @@
     }
 
     function renderStats() {
+      if (!state.isProductsReady) {
+        $('#statProducts').textContent = '…';
+        return;
+      }
       $('#statProducts').textContent = state.products.filter(productIsActive).length;
     }
 
@@ -2913,9 +2947,9 @@
     function subscribeProducts(uid) {
       if (state.unsubscribeProducts) state.unsubscribeProducts();
       const qy = query(productsCollection(uid));
-      state.unsubscribeProducts = onSnapshot(qy, async (snapshot) => {
+      state.unsubscribeProducts = onSnapshot(qy, (snapshot) => {
         state.products = snapshot.docs.map(d => ({ id: d.id, ...d.data() }));
-        await syncPublicCatalog(state.products);
+        syncPublicCatalog(state.products).catch((err) => console.warn('syncPublicCatalog warning:', err));
         renderCategoryFilterOptions();
         renderProductCategoryOptions($('#productCategory')?.value || DEFAULT_PRODUCT_CATEGORY);
         renderProducts();
@@ -2927,6 +2961,46 @@
         console.error(error);
         showToast('בדוק הרשאות Firestore וחיבור למסמכי המוצרים בענן', true);
       });
+    }
+
+    async function loadInitialUserData(uid) {
+      setProductsLoadingState(true, 'טוען נתוני חשבון ומוצרים...');
+      const [themeSnap, productsSnap] = await Promise.all([
+        getDoc(themeDocRef(uid)),
+        getDocs(query(productsCollection(uid)))
+      ]);
+      state.theme = themeSnap.exists() ? { ...DEFAULT_THEME, ...themeSnap.data() } : { ...DEFAULT_THEME };
+      state.products = productsSnap.docs.map((d) => ({ id: d.id, ...d.data() }));
+      setProductsLoadingState(false);
+      applyThemeToPreview();
+      renderCategoryFilterOptions();
+      renderProductCategoryOptions($('#productCategory')?.value || DEFAULT_PRODUCT_CATEGORY);
+      renderProducts();
+      syncDesignerProductOptions();
+      syncDesignerCategoryOptions();
+      renderPreviewProduct();
+      updateEmbedCode();
+      syncPublicCatalog(state.products).catch((err) => console.warn('syncPublicCatalog warning:', err));
+    }
+
+    async function refreshProductsFromServer() {
+      if (!state.currentUser?.uid) return;
+      try {
+        setProductsLoadingState(true, 'מרענן מוצרים מהענן...');
+        const snapshot = await getDocs(query(productsCollection(state.currentUser.uid)));
+        state.products = snapshot.docs.map((d) => ({ id: d.id, ...d.data() }));
+        setProductsLoadingState(false);
+        renderCategoryFilterOptions();
+        renderProducts();
+        syncDesignerProductOptions();
+        syncDesignerCategoryOptions();
+        renderPreviewProduct();
+        updateEmbedCode();
+      } catch (error) {
+        console.error(error);
+        setProductsLoadingState(false);
+        showToast('רענון נכשל. נסה שוב בעוד רגע.', true);
+      }
     }
 
     function subscribeTheme(uid) {
@@ -3147,7 +3221,7 @@
       $('#addVariantBtn').addEventListener('click', () => addVariantGroup());
       $('#productForm').addEventListener('submit', saveProduct);
       $('#exportJsonBtn').addEventListener('click', exportProductsJson);
-      $('#refreshBtn').addEventListener('click', renderProducts);
+      $('#refreshBtn').addEventListener('click', refreshProductsFromServer);
       $('#searchInput').addEventListener('input', renderProducts);
       $('#filterPromo').addEventListener('change', renderProducts);
       $('#filterCategory').addEventListener('change', renderProducts);
@@ -3527,17 +3601,26 @@
         onAuthStateChanged(auth, async (user) => {
       if (state.embedMode) return;
       state.currentUser = user;
-      switchScreen(!!user);
       if (user) {
+        switchScreen(true);
         updateUserUI(user);
+        try {
+          await loadInitialUserData(user.uid);
+        } catch (error) {
+          console.error(error);
+          showToast('טעינת נתוני החשבון נכשלה. בדוק חיבור ונסה שוב.', true);
+          setProductsLoadingState(false);
+        }
         subscribeTheme(user.uid);
         subscribeProducts(user.uid);
         ensureThemeDoc(user.uid).catch((err) => console.warn('ensureThemeDoc warning:', err));
       } else {
+        switchScreen(false);
         if (state.unsubscribeProducts) state.unsubscribeProducts();
         if (state.unsubscribeTheme) state.unsubscribeTheme();
         state.products = [];
         state.theme = { ...DEFAULT_THEME };
+        state.isProductsReady = false;
         applyThemeToPreview();
         renderCategoryFilterOptions();
         renderProducts();
