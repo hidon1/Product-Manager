@@ -2835,7 +2835,19 @@
         const resolvedTheme = inheritThemeForItem(item);
         const pricing = getProductPricing(item);
         const currencyCode = item.currency || 'ILS';
-        const chips = [`קטלוג: ${getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category)}`, ...(item.tags || []).slice(0, 3).map(tag => typeof tag === 'string' ? tag : tag.label), ...((item.variants || []).slice(0, 2).map(group => `קטגוריה: ${group.name}`)), (resolvedTheme.animationStyle && resolvedTheme.animationStyle !== 'none') ? `אנימציה: ${resolvedTheme.animationStyle}` : 'תצוגה יציבה'];
+        const showCart = productShowCart(item);
+        const previewTags = (item.tags || []).slice(0, 4).map((tag) => {
+          const label = typeof tag === 'string' ? tag : tag?.label || '';
+          const textColor = typeof tag === 'string'
+            ? (item.tagStyles?.[label]?.textColor || item.tagStyles?.[label]?.color || resolvedTheme.primaryColor)
+            : (tag?.textColor || tag?.color || resolvedTheme.primaryColor);
+          const backgroundColor = typeof tag === 'string'
+            ? (item.tagStyles?.[label]?.backgroundColor || hexToRgba(textColor, .16))
+            : (tag?.backgroundColor || hexToRgba(textColor, .16));
+          const opacity = Math.min(1, Math.max(0.15, Number((typeof tag === 'string' ? item.tagStyles?.[label]?.opacity : tag?.opacity) ?? 0.85)));
+          const shape = typeof tag === 'string' ? (item.tagStyles?.[label]?.shape || 'pill') : (tag?.shape || 'pill');
+          return `<span class="store-chip tag-shape-${esc(shape)}" style="background:${esc(backgroundColor)}; color:${esc(textColor)}; border-color:${esc(cssColorWithAlpha(textColor, .28))}; opacity:${opacity};">${esc(label)}</span>`;
+        }).join('');
         const card = document.createElement('article');
         card.className = 'product-card';
         const tone = resolvedTheme.cardTone || 'solid';
@@ -2854,13 +2866,13 @@
                 </div>
               </div>
             </div>
-            <div class="product-title-row"><h4 class="product-title">${esc(item.name || '')}</h4><div class="mini">${resolvedTheme.animationStyle && resolvedTheme.animationStyle !== 'none' ? 'אנימציה פעילה' : 'תצוגה נקייה'}</div></div>
+            <div class="product-title-row"><h4 class="product-title">${esc(item.name || '')}</h4></div>
             <div class="product-desc">
               <div class="product-desc-short">${esc(item.shortDescription || item.description || 'ללא תיאור קצר')}</div>
               ${item.longDescription ? `<div class="product-desc-long">${esc(item.longDescription)}</div>` : ''}
             </div>
-            <div class="chip-row">${chips.map(ch => `<span class="chip">${esc(ch)}</span>`).join('')}</div>
-            <div class="inline-field"><label>בחירת לקוח</label><div class="addon-inline-list">${(item.variants || []).flatMap(group => (group.options || []).slice(0, 4).map((option) => `<button class="addon-inline-pill" type="button">${esc(group.name)}: ${esc(option.label)}</button>`)).join('') || '<span class="mini">אין קטגוריות בחירה למוצר הזה.</span>'}</div></div>
+            ${previewTags ? `<div class="store-chips">${previewTags}</div>` : ''}
+            ${showCart ? `<button class="store-btn btn-style-${esc(item.buttonStyle || resolvedTheme.buttonStyle || 'rounded')}" type="button" disabled style="background:${esc(resolvedTheme.buttonColor)};color:${getReadableTextColor(resolvedTheme.buttonColor)};opacity:.92;">${esc(item.cartButtonText || resolvedTheme.cartButtonText || 'הוספה לסל')}</button>` : ''}
             <div class="card-actions"><button class="btn btn-primary manage-btn">עריכה</button><button class="btn btn-success toggle-btn">${productIsActive(item) ? 'השבתה' : 'הפעלה'}</button><button class="btn btn-danger delete-btn">מחיקה</button></div>
           </div>`;
         card.querySelector('.manage-btn').addEventListener('click', () => openModal(item));
