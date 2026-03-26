@@ -63,11 +63,13 @@
       padding: 14px;
     }
     .auth-layout {
-      width: min(420px, 100%);
+      width: min(980px, 100%);
       min-height: calc(100svh - 28px);
       display: grid;
-      align-content: center;
-      gap: 12px;
+      grid-template-columns: minmax(240px, 320px) minmax(320px, 440px);
+      align-items: center;
+      justify-content: center;
+      gap: 18px;
       position: relative;
     }
     .auth-showcase, .auth-card, .panel, .product-card, .stat-card, .modal-card, .template-card, .code-block {
@@ -621,21 +623,22 @@
     @keyframes animSlideUp { from { opacity: 0; transform: translateY(50px); } to { opacity: 1; transform: translateY(0); } }
     @media (max-width: 760px) { .field-row { grid-template-columns: 1fr; } }
 
-    .brand-auth-hero {
-      position: absolute;
-      top: 2px;
-      right: 0;
-      width: auto;
-      margin: 0;
-      padding: 8px 10px;
-      border-radius: 16px;
-      gap: 8px;
-      z-index: 2;
+    .auth-brand-panel {
+      display: grid;
+      gap: 14px;
+      align-content: center;
+      justify-items: center;
+      text-align: center;
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      padding: 30px 22px;
+      background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(238,245,255,.92));
+      box-shadow: var(--shadow);
     }
-    .brand-auth-hero .logo-wrap, .brand-auth-hero .logo-mark { width: 44px; height: 44px; }
-    .brand-auth-hero .brand-wordmark { width: min(100%, 130px); margin-bottom: 0; }
-    .brand-auth-hero p { margin: 0; font-size: .74rem; line-height: 1.2; }
-    .auth-card { padding: 20px; border-radius: 24px; gap: 12px; }
+    .auth-brand-panel .logo-wrap, .auth-brand-panel .logo-mark { width: 102px; height: 102px; }
+    .auth-brand-panel .brand-wordmark { width: min(100%, 180px); margin-bottom: 2px; }
+    .auth-brand-panel p { margin: 0; font-size: .95rem; line-height: 1.65; color: var(--muted); }
+    .auth-card { padding: 20px; border-radius: 24px; gap: 12px; justify-self: center; width: 100%; }
     .auth-card .section-head h3 { margin-bottom: 4px; font-size: 1.2rem; }
     .auth-card .section-head p, .auth-card .helper { font-size: .84rem; line-height: 1.45; }
     .auth-card .tabs { padding: 4px; gap: 4px; }
@@ -927,7 +930,11 @@
 
     @media (max-width: 1180px) {
       .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
-      .hero, .auth-layout, .embed-grid { grid-template-columns: 1fr; }
+      .hero, .embed-grid { grid-template-columns: 1fr; }
+      .auth-layout {
+        width: min(560px, 100%);
+        grid-template-columns: 1fr;
+      }
       .product-form-grid .field-headline { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 960px) {
@@ -982,15 +989,13 @@
       .embed-runtime-grid, .grid-products { grid-template-columns: repeat(var(--mobile-columns, 2), minmax(0, 1fr)); }
       .auth-showcase, .auth-card, .panel, .modal-card { padding: 16px; border-radius: 22px; }
       .auth-layout { min-height: calc(100svh - 20px); }
-      .brand-auth-hero {
-        top: 0;
-        right: 0;
-        padding: 7px 8px;
+      .auth-brand-panel {
+        gap: 10px;
+        padding: 20px 16px;
       }
-      .brand-auth-hero .logo-wrap, .brand-auth-hero .logo-mark { width: 36px; height: 36px; }
-      .brand-auth-hero .brand-wordmark { width: 104px; }
-      .brand-auth-hero p { display: none; }
-      .auth-card { padding-top: 68px; }
+      .auth-brand-panel .logo-wrap, .auth-brand-panel .logo-mark { width: 76px; height: 76px; }
+      .auth-brand-panel .brand-wordmark { width: 132px; }
+      .auth-brand-panel p { font-size: .86rem; }
       .feature-list, .stats { grid-template-columns: 1fr; }
       .card-actions { grid-template-columns: 1fr; }
       .mobile-menu-btn { min-width: 40px; min-height: 40px; padding: 7px 9px; font-size: .9rem; }
@@ -1022,15 +1027,13 @@
 <body>
   <section id="authScreen" class="auth-screen hidden">
     <div class="auth-layout">
-      <div class="brand brand-auth-hero">
-          <div class="logo-wrap">
-            <img class="logo-mark" src="./מוצרלה.png" alt="לוגו מוצרלה" />
-          </div>
-          <div>
-            <object class="brand-wordmark" data="./1.svg" type="image/svg+xml" aria-label="מוצרלה"></object>
-            <p data-i18n="brand.subtitle">מוצרלה, מערכת לניהול מוצרים</p>
-          </div>
+      <div class="auth-brand-panel">
+        <div class="logo-wrap">
+          <img class="logo-mark" src="./מוצרלה.png" alt="לוגו מוצרלה" />
         </div>
+        <object class="brand-wordmark" data="./1.svg" type="image/svg+xml" aria-label="מוצרלה"></object>
+        <p data-i18n="auth.brandStory">מערכת לניהול מוצרים פשוטה, נוחה ובעברית מלאה — כדי שתנהלו קטלוג בצורה חכמה ובלי כאב ראש.</p>
+      </div>
       <div class="auth-card">
         <div class="section-head" style="margin-bottom:8px;">
           <div>
@@ -1579,7 +1582,7 @@
       he: {
         'brand.title': 'מוצרלה','brand.subtitle': 'מוצרלה, מערכת לניהול מוצרים','showcase.badge': 'פלטפורמת קטלוג עברית חכמה','showcase.title': 'קטלוג נע, חד ומוכן לעבודה מול לקוחות','showcase.desc': 'התחברות מהירה, ניהול מוצרים ב-Firebase, חיבור אוטומטי לאתר הלקוח ותצוגת כרטיסים חדה שנשמרת גם במסך הניהול וגם באתר.',
         'f1.t': 'התחברות חכמה','f1.d': 'Google Redirect יציב ומאובטח','f2.t': 'סנכרון מוצרים','f2.d': 'חיבור לאתר לפי מזהה חשבון','f3.t': 'עיצוב חי','f3.d': 'כרטיסים חדים עם אנימציה נראית לעין','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
-        'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.','auth.or': 'או התחבר עם פרטי משתמש','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.',
+        'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.','auth.or': 'או התחבר עם פרטי משתמש','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.','auth.brandStory': 'מערכת לניהול מוצרים פשוטה, נוחה ובעברית מלאה — כדי שתנהלו קטלוג בצורה חכמה ובלי כאב ראש.',
         'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב כרטיסיות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.export': 'ייצוא JSON',
         'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא למוצרלה שלך','app.sub': '','app.logout': 'התנתק',
         'hero.title': '','hero.desc': '','hero.add': 'הוסף מוצר חדש','hero.demo': 'הכנס מוצרי דוגמה','hero.embed': 'צור קוד חיבור לאתר',
