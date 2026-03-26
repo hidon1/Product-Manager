@@ -1078,7 +1078,7 @@
             <div class="section-head">
               <div>
                 <h3 data-i18n="products.title">המוצרים שלי</h3>
-                <p data-i18n="products.desc">חיפוש, סינון, עריכה, שכפול ומחיקה — עם סגנון כרטיס אחיד וגמיש.</p>
+                <p data-i18n="products.desc">חיפוש, סינון ועריכה.</p>
               </div>
               <button class="btn btn-primary" id="openAddModalPanel" data-i18n="products.add">הוסף מוצר</button>
             </div>
@@ -3204,7 +3204,7 @@
       $('#saveThemeBtn').addEventListener('click', async () => {
         const themeBtn = $('#saveThemeBtn');
         try {
-          setActionButtonState(themeBtn, 'loading', { thinking: 'חושב ושומר עיצוב...' });
+          setActionButtonState(themeBtn, 'loading', { thinking: 'שומר עיצוב...' });
           const updatableTheme = {
             useSiteTheme: 'custom',
             template: 'classic',
