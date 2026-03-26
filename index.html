@@ -112,7 +112,7 @@
       color: var(--muted); line-height: 1.65;
     }
 
-    .tabs { display:grid; grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 6px; border-radius: 16px; background: rgba(255,255,255,.04); }
+    .tabs { display:grid; grid-template-columns: repeat(2, 1fr); gap: 6px; padding: 6px; border-radius: 16px; background: #ffffff; }
     .tab, .btn, .nav-btn, .toggle, .template-select, .swatch-btn {
       transition: .22s ease;
     }
@@ -1774,7 +1774,26 @@
       $('#productPreviewShell').dataset.template = 'classic';
       $('#designerApplyMode').value = state.theme.applyMode || 'all';
       $('#toggleCartButton').classList.toggle('active', !!state.theme.showCart);
-      $('#themeBackgroundColor').value = normalizeHex(state.theme.cardBackground);
+      const themeBackgroundInput = $('#themeBackgroundColor');
+      const themeCardBackground = String(state.theme.cardBackground || '#ffffff').trim();
+      if (isGradientValue(themeCardBackground)) {
+        themeBackgroundInput.value = '#ffffff';
+        themeBackgroundInput.dataset.gradientValue = themeCardBackground;
+        themeBackgroundInput.dataset.cssColorValue = '';
+      } else {
+        const themeBgHex = cssColorToHex(themeCardBackground);
+        themeBackgroundInput.dataset.gradientValue = '';
+        if (themeBgHex) {
+          themeBackgroundInput.value = themeBgHex;
+          themeBackgroundInput.dataset.cssColorValue = '';
+        } else if (CSS.supports('color', themeCardBackground)) {
+          themeBackgroundInput.value = '#ffffff';
+          themeBackgroundInput.dataset.cssColorValue = themeCardBackground;
+        } else {
+          themeBackgroundInput.value = '#ffffff';
+          themeBackgroundInput.dataset.cssColorValue = '';
+        }
+      }
       $('#themeTextColor').value = normalizeHex(state.theme.textColor);
       $('#themeButtonColor').value = normalizeHex(state.theme.buttonColor);
       $('#themeCardShadow').value = state.theme.cardShadow || 'soft';
@@ -3033,7 +3052,7 @@
       $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#embedDataCodeBlock').textContent, 'קוד API ללא עיצוב הועתק'));
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
       ['themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
-        state.theme.cardBackground = $('#themeBackgroundColor').value;
+        state.theme.cardBackground = getColorInputCssValue($('#themeBackgroundColor'), '#ffffff');
         state.theme.textColor = $('#themeTextColor').value;
         state.theme.buttonColor = $('#themeButtonColor').value;
         state.theme.primaryColor = state.theme.buttonColor;
@@ -3050,7 +3069,10 @@
         state.theme.cardGradient = state.theme.cardGradient || CARD_GRADIENT_PRESETS[0];
         applyThemeToPreview();
       }));
-      $('#themeBackgroundColor')?.addEventListener('input', () => { $('#themeBackgroundColor').dataset.gradientValue = ''; });
+      $('#themeBackgroundColor')?.addEventListener('input', () => {
+        $('#themeBackgroundColor').dataset.gradientValue = '';
+        $('#themeBackgroundColor').dataset.cssColorValue = '';
+      });
       $('#productTagTextColor')?.addEventListener('input', () => { $('#productTagTextColor').dataset.cssColorValue = ''; renderModalProductPreview(); });
       $('#productTagBackgroundColor')?.addEventListener('input', () => { $('#productTagBackgroundColor').dataset.gradientValue = ''; $('#productTagBackgroundColor').dataset.cssColorValue = ''; renderModalProductPreview(); });
       document.querySelectorAll('[data-tag-color-mode]').forEach((btn) => btn.addEventListener('click', () => syncTagColorModeUI(btn.dataset.tagColorMode)));
