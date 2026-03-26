@@ -397,7 +397,8 @@
     }
     .designer-group .modal-grid { margin-top: 0 !important; gap: 10px; }
     .designer-color-grid {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
+      grid-template-columns: repeat(3, minmax(112px, 150px));
+      justify-content: flex-start;
       gap: 8px;
     }
     .designer-color-grid .field {
@@ -746,24 +747,10 @@
       color: var(--muted);
       font-weight: 700;
     }
-    .tag-color-label {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      line-height: 1;
-    }
-    .tag-color-chip {
-      width: 18px;
-      height: 12px;
-      border-radius: 4px;
-      border: 1px solid rgba(148,163,184,.5);
-      box-shadow: inset 0 0 0 1px rgba(255,255,255,.35);
-      background: #cbd5e1;
-      flex-shrink: 0;
-    }
+    .tag-color-label { line-height: 1; }
     .tag-compact-launcher {
-      min-height: 32px;
-      border-radius: 10px;
+      min-height: 28px;
+      border-radius: 9px;
       padding: 0;
       box-shadow: inset 0 0 0 1px rgba(255,255,255,.4), 0 8px 16px rgba(15,23,42,.10);
     }
@@ -829,9 +816,9 @@
     .embed-runtime-grid { display:grid; grid-template-columns:repeat(var(--embed-columns, 3), minmax(0,1fr)); gap:16px; align-items:stretch; }
     .tag-shape-pill { border-radius: 999px; }
     .tag-shape-square { border-radius: 10px !important; }
-    .tag-shape-triangle { clip-path: polygon(50% 0%, 0% 100%, 100% 100%); border-radius: 0 !important; padding: 10px 16px 12px !important; }
-    .tag-shape-burst { clip-path: polygon(50% 0%, 61% 18%, 82% 8%, 76% 30%, 100% 50%, 76% 70%, 82% 92%, 61% 82%, 50% 100%, 39% 82%, 18% 92%, 24% 70%, 0 50%, 24% 30%, 18% 8%, 39% 18%); border-radius: 0 !important; padding: 12px 16px !important; }
-    .tag-shape-diamond { clip-path: polygon(50% 0%, 100% 50%, 50% 100%, 0% 50%); border-radius: 0 !important; padding: 10px 16px !important; }
+    .tag-shape-triangle { clip-path: polygon(50% 4%, 10% 92%, 90% 92%); border-radius: 18px !important; padding: 10px 16px 12px !important; }
+    .tag-shape-burst { clip-path: polygon(50% 4%, 60% 18%, 78% 10%, 74% 30%, 96% 50%, 74% 70%, 78% 90%, 60% 82%, 50% 96%, 40% 82%, 22% 90%, 26% 70%, 4% 50%, 26% 30%, 22% 10%, 40% 18%); border-radius: 16px !important; padding: 12px 16px !important; }
+    .tag-shape-diamond { clip-path: polygon(50% 4%, 96% 50%, 50% 96%, 4% 50%); border-radius: 14px !important; padding: 10px 16px !important; }
     .tag-shape-ticket { clip-path: polygon(0 0, 100% 0, 100% 30%, 92% 50%, 100% 70%, 100% 100%, 0 100%, 0 70%, 8% 50%, 0 30%); border-radius: 12px !important; }
     .tag-shape-leaf { border-radius: 999px 24px 999px 24px !important; }
     .btn-style-rounded { border-radius: 16px !important; }
@@ -948,7 +935,7 @@
       .qty-stepper button { width: 28px; height: 28px; }
       .store-card .store-copy { gap: 10px; grid-template-rows:auto auto auto minmax(44px,auto) auto 1fr auto; }
       .store-card .store-btn { width: 100%; }
-      .designer-color-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+      .designer-color-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); }
       .modal-tag-controls { grid-template-columns: 1fr 1fr 1fr !important; }
       .product-preview-shell[data-template="split"] .store-card,
       .template-split { grid-template-columns: 1fr; }
@@ -1362,7 +1349,7 @@
           <div class="field field-category"><label for="productCategory">קטגוריית מוצר</label><input class="input" id="productCategory" list="productCategorySuggestions" placeholder="כתבו קטגוריה חדשה או בחרו קיימת" /><datalist id="productCategorySuggestions"></datalist></div>
           <div class="field full"><label for="productShortDesc" data-i18n="form.shortDesc">תיאור קצר</label><textarea class="textarea" id="productShortDesc" placeholder="משפט קצר וברור להצגה מהירה"></textarea></div>
           <div class="field full"><label for="productLongDesc" data-i18n="form.longDesc">תיאור ארוך</label><textarea class="textarea" id="productLongDesc" placeholder="פירוט מלא על המוצר, יתרונות ומידע נוסף"></textarea></div>
-          <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span class="tag-color-label">צבע טקסט <i class="tag-color-chip" id="productTagTextColorChip" aria-hidden="true"></i></span><input class="input color-input-native" id="productTagTextColor" type="color" value="#4f46e5" /><button type="button" class="color-launcher tag-compact-launcher" data-color-launch-target="productTagTextColor" aria-label="בחירת צבע טקסט תגית"></button></div><div class="tag-color-field"><span class="tag-color-label">צבע תגית <i class="tag-color-chip" id="productTagBackgroundColorChip" aria-hidden="true"></i></span><input class="input color-input-native" id="productTagBackgroundColor" type="color" value="#dbeafe" /><button type="button" class="color-launcher tag-compact-launcher" data-color-launch-target="productTagBackgroundColor" aria-label="בחירת צבע רקע תגית"></button></div><div class="tag-inline-field"><label for="productTagOpacity">שקיפות</label><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /></div><div class="tag-inline-field"><label for="productTagShape">צורה</label><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select></div><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
+          <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span class="tag-color-label">צבע טקסט</span><input class="input color-input-native" id="productTagTextColor" type="color" value="#4f46e5" /><button type="button" class="color-launcher tag-compact-launcher" data-color-launch-target="productTagTextColor" aria-label="בחירת צבע טקסט תגית"></button></div><div class="tag-color-field"><span class="tag-color-label">צבע תגית</span><input class="input color-input-native" id="productTagBackgroundColor" type="color" value="#dbeafe" /><button type="button" class="color-launcher tag-compact-launcher" data-color-launch-target="productTagBackgroundColor" aria-label="בחירת צבע רקע תגית"></button></div><div class="tag-inline-field"><label for="productTagOpacity">שקיפות</label><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /></div><div class="tag-inline-field"><label for="productTagShape">צורה</label><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select></div><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
           <div class="field field-main-image"><label for="productMainImage">תמונה ראשית</label><input class="input" id="productMainImage" type="file" accept="image/*" /><div id="mainImageManager" class="image-manager"></div></div>
           <div class="field field-image"><label for="productImage" data-i18n="form.image">תמונות מוצר</label><input class="input" id="productImage" type="file" accept="image/*" multiple /><div id="imageManager" class="image-manager"></div></div>
           <div class="field field-button-shape"><label for="productButtonStyle">צורת כפתור הוסף לסל</label><select class="select" id="productButtonStyle"><option value="rounded">עגול רך</option><option value="pill">גלולה</option><option value="square">מרובע</option><option value="soft">רך ומודגש</option></select></div>
