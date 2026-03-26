@@ -1417,13 +1417,13 @@
       'linear-gradient(135deg, #cffafe 0%, #ddd6fe 100%)'
     ];
     const COLOR_SWATCH_PRESETS = ['#0f172a','#111827','#374151','#6366f1','#8b5cf6','#ec4899','#f97316','#eab308','#22c55e','#06b6d4','#3b82f6','#f8fafc','#e2e8f0','#cbd5e1','#fef3c7','#fee2e2'];
-    const PRODUCT_CATEGORY_OPTIONS = [
-      { id: 'special', label: 'מוצרים מיוחדים' },
-      { id: 'new', label: 'מוצרים חדשים' },
-      { id: 'popular', label: 'מוצרים פופולריים' },
-      { id: 'sales', label: 'מבצעים' },
-      { id: 'general', label: 'קטגוריה כללית' }
-    ];
+    const LEGACY_PRODUCT_CATEGORY_LABELS = {
+      special: 'מוצרים מיוחדים',
+      new: 'מוצרים חדשים',
+      popular: 'מוצרים פופולריים',
+      sales: 'מבצעים',
+      general: 'קטגוריה כללית'
+    };
     const DEFAULT_PRODUCT_CATEGORY = 'קטגוריה כללית';
 
     const DEFAULT_THEME = {
@@ -1529,17 +1529,15 @@
     function getProductCategoryLabel(rawCategory) {
       const selected = String(rawCategory || '').trim();
       if (!selected) return DEFAULT_PRODUCT_CATEGORY;
-      const existingById = PRODUCT_CATEGORY_OPTIONS.find((option) => option.id === selected);
-      if (existingById) return existingById.label;
+      if (LEGACY_PRODUCT_CATEGORY_LABELS[selected]) return LEGACY_PRODUCT_CATEGORY_LABELS[selected];
       return selected;
     }
     function getProductCategoryId(rawCategory) {
       return slugifyCategory(getProductCategoryLabel(rawCategory));
     }
     function collectCategoryLabels() {
-      const builtIn = PRODUCT_CATEGORY_OPTIONS.map((option) => option.label);
       const fromProducts = state.products.map((item) => getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category));
-      return [...new Set([...builtIn, ...fromProducts].map((label) => String(label || '').trim()).filter(Boolean))];
+      return [...new Set(fromProducts.map((label) => String(label || '').trim()).filter(Boolean))];
     }
     function renderProductCategoryOptions(selectedCategory = DEFAULT_PRODUCT_CATEGORY) {
       const input = $('#productCategory');
