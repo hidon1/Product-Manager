@@ -726,24 +726,47 @@
       if (!rawValue) return;
       const value = rawValue.trim();
       if (!value) return;
-      if (value.startsWith('linear-gradient(')) {
+      const gradientValueMatch = value.match(/linear-gradient\((?:[^)(]+|\([^)(]*\))*\)/i);
+      const gradientValue = gradientValueMatch ? gradientValueMatch[0] : '';
+      if (gradientValue) {
         mode = 'gradient';
-        const angleMatch = value.match(/linear-gradient\((\d+(?:\.\d+)?)deg/i);
+        const angleMatch = gradientValue.match(/linear-gradient\(\s*(-?\d+(?:\.\d+)?)deg/i);
         if (angleMatch) gradientAngle.value = Math.round(Number(angleMatch[1]));
-        const rgbaMatches = value.match(/rgba?\([^)]+\)/g) || [];
-        if (rgbaMatches[0]) {
-          const parts = rgbaMatches[0].match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/i);
-          if (parts) {
-            gradientColor1.value = `#${[parts[1], parts[2], parts[3]].map(v => Number(v).toString(16).padStart(2, '0')).join('')}`;
-            gradientAlpha1.value = Math.round((Number(parts[4] ?? 1)) * 100);
+        const colorTokens = gradientValue.match(/rgba?\([^)]+\)|#[0-9a-f]{3,8}/gi) || [];
+        const parseColorToken = (token = '') => {
+          const normalized = String(token || '').trim();
+          if (!normalized) return null;
+          const hexMatch = normalized.match(/^#([0-9a-f]{3}|[0-9a-f]{6}|[0-9a-f]{8})$/i);
+          if (hexMatch) {
+            const hexRaw = hexMatch[1];
+            if (hexRaw.length === 3) {
+              return { hex: `#${hexRaw.split('').map((char) => char + char).join('')}`.toLowerCase(), alpha: 1 };
+            }
+            if (hexRaw.length === 6) return { hex: `#${hexRaw}`.toLowerCase(), alpha: 1 };
+            const rgbHex = hexRaw.slice(0, 6).toLowerCase();
+            const alphaHex = hexRaw.slice(6);
+            return { hex: `#${rgbHex}`, alpha: Math.max(0, Math.min(1, parseInt(alphaHex, 16) / 255)) };
           }
+          const rgbaMatch = normalized.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)$/i);
+          if (!rgbaMatch) return null;
+          const r = Math.max(0, Math.min(255, Number(rgbaMatch[1])));
+          const g = Math.max(0, Math.min(255, Number(rgbaMatch[2])));
+          const b = Math.max(0, Math.min(255, Number(rgbaMatch[3])));
+          const alpha = Math.max(0, Math.min(1, Number(rgbaMatch[4] ?? 1)));
+          return {
+            hex: `#${[r, g, b].map((part) => part.toString(16).padStart(2, '0')).join('')}`,
+            alpha
+          };
+        };
+        const firstColor = parseColorToken(colorTokens[0]);
+        const secondColor = parseColorToken(colorTokens[1]);
+        if (firstColor) {
+          gradientColor1.value = firstColor.hex;
+          gradientAlpha1.value = Math.round(firstColor.alpha * 100);
         }
-        if (rgbaMatches[1]) {
-          const parts = rgbaMatches[1].match(/rgba?\((\d+),\s*(\d+),\s*(\d+)(?:,\s*([\d.]+))?\)/i);
-          if (parts) {
-            gradientColor2.value = `#${[parts[1], parts[2], parts[3]].map(v => Number(v).toString(16).padStart(2, '0')).join('')}`;
-            gradientAlpha2.value = Math.round((Number(parts[4] ?? 1)) * 100);
-          }
+        if (secondColor) {
+          gradientColor2.value = secondColor.hex;
+          gradientAlpha2.value = Math.round(secondColor.alpha * 100);
         }
         return;
       }
@@ -753,6 +776,17 @@
         solidColor.value = value.length === 4
           ? `#${value[1]}${value[1]}${value[2]}${value[2]}${value[3]}${value[3]}`
           : value.toLowerCase();
+        return;
+      }
+      const rgbaMatch = value.match(/^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)(?:\s*,\s*([\d.]+))?\s*\)$/i);
+      if (rgbaMatch) {
+        mode = 'solid';
+        const r = Math.max(0, Math.min(255, Number(rgbaMatch[1])));
+        const g = Math.max(0, Math.min(255, Number(rgbaMatch[2])));
+        const b = Math.max(0, Math.min(255, Number(rgbaMatch[3])));
+        const alpha = Math.max(0, Math.min(1, Number(rgbaMatch[4] ?? 1)));
+        solidColor.value = `#${[r, g, b].map((part) => part.toString(16).padStart(2, '0')).join('')}`;
+        solidAlpha.value = Math.round(alpha * 100);
       }
     }
 
