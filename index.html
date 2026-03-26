@@ -1942,6 +1942,7 @@
       const popupUrl = new URL('color.html', window.location.href);
       popupUrl.searchParams.set('embed', '1');
       popupUrl.searchParams.set('target', input.id);
+      popupUrl.searchParams.set('allowGradient', colorTargetAllowsGradient(input.id) ? '1' : '0');
       const gradientValue = (input.dataset.gradientValue || '').trim();
       const advancedColor = (input.dataset.cssColorValue || '').trim();
       const selectedValue = gradientValue || advancedColor || (input.value || '').trim();
@@ -1961,8 +1962,13 @@
       if (!targetId) return;
       const input = $('#'+targetId);
       if (!input) return;
-      const cssValue = String(value || '').trim();
+      let cssValue = String(value || '').trim();
       if (!cssValue) return;
+      if (isGradientValue(cssValue) && !colorTargetAllowsGradient(targetId)) {
+        const fallbackSolid = extractFirstColorFromGradient(cssValue);
+        if (!fallbackSolid) return;
+        cssValue = fallbackSolid;
+      }
       if (isGradientValue(cssValue)) {
         input.dataset.gradientValue = cssValue;
         input.dataset.cssColorValue = '';
@@ -1981,6 +1987,14 @@
       const evtName = input.type === 'color' ? 'input' : 'change';
       input.dispatchEvent(new Event(evtName, { bubbles: true }));
       if (input.id === 'productTagBackgroundColor') renderModalProductPreview();
+    }
+    function colorTargetAllowsGradient(targetId = '') {
+      return ['themeBackgroundColor', 'themeButtonColor', 'productTagBackgroundColor'].includes(String(targetId || '').trim());
+    }
+    function extractFirstColorFromGradient(gradientValue = '') {
+      const colorTokens = String(gradientValue || '').match(/rgba?\([^)]+\)|#[0-9a-f]{3,8}/gi) || [];
+      const firstSupported = colorTokens.find((token) => CSS.supports('color', token));
+      return firstSupported ? firstSupported.trim() : '';
     }
     function resolveCardToneStyle(theme = {}, tone = 'solid') {
       const baseBg = theme.cardBackground || '#ffffff';
@@ -3106,19 +3120,29 @@
         state.theme.cardGradient = state.theme.cardGradient || CARD_GRADIENT_PRESETS[0];
         applyThemeToPreview();
       }));
-      $('#themeBackgroundColor')?.addEventListener('input', () => {
+      $('#themeBackgroundColor')?.addEventListener('input', (event) => {
+        if (!event.isTrusted) return;
         $('#themeBackgroundColor').dataset.gradientValue = '';
         $('#themeBackgroundColor').dataset.cssColorValue = '';
       });
       ['themeTextColor', 'themeButtonColor'].forEach((id) => {
-        $('#'+id)?.addEventListener('input', () => {
+        $('#'+id)?.addEventListener('input', (event) => {
+          if (!event.isTrusted) return;
           const input = $('#'+id);
           input.dataset.gradientValue = '';
           input.dataset.cssColorValue = '';
         });
       });
-      $('#productTagTextColor')?.addEventListener('input', () => { $('#productTagTextColor').dataset.cssColorValue = ''; renderModalProductPreview(); });
-      $('#productTagBackgroundColor')?.addEventListener('input', () => { $('#productTagBackgroundColor').dataset.gradientValue = ''; $('#productTagBackgroundColor').dataset.cssColorValue = ''; renderModalProductPreview(); });
+      $('#productTagTextColor')?.addEventListener('input', (event) => {
+        if (event.isTrusted) $('#productTagTextColor').dataset.gradientValue = '';
+        $('#productTagTextColor').dataset.cssColorValue = '';
+        renderModalProductPreview();
+      });
+      $('#productTagBackgroundColor')?.addEventListener('input', (event) => {
+        if (event.isTrusted) $('#productTagBackgroundColor').dataset.gradientValue = '';
+        $('#productTagBackgroundColor').dataset.cssColorValue = '';
+        renderModalProductPreview();
+      });
       document.querySelectorAll('[data-tag-color-mode]').forEach((btn) => btn.addEventListener('click', () => syncTagColorModeUI(btn.dataset.tagColorMode)));
       ['desktopColumns','mobileColumns'].forEach((id) => $('#'+id).addEventListener('change', () => {
         state.theme.desktopColumns = Number($('#desktopColumns').value);
