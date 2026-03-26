@@ -306,7 +306,21 @@
     .card-actions { display:grid; grid-template-columns: repeat(3, 1fr); gap:8px; margin-top:auto; }
     .card-actions .btn { min-height: 40px; padding: 9px 10px; font-size: .88rem; }
     .card-editor { display:grid; gap:12px; }
-    .product-desc { min-height: 72px; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+    .product-desc { min-height: 72px; display: grid; gap: 6px; }
+    .product-desc-short {
+      font-weight: 700;
+      color: #1f2937;
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
+    .product-desc-long {
+      display: -webkit-box;
+      -webkit-line-clamp: 2;
+      -webkit-box-orient: vertical;
+      overflow: hidden;
+    }
     .price-tag { cursor:default; border:0; }
     .addon-inline-list { display:flex; gap:8px; flex-wrap:wrap; }
     .addon-inline-pill {
@@ -1271,7 +1285,9 @@
                   <div class="field-row"><code>name</code><span class="type">string</span><span>שם מוצר</span></div>
                   <div class="field-row"><code>price</code><span class="type">number</span><span>מחיר</span></div>
                   <div class="field-row"><code>currency</code><span class="type">string</span><span>מטבע המחיר (למשל ILS / USD)</span></div>
-                  <div class="field-row"><code>description</code><span class="type">string</span><span>תיאור</span></div>
+                  <div class="field-row"><code>description</code><span class="type">string</span><span>תיאור קצר (לתאימות לאחור)</span></div>
+                  <div class="field-row"><code>shortDescription</code><span class="type">string</span><span>תיאור קצר להצגה מהירה</span></div>
+                  <div class="field-row"><code>longDescription</code><span class="type">string</span><span>תיאור ארוך ומפורט</span></div>
                   <div class="field-row"><code>categoryId</code><span class="type">string</span><span>מזהה קטגוריית מוצר</span></div>
                   <div class="field-row"><code>categoryLabel</code><span class="type">string</span><span>שם הקטגוריה להצגה</span></div>
                   <div class="field-row"><code>imageUrl</code><span class="type">string</span><span>תמונה ראשית</span></div>
@@ -1309,7 +1325,8 @@
             <div class="field-headline-item field-currency"><label for="productCurrency">מטבע</label><select class="select" id="productCurrency"></select></div>
           </div>
           <div class="field field-category"><label for="productCategory">קטגוריית מוצר</label><input class="input" id="productCategory" list="productCategorySuggestions" placeholder="כתבו קטגוריה חדשה או בחרו קיימת" /><datalist id="productCategorySuggestions"></datalist></div>
-          <div class="field full"><label for="productDesc" data-i18n="form.desc">תיאור</label><textarea class="textarea" id="productDesc"></textarea></div>
+          <div class="field full"><label for="productShortDesc" data-i18n="form.shortDesc">תיאור קצר</label><textarea class="textarea" id="productShortDesc" placeholder="משפט קצר וברור להצגה מהירה"></textarea></div>
+          <div class="field full"><label for="productLongDesc" data-i18n="form.longDesc">תיאור ארוך</label><textarea class="textarea" id="productLongDesc" placeholder="פירוט מלא על המוצר, יתרונות ומידע נוסף"></textarea></div>
           <div class="field full"><label data-i18n="form.tags">תגיות</label><div class="tag-editor" id="productTagsEditor"><div class="tag-list" id="productTagsList"></div><div class="modal-grid modal-tag-controls"><input class="input" id="productTagInput" placeholder="כתבו תגית" /><div class="tag-color-field"><span>צבע טקסט</span><input class="input color-input-native" id="productTagTextColor" type="color" value="#4f46e5" /><button type="button" class="color-launcher" data-color-launch-target="productTagTextColor"><span>בחר צבע</span><span>🎨</span></button></div><div class="tag-color-field"><span>צבע תגית</span><div class="tag-color-mode"><button type="button" class="active" data-tag-color-mode="solid">מלא</button><button type="button" data-tag-color-mode="gradient">הדרגתי</button></div><input class="input color-input-native" id="productTagBackgroundColor" type="color" value="#dbeafe" /><button type="button" class="color-launcher" data-color-launch-target="productTagBackgroundColor"><span>בחר צבע</span><span>🎨</span></button></div><input class="input" id="productTagOpacity" type="range" min="0.15" max="1" step="0.05" value="0.85" title="שקיפות תגית" /><select class="select" id="productTagShape"><option value="pill">עגול</option><option value="square">מרובע</option><option value="triangle">משולש</option><option value="burst">כוכב שפיצי</option><option value="diamond">יהלום</option><option value="ticket">כרטיס</option><option value="leaf">עלה</option></select><button class="btn btn-outline" type="button" id="addProductTagBtn">הוסף תגית</button></div></div></div>
           <div class="field field-main-image"><label for="productMainImage">תמונה ראשית</label><input class="input" id="productMainImage" type="file" accept="image/*" /><div id="mainImageManager" class="image-manager"></div></div>
           <div class="field field-image"><label for="productImage" data-i18n="form.image">תמונות מוצר</label><input class="input" id="productImage" type="file" accept="image/*" multiple /><div id="imageManager" class="image-manager"></div></div>
@@ -1505,7 +1522,7 @@
         'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.platformName': 'שם הפלטפורמה','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה מופיעים כבאנר קטן עם דגלים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
         'ideas.title': 'מצב המערכת','ideas.1': '• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.','ideas.2': '• כל תמונה נשמרת ב-Firebase Storage עם שיוך למוצר ותמיכה בכמה תמונות לכל מוצר.','ideas.3': '• קוד ההטמעה משתמש במזהה החשבון בלבד.','ideas.4': '• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.','ideas.5': '• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.','ideas.6': '• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.',
         'modal.addTitle': 'הוספת מוצר','modal.editTitle': 'עריכת מוצר','modal.desc': 'מלא את פרטי המוצר, הוסף תגיות והגדר קטגוריות בחירה ללקוח.','modal.cancel': 'ביטול','modal.save': 'שמור מוצר',
-        'form.name': 'שם המוצר','form.price': 'מחיר','form.desc': 'תיאור','form.tags': 'תגיות','form.image': 'תמונת מוצר','form.sitePreview': 'איך המוצר יראה באתר'
+        'form.name': 'שם המוצר','form.price': 'מחיר','form.shortDesc': 'תיאור קצר','form.longDesc': 'תיאור ארוך','form.tags': 'תגיות','form.image': 'תמונת מוצר','form.sitePreview': 'איך המוצר יראה באתר'
       },
       en: {}, fr: {}
     };
@@ -1676,6 +1693,8 @@
     function publicProductDoc(id) { return doc(db, 'publicProducts', id); }
 
     function buildPublicProductPayload(item) {
+      const shortDescription = item.shortDescription || item.description || '';
+      const longDescription = item.longDescription || '';
       return {
         id: item.id || item.productId,
         ownerId: item.uid || '',
@@ -1684,7 +1703,9 @@
         currency: item.currency || 'ILS',
         saleActive: !!item.saleActive,
         salePrice: Number(item.salePrice || 0),
-        description: item.description || '',
+        description: shortDescription,
+        shortDescription,
+        longDescription,
         imageUrl: item.imageUrl || '',
         imageUrls: productImageUrls(item),
         imageSwitchMode: item.imageSwitchMode || 'auto',
@@ -2144,6 +2165,8 @@
         price: 149,
         currency: 'ILS',
         description: 'This preview shows how the product content and styling will appear inside the connected storefront.',
+        shortDescription: 'This preview shows how the card will look on your storefront.',
+        longDescription: 'Use this area for richer product details, benefits, dimensions, technical information, and any highlights you want visitors to read before buying.',
         tags: [{ label: 'New', color: '#4f46e5', shape: 'pill' }, { label: 'Promo', color: '#f97316', shape: 'burst' }],
         colors: ['Blue', 'White'],
         imageUrl: '',
@@ -2313,6 +2336,8 @@
       const template = productEffectiveTemplate(item);
       const showCart = productShowCart(item);
       const productId = item.id || item.productId || item.name || 'preview';
+      const shortDescription = item.shortDescription || item.description || '';
+      const longDescription = item.longDescription || '';
       const pricing = getProductPricing(item);
       const currencyCode = item.currency || 'ILS';
       const regularPrice = formatPrice(pricing.regular, currencyCode);
@@ -2353,7 +2378,8 @@
           <div class="store-price-wrap" style="color:${esc(item.accentColor || theme.primaryColor)};">
             ${pricing.saleActive ? `<span class="store-price-old">${regularPrice}</span><span class="store-price-sale">${salePrice}</span><span class="discount-pill">-${pricing.discountPct}%</span>` : `<span class="store-price">${regularPrice}</span>`}
           </div>
-          <p class="store-meta">${esc(item.description || '')}</p>
+          <p class="store-meta">${esc(shortDescription)}</p>
+          ${longDescription ? `<p class="store-meta">${esc(longDescription)}</p>` : ''}
           <div class="store-chips">${chips}</div>
           ${variantHtml}
           ${cartHtml}
@@ -2447,13 +2473,17 @@
     }
 
     function buildModalPreviewProduct() {
+      const shortDescription = $('#productShortDesc').value.trim() || 'See how the product will look inside the live storefront.';
+      const longDescription = $('#productLongDesc').value.trim();
       return {
         name: $('#productName').value.trim() || 'Preview product',
         price: Number($('#productPrice').value || 0) || 149,
         currency: $('#productCurrency').value || 'ILS',
         saleActive: !!$('#productSaleActive').checked,
         salePrice: Number($('#productSalePrice').value || 0),
-        description: $('#productDesc').value.trim() || 'See how the product will look inside the live storefront.',
+        description: shortDescription,
+        shortDescription,
+        longDescription,
         tags: state.modalTags,
         colors: collectVariants().filter(group => /צבע/i.test(group.name)).flatMap(group => group.options.map(option => option.label)),
         freeText: '',
@@ -2552,7 +2582,8 @@
         $('#productSalePrice').value = item.salePrice || '';
         $('#productSalePrice').disabled = !item.saleActive;
         syncSaleToggleUI();
-        $('#productDesc').value = item.description || '';
+        $('#productShortDesc').value = item.shortDescription || item.description || '';
+        $('#productLongDesc').value = item.longDescription || '';
         $('#productCategory').value = getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category);
         $('#productButtonStyle').value = item.buttonStyle || 'rounded';
         $('#productCartButtonText').value = item.cartButtonText || 'הוספה לסל';
@@ -2700,7 +2731,9 @@
           currency: $('#productCurrency').value || 'ILS',
           saleActive: !!$('#productSaleActive').checked,
           salePrice: Number($('#productSalePrice').value || 0),
-          description: $('#productDesc').value.trim(),
+          description: ($('#productShortDesc').value.trim() || ''),
+          shortDescription: ($('#productShortDesc').value.trim() || ''),
+          longDescription: ($('#productLongDesc').value.trim() || ''),
           categoryId: getProductCategoryId($('#productCategory').value),
           categoryLabel: getProductCategoryLabel($('#productCategory').value),
           tags: state.modalTags,
@@ -2765,7 +2798,7 @@
         const categoryId = slugifyCategory(categoryLabel);
         const tagLabels = (item.tags || []).map((tag) => typeof tag === 'string' ? tag : (tag?.label || ''));
         const variantLabels = (item.variants || []).flatMap((group) => [group?.name || '', ...((group?.options || []).map((option) => option?.label || option?.value || ''))]);
-        const blob = [item.name, item.description, categoryLabel, ...tagLabels, ...variantLabels].join(' ').toLowerCase();
+        const blob = [item.name, item.shortDescription || item.description, item.longDescription, categoryLabel, ...tagLabels, ...variantLabels].join(' ').toLowerCase();
         const hasPromo = (item.addons || []).some(a => a.style === 'promo');
         const isActive = productIsActive(item);
         const promoMatch = promoFilter === 'all' || (promoFilter === 'promo' ? hasPromo : promoFilter === 'regular' ? !hasPromo : promoFilter === 'active' ? isActive : !isActive);
@@ -2805,7 +2838,10 @@
               </div>
             </div>
             <div class="product-title-row"><h4 class="product-title">${esc(item.name || '')}</h4><div class="mini">${resolvedTheme.animationStyle && resolvedTheme.animationStyle !== 'none' ? 'אנימציה פעילה' : 'תצוגה נקייה'}</div></div>
-            <div class="product-desc">${esc(item.description || 'ללא תיאור')}</div>
+            <div class="product-desc">
+              <div class="product-desc-short">${esc(item.shortDescription || item.description || 'ללא תיאור קצר')}</div>
+              ${item.longDescription ? `<div class="product-desc-long">${esc(item.longDescription)}</div>` : ''}
+            </div>
             <div class="chip-row">${chips.map(ch => `<span class="chip">${esc(ch)}</span>`).join('')}</div>
             <div class="inline-field"><label>בחירת לקוח</label><div class="addon-inline-list">${(item.variants || []).flatMap(group => (group.options || []).slice(0, 4).map((option) => `<button class="addon-inline-pill" type="button">${esc(group.name)}: ${esc(option.label)}</button>`)).join('') || '<span class="mini">אין קטגוריות בחירה למוצר הזה.</span>'}</div></div>
             <div class="card-actions"><button class="btn btn-primary manage-btn">עריכה</button><button class="btn btn-success toggle-btn">${productIsActive(item) ? 'השבתה' : 'הפעלה'}</button><button class="btn btn-danger delete-btn">מחיקה</button></div>
@@ -2883,9 +2919,9 @@
     async function insertDemoProducts() {
       if (!state.currentUser) return;
       const samples = [
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מארז פרימיום', price: 129, currency: 'ILS', description: 'תבנית קלאסית עם מבצע וצבעי מותג.', categoryId: 'special', categoryLabel: getProductCategoryLabel('special'), tags: [{ label:'חדש', color:'#4f46e5', shape:'pill' }, { label:'פופולרי', color:'#0ea5e9', shape:'square' }], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', active:true, status:'active', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, currency: 'USD', description: 'מוצר עם כרטיס אחיד לטאבלט ודסקטופ.', categoryId: 'popular', categoryLabel: getProductCategoryLabel('popular'), tags: [{ label:'קלאסי', color:'#8b5cf6', shape:'triangle' }], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'הכי נמכר', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'classic', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', active:true, status:'active', useSiteTheme:'custom', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
-        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, currency: 'EUR', description: 'כרטיס אחיד ללא כפתור סל למי שרוצה רק קטלוג.', categoryId: 'general', categoryLabel: getProductCategoryLabel('general'), tags: [{ label:'מינימלי', color:'#f43f5e', shape:'burst' }], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'classic', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', active:false, status:'inactive', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מארז פרימיום', price: 129, currency: 'ILS', description: 'תבנית קלאסית עם מבצע וצבעי מותג.', shortDescription: 'תבנית קלאסית עם מבצע וצבעי מותג.', longDescription: 'מארז רחב עם התאמה לכרטיסי מוצר מעוצבים, שילוב תגיות, נראות מודגשת ומבנה שמכסה גם תצוגה באתר וגם מסך ניהול.', categoryId: 'special', categoryLabel: getProductCategoryLabel('special'), tags: [{ label:'חדש', color:'#4f46e5', shape:'pill' }, { label:'פופולרי', color:'#0ea5e9', shape:'square' }], colors: ['שחור','כחול'], freeText: 'מושלם לדף מוצר מעוצב', font: 'Heebo', imageUrl: '', addons: [{ name:'מבצע', value:'20% הנחה', style:'promo', extra:'לזמן מוגבל', color:'#22c55e', shape:'pill' }], template:'classic', showCart:'show', accentColor:'#60a5fa', cardBackground:'#ffffff', active:true, status:'active', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'סט קלאסי', price: 89, currency: 'USD', description: 'מוצר עם כרטיס אחיד לטאבלט ודסקטופ.', shortDescription: 'מוצר עם כרטיס אחיד לטאבלט ודסקטופ.', longDescription: 'סט קלאסי שמותאם לאתרי תוכן ומסחר, עם דגש על קריאות גבוהה, תגיות ופריסה יציבה בכל גדלי המסך.', categoryId: 'popular', categoryLabel: getProductCategoryLabel('popular'), tags: [{ label:'קלאסי', color:'#8b5cf6', shape:'triangle' }], colors: ['לבן','זהב'], freeText: 'הדגשת איכות גבוהה', font: 'Assistant', imageUrl: '', addons: [{ name:'טקסט', value:'הכי נמכר', style:'text', extra:'כותרת', color:'#f59e0b', shape:'square' }], template:'classic', showCart:'show', accentColor:'#818cf8', cardBackground:'#f8fafc', active:true, status:'active', useSiteTheme:'custom', createdAt: serverTimestamp(), updatedAt: serverTimestamp() },
+        { uid: state.currentUser.uid, ownerRef: `users/${state.currentUser.uid}`, productId: crypto.randomUUID(), name: 'מוצר מינימלי', price: 59, currency: 'EUR', description: 'כרטיס אחיד ללא כפתור סל למי שרוצה רק קטלוג.', shortDescription: 'כרטיס אחיד ללא כפתור סל למי שרוצה רק קטלוג.', longDescription: 'פתרון נקי לקטלוג תדמיתי: פחות אלמנטים, פחות הסחות דעת, ומיקוד בתוכן המוצר עצמו.', categoryId: 'general', categoryLabel: getProductCategoryLabel('general'), tags: [{ label:'מינימלי', color:'#f43f5e', shape:'burst' }], colors: ['אפור'], freeText: 'מתאים לקטלוג השראה', font: 'Inter', imageUrl: '', addons: [], template:'classic', showCart:'hide', accentColor:'#f43f5e', cardBackground:'#fff1f2', active:false, status:'inactive', useSiteTheme:'inherit', createdAt: serverTimestamp(), updatedAt: serverTimestamp() }
       ];
       for (const sample of samples) await setDoc(productDoc(sample.productId), sample, { merge: true });
       showToast('נוספו מוצרי דוגמה');
@@ -2929,7 +2965,9 @@
         ['currency', 'string', 'להעתיק תמיד יחד עם price כדי להציג את המטבע הנכון (למשל ILS, USD, EUR).'],
         ['saleActive', 'boolean', 'לא חובה. מסמן אם למוצר יש מחיר מבצע פעיל.'],
         ['salePrice', 'number', 'לא חובה. המחיר המוזל להצגה כשמבצע פעיל.'],
-        ['description', 'string', 'להעתיק רק אם רוצים טקסט שיווקי או תיאור מלא של המוצר.'],
+        ['description', 'string', 'שדה תאימות לאחור: בדרך כלל משקף את התיאור הקצר.'],
+        ['shortDescription', 'string', 'להעתיק להצגת תקציר קצר של המוצר בכרטיס.'],
+        ['longDescription', 'string', 'להעתיק אם רוצים להציג פירוט מורחב של המוצר.'],
         ['imageUrl', 'string', 'להעתיק אם מציגים תמונת מוצר באתר.'],
         ['imageUrls', 'array', 'להעתיק אם רוצים גלריית תמונות עם כמה תמונות לכל מוצר.'],
         ['imageSwitchMode', 'string', 'לא חובה. שולט אם הגלריה אוטומטית, בריחוף, או עם חיצים.'],
@@ -3017,7 +3055,9 @@
         currency: item.currency || 'ILS',
         saleActive: !!item.saleActive,
         salePrice: Number(item.salePrice || 0),
-        description: item.description || '',
+        description: item.shortDescription || item.description || '',
+        shortDescription: item.shortDescription || item.description || '',
+        longDescription: item.longDescription || '',
         imageUrl: item.imageUrl || '',
         imageUrls: productImageUrls(item),
         imageSwitchMode: item.imageSwitchMode || 'auto',
@@ -3259,9 +3299,9 @@
         syncSaleToggleUI();
         renderModalProductPreview();
       });
-      ['productDesc','productButtonStyle','productCartButtonText','productTagTextColor','productTagBackgroundColor','productTagOpacity','productTagShape'].forEach((id) => {
+      ['productShortDesc','productLongDesc','productButtonStyle','productCartButtonText','productTagTextColor','productTagBackgroundColor','productTagOpacity','productTagShape'].forEach((id) => {
         const el = $('#'+id);
-        if (el) el.addEventListener(['productDesc','productCartButtonText','productTagOpacity'].includes(id) ? 'input' : 'change', renderModalProductPreview);
+        if (el) el.addEventListener(['productShortDesc','productLongDesc','productCartButtonText','productTagOpacity'].includes(id) ? 'input' : 'change', renderModalProductPreview);
       });
       $('#addProductTagBtn').addEventListener('click', addTagFromInput);
       $('#productTagInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); } });
