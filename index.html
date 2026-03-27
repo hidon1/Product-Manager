@@ -1696,7 +1696,7 @@
       he: {
         'brand.title': 'מוצרלה','brand.subtitle': 'מוצרלה, מערכת לניהול מוצרים','showcase.badge': 'פלטפורמת קטלוג עברית חכמה','showcase.title': 'קטלוג נע, חד ומוכן לעבודה מול לקוחות','showcase.desc': 'התחברות מהירה, ניהול מוצרים ב-Firebase, חיבור אוטומטי לאתר הלקוח ותצוגת כרטיסים חדה שנשמרת גם במסך הניהול וגם באתר.',
         'f1.t': 'התחברות חכמה','f1.d': 'Google Redirect יציב ומאובטח','f2.t': 'סנכרון מוצרים','f2.d': 'חיבור לאתר לפי מזהה חשבון','f3.t': 'עיצוב חי','f3.d': 'כרטיסים חדים עם אנימציה נראית לעין','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
-        'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.','auth.or': 'או התחבר עם פרטי משתמש','auth.forgotPassword': 'שכחתי סיסמה','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.','auth.brandStory': 'מערכת לניהול מוצרים פשוטה, נוחה ובעברית מלאה — כדי שתנהלו קטלוג בצורה חכמה ובלי כאב ראש.',
+        'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל מנסה קודם Popup מאובטח, ורק אם צריך עובר ל-Redirect.','auth.or': 'או התחבר עם פרטי משתמש','auth.forgotPassword': 'שכחתי סיסמה','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.','auth.brandStory': 'מערכת לניהול מוצרים פשוטה, נוחה ובעברית מלאה — כדי שתנהלו קטלוג בצורה חכמה ובלי כאב ראש.',
         'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב כרטיסיות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.export': 'ייצוא JSON',
         'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא למוצרלה שלך','app.sub': '','app.logout': 'התנתק',
         'hero.title': '','hero.desc': '','hero.add': 'הוסף מוצר חדש','hero.demo': 'הכנס מוצרי דוגמה','hero.embed': 'צור קוד חיבור לאתר',
@@ -1840,14 +1840,31 @@
     }
 
     async function signInGoogle() {
-      $('#googleLoginBtn').disabled = true;
-      $('#googleAuthStatus').textContent = 'מעביר ל-Google בצורה מאובטחת…';
+      const button = $('#googleLoginBtn');
+      const status = $('#googleAuthStatus');
+      button.disabled = true;
+      status.textContent = 'פותח חלון Google מאובטח…';
       try {
         await setPersistence(auth, browserLocalPersistence);
-        await signInWithRedirect(auth, provider);
+        await signInWithPopup(auth, provider);
+        status.textContent = 'התחברת דרך Google בהצלחה';
+        showToast('התחברת בהצלחה עם Google');
       } catch (err) {
+        const code = err?.code || '';
+        const shouldFallbackToRedirect = [
+          'auth/popup-blocked',
+          'auth/popup-closed-by-user',
+          'auth/cancelled-popup-request',
+          'auth/operation-not-supported-in-this-environment'
+        ].includes(code);
+        if (shouldFallbackToRedirect) {
+          status.textContent = 'Popup נחסם — עובר להתחברות Redirect מאובטחת…';
+          await signInWithRedirect(auth, provider);
+          return;
+        }
         showToast(formatFirebaseError(err), true);
-        $('#googleLoginBtn').disabled = false;
+      } finally {
+        button.disabled = false;
       }
     }
 
