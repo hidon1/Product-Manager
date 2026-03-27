@@ -1,0 +1,170 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>אימות מייל הושלם</title>
+  <style>
+    :root {
+      --bg: #eef4ff;
+      --panel: rgba(255, 255, 255, 0.92);
+      --line: rgba(99, 102, 241, 0.18);
+      --text: #172033;
+      --muted: #3f4d66;
+      --primary: #4f46e5;
+      --primary-2: #0891b2;
+      --success: #15803d;
+      --danger: #dc2626;
+      --radius: 24px;
+      --shadow: 0 22px 55px rgba(37,99,235,.12);
+    }
+    * { box-sizing: border-box; font-family: Inter, "Heebo", "Assistant", "Segoe UI", Arial, sans-serif; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(96,165,250,.18), transparent 22%),
+        radial-gradient(circle at 18% 18%, rgba(244,114,182,.14), transparent 18%),
+        linear-gradient(180deg, #eef4ff, #f5f3ff 30%, #ecfeff 62%, #dbeafe 100%);
+    }
+    .card {
+      width: min(560px, calc(100% - 28px));
+      border: 1px solid var(--line);
+      border-radius: var(--radius);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 28px;
+      display: grid;
+      gap: 14px;
+    }
+    h1 { margin: 0; font-size: 1.65rem; }
+    p { margin: 0; color: var(--muted); line-height: 1.6; }
+    .status { font-weight: 700; }
+    .status.success { color: var(--success); }
+    .status.error { color: var(--danger); }
+    .actions { margin-top: 8px; display: flex; gap: 10px; flex-wrap: wrap; }
+    .btn {
+      border: 0;
+      border-radius: 14px;
+      padding: 11px 16px;
+      cursor: pointer;
+      font-weight: 700;
+    }
+    .btn-primary { color: #fff; background: linear-gradient(135deg, var(--primary), var(--primary-2)); }
+    .btn-outline { border: 1px solid var(--line); color: var(--text); background: #fff; }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1>מאמתים את המייל שלך…</h1>
+    <p id="statusText" class="status">בודקים את קישור האימות ומעדכנים את החשבון.</p>
+    <p id="subText">אם הכל תקין, תועבר/י אוטומטית לדאשבורד תוך כמה שניות.</p>
+    <div class="actions">
+      <button id="goDashboardBtn" class="btn btn-primary" type="button">מעבר לדאשבורד</button>
+      <button id="goLoginBtn" class="btn btn-outline" type="button">חזרה למסך התחברות</button>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import {
+      getAuth,
+      applyActionCode,
+      onAuthStateChanged,
+      reload,
+      setPersistence,
+      browserLocalPersistence
+    } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC3LYWwTbQFS9i3Jq1YAg9osQURQ_Gknks",
+      authDomain: "product-manager-a084a.firebaseapp.com",
+      projectId: "product-manager-a084a",
+      storageBucket: "product-manager-a084a.firebasestorage.app",
+      messagingSenderId: "534748662537",
+      appId: "1:534748662537:web:9543f4a4bf137ad22e61d8",
+      measurementId: "G-JLX2H2E69M"
+    };
+
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
+
+    const statusText = document.getElementById('statusText');
+    const subText = document.getElementById('subText');
+    const goDashboardBtn = document.getElementById('goDashboardBtn');
+    const goLoginBtn = document.getElementById('goLoginBtn');
+
+    function dashboardUrl() {
+      return `${window.location.origin}/`;
+    }
+
+    function goToDashboard() {
+      window.location.assign(`${dashboardUrl()}#dashboard`);
+    }
+
+    function updateStatus(message, isError = false) {
+      statusText.textContent = message;
+      statusText.classList.toggle('error', isError);
+      statusText.classList.toggle('success', !isError);
+    }
+
+    async function getCurrentUserFromPersistence() {
+      await setPersistence(auth, browserLocalPersistence);
+      if (auth.currentUser) return auth.currentUser;
+      return await new Promise((resolve) => {
+        let resolved = false;
+        const unsubscribe = onAuthStateChanged(auth, (user) => {
+          if (resolved) return;
+          resolved = true;
+          unsubscribe();
+          resolve(user);
+        });
+        setTimeout(() => {
+          if (resolved) return;
+          resolved = true;
+          unsubscribe();
+          resolve(null);
+        }, 4000);
+      });
+    }
+
+    async function runVerificationFlow() {
+      const params = new URLSearchParams(window.location.search);
+      const mode = params.get('mode');
+      const oobCode = params.get('oobCode');
+      if (mode !== 'verifyEmail' || !oobCode) {
+        updateStatus('קישור האימות אינו תקין או חסר.', true);
+        subText.textContent = 'אפשר לחזור למסך ההתחברות ולשלוח מייל אימות מחדש.';
+        return;
+      }
+
+      try {
+        await applyActionCode(auth, oobCode);
+        updateStatus('האימות בוצע בהצלחה. מסנכרנים את החשבון…');
+        const user = await getCurrentUserFromPersistence();
+        if (user) await reload(user);
+
+        if (user?.emailVerified) {
+          updateStatus('האימייל אומת בהצלחה! מתבצעת כניסה אוטומטית והפניה לדאשבורד.');
+          subText.textContent = 'המעבר יתבצע אוטומטית תוך 1.5 שניות.';
+          setTimeout(goToDashboard, 1500);
+          return;
+        }
+
+        updateStatus('האימייל אומת, אבל אין כרגע סשן פעיל לכניסה אוטומטית.', false);
+        subText.textContent = 'לחץ/י על "חזרה למסך התחברות" כדי להשלים כניסה עם האימייל בלבד.';
+      } catch (err) {
+        updateStatus('לא הצלחנו להשלים את האימות. ייתכן שהקישור פג תוקף או כבר נוצל.', true);
+        subText.textContent = err?.message || 'נסה/י לשלוח קישור אימות חדש.';
+      }
+    }
+
+    goDashboardBtn.addEventListener('click', goToDashboard);
+    goLoginBtn.addEventListener('click', () => window.location.assign(dashboardUrl()));
+    runVerificationFlow();
+  </script>
+</body>
+</html>
