@@ -1565,6 +1565,11 @@
     const storage = getStorage(app);
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
+    const EMAIL_STORAGE_KEY = 'productManager.auth.email';
+    const emailVerificationActionCodeSettings = {
+      url: 'https://yourdomain.com/verify-success',
+      handleCodeInApp: true
+    };
     const MAX_PRODUCT_IMAGES = 6;
     const CURRENCY_OPTIONS = [
       { code: 'ILS', symbol: '₪', country: 'ישראל' },
@@ -1793,6 +1798,16 @@
       return map[code] || err?.message || 'Authentication error';
     }
 
+    function persistLastEmail(email = '') {
+      const normalizedEmail = (email || '').trim().toLowerCase();
+      if (!normalizedEmail) return;
+      localStorage.setItem(EMAIL_STORAGE_KEY, normalizedEmail);
+    }
+
+    function loadLastEmail() {
+      return (localStorage.getItem(EMAIL_STORAGE_KEY) || '').trim();
+    }
+
     async function signInGoogle() {
       $('#googleLoginBtn').disabled = true;
       $('#googleAuthStatus').textContent = 'מעביר ל-Google בצורה מאובטחת…';
@@ -1828,10 +1843,11 @@
       const password = $('#authPassword').value;
       try {
         await setPersistence(auth, browserLocalPersistence);
+        persistLastEmail(email);
         if (state.authMode === 'register') {
           const cred = await createUserWithEmailAndPassword(auth, email, password);
           if (name) await updateProfile(cred.user, { displayName: name });
-          await sendEmailVerification(cred.user);
+          await sendEmailVerification(cred.user, emailVerificationActionCodeSettings);
           setVerificationGate(true, 'שלחנו מייל אימות. בלי אימות לא ניתן להיכנס למערכת.');
           showToast('החשבון נוצר ונשלח מייל אימות');
         } else {
@@ -2725,7 +2741,7 @@
     async function handleResendVerificationEmail() {
       if (!state.currentUser) return;
       try {
-        await sendEmailVerification(state.currentUser);
+        await sendEmailVerification(state.currentUser, emailVerificationActionCodeSettings);
         setVerificationGate(true, 'שלחנו שוב מייל אימות. בדוק גם בתיקיית הספאם.');
         showToast('מייל אימות נשלח מחדש');
       } catch (err) {
@@ -3834,6 +3850,8 @@
       renderPreviewProduct();
       setAuthMode('login');
       applyTranslations();
+      const savedEmail = loadLastEmail();
+      if (savedEmail) $('#authEmail').value = savedEmail;
       updateEmbedCode();
       if (auth.currentUser) {
         updateUserUI(auth.currentUser);
