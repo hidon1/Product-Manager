@@ -1587,12 +1587,23 @@
     const provider = new GoogleAuthProvider();
     provider.setCustomParameters({ prompt: 'select_account' });
     const EMAIL_STORAGE_KEY = 'productManager.auth.email';
+    const APP_BASE_URL = 'https://product-manager-a084a.web.app';
+    const appBaseUrl = (() => {
+      const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
+      try {
+        const { protocol, hostname, origin } = window.location;
+        if (protocol === 'file:' || localHosts.has(hostname)) return APP_BASE_URL;
+        return origin || APP_BASE_URL;
+      } catch {
+        return APP_BASE_URL;
+      }
+    })();
     const emailVerificationActionCodeSettings = {
-      url: `${window.location.origin}/`,
+      url: `${appBaseUrl}/`,
       handleCodeInApp: true
     };
     const passwordResetActionCodeSettings = {
-      url: `${window.location.origin}/reset-password`,
+      url: `${appBaseUrl}/reset-password`,
       handleCodeInApp: true
     };
     const actionParams = new URLSearchParams(window.location.search);
