@@ -148,8 +148,17 @@
       if (type === 'success') statusBox.classList.add('success');
     }
 
+    const APP_BASE_URL = 'https://product-manager-a084a.web.app';
+
+    function appHomeUrl() {
+      const localHosts = new Set(['localhost', '127.0.0.1', '[::1]']);
+      const { protocol, hostname, origin } = window.location;
+      if (protocol === 'file:' || localHosts.has(hostname)) return `${APP_BASE_URL}/`;
+      return `${origin || APP_BASE_URL}/`;
+    }
+
     function goToLogin() {
-      window.location.href = `${window.location.origin}/`;
+      window.location.href = appHomeUrl();
     }
 
     async function bootstrap() {
