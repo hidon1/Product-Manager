@@ -1471,6 +1471,7 @@
       <span id="verificationEmail" class="verification-email">-</span>
       <p id="verificationStatus">בדוק את תיבת הדואר הנכנס ולחץ על קישור האימות.</p>
       <div class="verification-actions">
+        <button class="btn btn-primary" type="button" id="applyVerificationBtn">אימתתי במייל — אמת עכשיו באתר</button>
         <button class="btn btn-primary" type="button" id="resendVerificationBtn">שלח שוב מייל אימות</button>
         <button class="btn btn-outline" type="button" id="checkVerificationBtn">בדוק שוב אימות</button>
         <button class="btn btn-danger" type="button" id="verificationLogoutBtn">התנתק</button>
@@ -1543,6 +1544,7 @@
       signInWithEmailAndPassword,
       sendPasswordResetEmail,
       sendEmailVerification,
+      applyActionCode,
       reload,
       updateProfile,
       onAuthStateChanged,
@@ -1586,13 +1588,15 @@
     provider.setCustomParameters({ prompt: 'select_account' });
     const EMAIL_STORAGE_KEY = 'productManager.auth.email';
     const emailVerificationActionCodeSettings = {
-      url: `${window.location.origin}/verify-success.html`,
+      url: `${window.location.origin}/`,
       handleCodeInApp: true
     };
     const passwordResetActionCodeSettings = {
       url: `${window.location.origin}/reset-password`,
       handleCodeInApp: true
     };
+    const actionParams = new URLSearchParams(window.location.search);
+    let pendingEmailVerificationCode = actionParams.get('mode') === 'verifyEmail' ? (actionParams.get('oobCode') || '') : '';
     const MAX_PRODUCT_IMAGES = 6;
     const CURRENCY_OPTIONS = [
       { code: 'ILS', symbol: '₪', country: 'ישראל' },
@@ -2796,6 +2800,28 @@
       }
     }
 
+    async function handleApplyEmailVerification() {
+      if (!state.currentUser) {
+        showToast('התחבר/י לחשבון לפני אימות המייל באתר.', true);
+        return;
+      }
+      if (!pendingEmailVerificationCode) {
+        setVerificationGate(true, 'כדי להשלים אימות: לחץ על הקישור במייל ואז חזור לעמוד הזה ולחץ "אימתתי במייל — אמת עכשיו באתר".');
+        showToast('לא זוהה קוד אימות בקישור. פתח/י את הקישור מהמייל ואז נסה/י שוב.', true);
+        return;
+      }
+      try {
+        await applyActionCode(auth, pendingEmailVerificationCode);
+        pendingEmailVerificationCode = '';
+        window.history.replaceState({}, '', window.location.pathname);
+        setVerificationGate(true, 'הקוד מהמייל נקלט. עכשיו נבדוק שהאימייל שלך סומן כמאומת.');
+        await handleCheckEmailVerification();
+      } catch (err) {
+        setVerificationGate(true, 'לא הצלחנו לאמת דרך הקישור. בקש/י קישור חדש ונסה/י שוב.');
+        showToast(formatFirebaseError(err), true);
+      }
+    }
+
     async function handleCheckEmailVerification() {
       if (!state.currentUser) return;
       try {
@@ -2812,7 +2838,7 @@
           ensureThemeDoc(state.currentUser.uid).catch((err) => console.warn('ensureThemeDoc warning:', err));
           return;
         }
-        setVerificationGate(true, 'האימות עדיין לא הושלם. אחרי לחיצה על הקישור במייל, לחץ שוב "בדוק שוב אימות".');
+        setVerificationGate(true, 'האימות עדיין לא הושלם. שלב 1: לחץ על הקישור במייל. שלב 2: חזור לכאן ולחץ "אימתתי במייל — אמת עכשיו באתר".');
       } catch (err) {
         showToast(formatFirebaseError(err), true);
       }
@@ -3432,6 +3458,7 @@
       $('#loginTab').addEventListener('click', () => setAuthMode('login'));
       $('#registerTab').addEventListener('click', () => setAuthMode('register'));
       $('#logoutBtn').addEventListener('click', async () => { await signOut(auth); });
+      $('#applyVerificationBtn')?.addEventListener('click', handleApplyEmailVerification);
       $('#resendVerificationBtn')?.addEventListener('click', handleResendVerificationEmail);
       $('#checkVerificationBtn')?.addEventListener('click', handleCheckEmailVerification);
       $('#verificationLogoutBtn')?.addEventListener('click', async () => { await signOut(auth); });
@@ -3842,7 +3869,10 @@
           if (state.unsubscribeProducts) state.unsubscribeProducts();
           if (state.unsubscribeTheme) state.unsubscribeTheme();
           switchScreen(false);
-          setVerificationGate(true, 'החשבון מחובר אבל עדיין לא אומת. אשר את המייל כדי להמשיך.');
+          const pendingMessage = pendingEmailVerificationCode
+            ? 'זיהינו קישור אימות פתוח. לחץ/י "אימתתי במייל — אמת עכשיו באתר" כדי להשלים.'
+            : 'כדי להמשיך: 1) לחץ/י על קישור האימות במייל. 2) חזור/י לכאן ולחץ/י "אימתתי במייל — אמת עכשיו באתר".';
+          setVerificationGate(true, pendingMessage);
           return;
         }
         setVerificationGate(false);
@@ -3905,7 +3935,10 @@
         updateUserUI(auth.currentUser);
         if (isEmailVerificationRequired(auth.currentUser)) {
           switchScreen(false);
-          setVerificationGate(true, 'החשבון מחובר אבל עדיין לא אומת. אשר את המייל כדי להמשיך.');
+          const pendingMessage = pendingEmailVerificationCode
+            ? 'זיהינו קישור אימות פתוח. לחץ/י "אימתתי במייל — אמת עכשיו באתר" כדי להשלים.'
+            : 'כדי להמשיך: 1) לחץ/י על קישור האימות במייל. 2) חזור/י לכאן ולחץ/י "אימתתי במייל — אמת עכשיו באתר".';
+          setVerificationGate(true, pendingMessage);
         } else {
           setVerificationGate(false);
           switchScreen(true);
