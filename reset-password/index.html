@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="he" dir="rtl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>מוצרלה — איפוס סיסמה</title>
+  <style>
+    :root {
+      --bg: #eef4ff;
+      --panel: rgba(255,255,255,.93);
+      --line: rgba(99, 102, 241, 0.18);
+      --text: #172033;
+      --muted: #3f4d66;
+      --primary: #4f46e5;
+      --radius: 24px;
+      --shadow: 0 22px 55px rgba(37,99,235,.12);
+    }
+    * { box-sizing: border-box; }
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: Inter, "Heebo", "Assistant", "Segoe UI", Arial, sans-serif;
+      color: var(--text);
+      background:
+        radial-gradient(circle at top right, rgba(96,165,250,.18), transparent 22%),
+        radial-gradient(circle at 18% 18%, rgba(244,114,182,.14), transparent 18%),
+        linear-gradient(180deg, #eef4ff, #f5f3ff 30%, #ecfeff 62%, #dbeafe 100%);
+      display: grid;
+      place-items: center;
+      padding: 14px;
+    }
+    .card {
+      width: min(460px, 100%);
+      border: 1px solid var(--line);
+      border-radius: 30px;
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      padding: 24px;
+      display: grid;
+      gap: 14px;
+    }
+    .muted { color: var(--muted); line-height: 1.6; margin: 0; }
+    .input {
+      width: 100%;
+      border: 1px solid rgba(148,163,184,.22);
+      background: #fff;
+      color: var(--text);
+      border-radius: 15px;
+      padding: 13px 14px;
+      outline: none;
+    }
+    .input:focus {
+      border-color: rgba(96,165,250,.56);
+      box-shadow: 0 0 0 4px rgba(96,165,250,.12);
+    }
+    .btn {
+      border: 0;
+      border-radius: 15px;
+      padding: 12px 16px;
+      cursor: pointer;
+      color: #fff;
+      background: linear-gradient(135deg, var(--primary), #0891b2);
+      font-weight: 700;
+      min-height: 44px;
+    }
+    .btn:disabled { opacity: .7; cursor: not-allowed; }
+    .status {
+      border-radius: 14px;
+      padding: 11px 12px;
+      font-size: .94rem;
+      border: 1px solid transparent;
+      background: rgba(79,70,229,.08);
+      color: #312e81;
+    }
+    .status.error {
+      color: #991b1b;
+      background: rgba(239,68,68,.1);
+      border-color: rgba(239,68,68,.25);
+    }
+    .status.success {
+      color: #166534;
+      background: rgba(34,197,94,.1);
+      border-color: rgba(34,197,94,.25);
+    }
+    .hidden { display: none !important; }
+    .link-row { display: flex; justify-content: flex-start; }
+    .link-btn {
+      border: 0;
+      background: transparent;
+      color: var(--primary);
+      cursor: pointer;
+      padding: 0;
+      font-weight: 700;
+    }
+  </style>
+</head>
+<body>
+  <main class="card">
+    <h1 style="margin:0;">איפוס סיסמה</h1>
+    <p class="muted" id="subtitle">בודקים את קישור האיפוס שלך…</p>
+
+    <div id="statusBox" class="status">טוען…</div>
+
+    <form id="resetForm" class="hidden" style="display:grid; gap:12px;">
+      <input id="newPassword" class="input" type="password" placeholder="סיסמה חדשה" minlength="6" required />
+      <input id="confirmPassword" class="input" type="password" placeholder="אימות סיסמה" minlength="6" required />
+      <button class="btn" id="submitBtn" type="submit">עדכן סיסמה</button>
+    </form>
+
+    <div class="link-row hidden" id="loginRow">
+      <button class="link-btn" id="backToLoginBtn" type="button">חזרה למסך התחברות</button>
+    </div>
+  </main>
+
+  <script type="module">
+    import { initializeApp } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-app.js";
+    import { getAuth, verifyPasswordResetCode, confirmPasswordReset } from "https://www.gstatic.com/firebasejs/12.11.0/firebase-auth.js";
+
+    const firebaseConfig = {
+      apiKey: "AIzaSyC3LYWwTbQFS9i3Jq1YAg9osQURQ_Gknks",
+      authDomain: "product-manager-a084a.firebaseapp.com",
+      projectId: "product-manager-a084a",
+      storageBucket: "product-manager-a084a.firebasestorage.app",
+      messagingSenderId: "534748662537",
+      appId: "1:534748662537:web:9543f4a4bf137ad22e61d8",
+      measurementId: "G-JLX2H2E69M"
+    };
+
+    initializeApp(firebaseConfig);
+    const auth = getAuth();
+
+    const params = new URLSearchParams(window.location.search);
+    const oobCode = params.get('oobCode') || '';
+
+    const statusBox = document.querySelector('#statusBox');
+    const subtitle = document.querySelector('#subtitle');
+    const form = document.querySelector('#resetForm');
+    const loginRow = document.querySelector('#loginRow');
+    const submitBtn = document.querySelector('#submitBtn');
+    const newPasswordInput = document.querySelector('#newPassword');
+    const confirmPasswordInput = document.querySelector('#confirmPassword');
+    const backToLoginBtn = document.querySelector('#backToLoginBtn');
+
+    function setStatus(message, type = 'info') {
+      statusBox.textContent = message;
+      statusBox.classList.remove('error', 'success');
+      if (type === 'error') statusBox.classList.add('error');
+      if (type === 'success') statusBox.classList.add('success');
+    }
+
+    function goToLogin() {
+      window.location.href = `${window.location.origin}/`;
+    }
+
+    async function bootstrap() {
+      if (!oobCode) {
+        subtitle.textContent = 'קישור האיפוס לא תקין.';
+        setStatus('חסר קוד אימות בקישור. בקשו מייל איפוס חדש.', 'error');
+        loginRow.classList.remove('hidden');
+        return;
+      }
+
+      try {
+        const email = await verifyPasswordResetCode(auth, oobCode);
+        subtitle.textContent = `איפוס עבור ${email}`;
+        setStatus('הקישור תקין. אפשר לבחור סיסמה חדשה.');
+        form.classList.remove('hidden');
+      } catch (err) {
+        subtitle.textContent = 'הקישור פג תוקף או לא תקין.';
+        setStatus('לא ניתן לאמת את הקישור. בקשו מייל איפוס חדש ונסו שוב.', 'error');
+        loginRow.classList.remove('hidden');
+      }
+    }
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+      const newPassword = newPasswordInput.value;
+      const confirmPassword = confirmPasswordInput.value;
+
+      if (newPassword.length < 6) {
+        setStatus('הסיסמה חייבת להכיל לפחות 6 תווים.', 'error');
+        return;
+      }
+      if (newPassword !== confirmPassword) {
+        setStatus('האימות לא תואם לסיסמה החדשה.', 'error');
+        return;
+      }
+
+      submitBtn.disabled = true;
+      try {
+        await confirmPasswordReset(auth, oobCode, newPassword);
+        setStatus('הסיסמה עודכנה בהצלחה. מעבירים למסך התחברות…', 'success');
+        form.classList.add('hidden');
+        loginRow.classList.remove('hidden');
+        setTimeout(goToLogin, 1500);
+      } catch (err) {
+        const code = err?.code || '';
+        const message = code === 'auth/weak-password'
+          ? 'הסיסמה חלשה מדי. נסו סיסמה חזקה יותר.'
+          : 'האיפוס נכשל. נסו לבקש קישור חדש.';
+        setStatus(message, 'error');
+      } finally {
+        submitBtn.disabled = false;
+      }
+    });
+
+    backToLoginBtn.addEventListener('click', goToLogin);
+    bootstrap();
+  </script>
+</body>
+</html>
