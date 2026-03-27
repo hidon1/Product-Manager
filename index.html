@@ -1586,7 +1586,7 @@
     provider.setCustomParameters({ prompt: 'select_account' });
     const EMAIL_STORAGE_KEY = 'productManager.auth.email';
     const emailVerificationActionCodeSettings = {
-      url: 'https://yourdomain.com/verify-success',
+      url: `${window.location.origin}/verify-success.html`,
       handleCodeInApp: true
     };
     const passwordResetActionCodeSettings = {
