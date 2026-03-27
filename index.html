@@ -61,15 +61,14 @@
       align-items: center;
       justify-content: center;
       padding: 14px;
+      position: relative;
     }
     .auth-layout {
-      width: min(980px, 100%);
+      width: min(1200px, 100%);
       min-height: calc(100svh - 28px);
-      display: grid;
-      grid-template-columns: minmax(240px, 320px) minmax(320px, 440px);
+      display: flex;
       align-items: center;
       justify-content: center;
-      gap: 18px;
       position: relative;
     }
     .auth-showcase, .auth-card, .panel, .product-card, .stat-card, .modal-card, .template-card, .code-block {
@@ -676,10 +675,14 @@
       padding: 30px 22px;
       background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(238,245,255,.92));
       box-shadow: var(--shadow);
+      position: absolute;
+      top: 0;
+      right: 0;
+      width: min(360px, 32vw);
     }
-    .auth-brand-panel .logo-wrap, .auth-brand-panel .logo-mark { width: 102px; height: 102px; }
-    .auth-brand-panel .brand-wordmark { width: min(100%, 180px); margin-bottom: 2px; }
-    .auth-brand-panel p { margin: 0; font-size: .95rem; line-height: 1.65; color: var(--muted); }
+    .auth-brand-panel .logo-wrap, .auth-brand-panel .logo-mark { width: 138px; height: 138px; }
+    .auth-brand-panel .brand-wordmark { width: min(100%, 240px); margin-bottom: 2px; }
+    .auth-brand-panel p { margin: 0; font-size: 1.05rem; line-height: 1.65; color: var(--muted); }
     .auth-screen.register-mode .auth-layout { align-items: start; }
     .auth-screen.register-mode .auth-brand-panel {
       align-content: start;
@@ -691,6 +694,9 @@
     .auth-screen.register-mode .auth-brand-panel .logo-mark { width: 132px; height: 132px; }
     .auth-screen.register-mode .auth-brand-panel .brand-wordmark { width: min(100%, 220px); }
     .auth-card { padding: 20px; border-radius: 24px; gap: 12px; justify-self: center; width: 100%; }
+    .auth-layout .auth-card {
+      width: min(520px, 100%);
+    }
     .auth-card .section-head h3 { margin-bottom: 4px; font-size: 1.2rem; }
     .auth-card .section-head p, .auth-card .helper { font-size: .84rem; line-height: 1.45; }
     .auth-card .tabs { padding: 4px; gap: 4px; }
@@ -985,8 +991,13 @@
       .hero, .embed-grid { grid-template-columns: 1fr; }
       .auth-layout {
         width: min(560px, 100%);
+        display: grid;
         grid-template-columns: 1fr;
+        align-items: center;
+        justify-items: center;
+        gap: 18px;
       }
+      .auth-brand-panel { position: static; width: 100%; }
       .product-form-grid .field-headline { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 960px) {
