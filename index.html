@@ -699,12 +699,15 @@
     .auth-brand-panel .logo-wrap, .auth-brand-panel .logo-mark { width: 138px; height: 138px; }
     .auth-brand-panel .brand-wordmark { width: min(100%, 240px); margin-bottom: 2px; }
     .auth-brand-panel p { margin: 0; font-size: 1.05rem; line-height: 1.65; color: var(--muted); }
-    .auth-screen.register-mode .auth-layout { align-items: start; }
+    .auth-screen.register-mode .auth-layout {
+      align-items: center;
+      justify-content: center;
+      grid-template-columns: minmax(320px, 520px);
+      min-height: calc(100svh - 28px);
+      padding-top: 0;
+    }
     .auth-screen.register-mode .auth-brand-panel {
-      align-content: start;
-      justify-items: start;
-      text-align: right;
-      padding-top: 24px;
+      display: none;
     }
     .auth-screen.register-mode .auth-brand-panel .logo-wrap,
     .auth-screen.register-mode .auth-brand-panel .logo-mark { width: 132px; height: 132px; }
@@ -1133,7 +1136,7 @@
           <svg width="18" height="18" viewBox="0 0 48 48" aria-hidden="true"><path fill="#FFC107" d="M43.611 20.083H42V20H24v8h11.303C33.654 32.657 29.24 36 24 36c-6.627 0-12-5.373-12-12S17.373 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 12.955 4 4 12.955 4 24s8.955 20 20 20 20-8.955 20-20c0-1.341-.138-2.65-.389-3.917z"/><path fill="#FF3D00" d="M6.306 14.691l6.571 4.819C14.655 16.108 19.001 12 24 12c3.059 0 5.842 1.154 7.961 3.039l5.657-5.657C34.046 6.053 29.268 4 24 4 16.318 4 9.656 8.337 6.306 14.691z"/><path fill="#4CAF50" d="M24 44c5.166 0 9.86-1.977 13.409-5.192l-6.19-5.238C29.144 35.091 26.671 36 24 36c-5.219 0-9.619-3.317-11.283-7.946l-6.522 5.025C9.505 39.556 16.227 44 24 44z"/><path fill="#1976D2" d="M43.611 20.083H42V20H24v8h11.303a12.05 12.05 0 0 1-4.084 5.57h.003l6.19 5.238C36.971 39.205 44 34 44 24c0-1.341-.138-2.65-.389-3.917z"/></svg>
           <span data-i18n="auth.google">המשך עם Google</span>
         </button>
-        <div class="helper" id="googleAuthStatus" data-i18n="auth.googleHint">החיבור לגוגל עובד במסלול Redirect מלא בלי פופ-אפ, כדי שיעבוד גם בדפדפנים שחוסמים חלונות קופצים.</div>
+        <div class="helper" id="googleAuthStatus" data-i18n="auth.googleHint">החיבור לגוגל עובד בחלון Popup בלבד בלי הפניה לכתובת אחרת.</div>
         <div class="helper" data-i18n="auth.or">או התחבר עם פרטי משתמש</div>
         <form id="authForm" class="form-grid">
           <input class="input hidden" id="authName" placeholder="שם מלא" />
@@ -1368,7 +1371,7 @@
                 <div class="switch-row"><div><strong data-i18n="settings.multiLang">מצב רב-לשוני</strong><div class="mini" data-i18n="settings.multiLangDesc">כפתורי השפה מופיעים כבאנר קטן עם דגלים.</div></div><div class="toggle active" id="toggleLang"></div></div>
                 <div class="switch-row"><div><strong data-i18n="settings.promos">הצגת מבצעים מודגשת</strong><div class="mini" data-i18n="settings.promosDesc">מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.</div></div><div class="toggle active" id="togglePromos"></div></div>
                 <div class="switch-row"><div><strong data-i18n="settings.mobile">התאמה למובייל</strong><div class="mini" data-i18n="settings.mobileDesc">הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.</div></div><div class="toggle active" id="toggleMobile"></div></div>
-                <div class="switch-row"><div><strong data-i18n="settings.authMode">Google Auth חלק</strong><div class="mini" data-i18n="settings.authModeDesc">Popup עם Redirect fallback וטיפול בשגיאות נפוצות.</div></div><div class="toggle active" id="toggleGoogleAuthInfo"></div></div>
+                <div class="switch-row"><div><strong data-i18n="settings.authMode">Google Auth חלק</strong><div class="mini" data-i18n="settings.authModeDesc">התחברות עם Popup בלבד, בלי Redirect ובלי מעבר כתובת.</div></div><div class="toggle active" id="toggleGoogleAuthInfo"></div></div>
               </div>
               <div class="panel" style="margin:0; background:rgba(255,255,255,.82);">
                 <h3 style="margin-top:0;" data-i18n="ideas.title">מצב המערכת</h3>
@@ -1543,9 +1546,6 @@
       getAuth,
       GoogleAuthProvider,
       signInWithPopup,
-      signInWithRedirect,
-      getRedirectResult,
-      browserPopupRedirectResolver,
       createUserWithEmailAndPassword,
       signInWithEmailAndPassword,
       sendPasswordResetEmail,
@@ -1691,7 +1691,6 @@
       unsubscribeProducts: null,
       unsubscribeTheme: null,
       theme: { ...DEFAULT_THEME },
-      redirectHandled: false,
       embedMode: false,
       embedUid: '',
       previewObjectUrl: '',
@@ -1712,8 +1711,8 @@
     const translations = {
       he: {
         'brand.title': 'מוצרלה','brand.subtitle': 'מוצרלה, מערכת לניהול מוצרים','showcase.badge': 'פלטפורמת קטלוג עברית חכמה','showcase.title': 'קטלוג נע, חד ומוכן לעבודה מול לקוחות','showcase.desc': 'התחברות מהירה, ניהול מוצרים ב-Firebase, חיבור אוטומטי לאתר הלקוח ותצוגת כרטיסים חדה שנשמרת גם במסך הניהול וגם באתר.',
-        'f1.t': 'התחברות חכמה','f1.d': 'Google Redirect יציב ומאובטח','f2.t': 'סנכרון מוצרים','f2.d': 'חיבור לאתר לפי מזהה חשבון','f3.t': 'עיצוב חי','f3.d': 'כרטיסים חדים עם אנימציה נראית לעין','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
-        'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל מנסה קודם Popup מאובטח, ורק אם צריך עובר ל-Redirect.','auth.or': 'או התחבר עם פרטי משתמש','auth.forgotPassword': 'שכחתי סיסמה','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.','auth.brandStory': 'מערכת לניהול מוצרים פשוטה, נוחה ובעברית מלאה — כדי שתנהלו קטלוג בצורה חכמה ובלי כאב ראש.',
+        'f1.t': 'התחברות חכמה','f1.d': 'Google Popup מהיר וללא מעבר כתובת','f2.t': 'סנכרון מוצרים','f2.d': 'חיבור לאתר לפי מזהה חשבון','f3.t': 'עיצוב חי','f3.d': 'כרטיסים חדים עם אנימציה נראית לעין','f4.t': 'רספונסיבי','f4.d': 'מובייל ומחשב עם תצוגה משופרת',
+        'auth.title': 'כניסה למערכת','auth.subtitle': 'התחל עם גוגל או עם מייל וסיסמה.','auth.login': 'התחברות','auth.register': 'הרשמה','auth.google': 'המשך עם Google','auth.googleHint': 'החיבור לגוגל עובד בחלון Popup בלבד בלי הפניה לכתובת אחרת.','auth.or': 'או התחבר עם פרטי משתמש','auth.forgotPassword': 'שכחתי סיסמה','auth.submitLogin': 'התחברות','auth.submitRegister': 'צור חשבון','auth.note': 'בהרשמה ראשונה עם מייל וסיסמה ניצור לך חשבון. בהתחברות רגילה נכניס אותך ישירות למערכת.','auth.brandStory': 'מערכת לניהול מוצרים פשוטה, נוחה ובעברית מלאה — כדי שתנהלו קטלוג בצורה חכמה ובלי כאב ראש.',
         'nav.main': 'ראשי','nav.products': 'ניהול מוצרים','nav.embed': 'חיבור לאתר','nav.designer': 'עיצוב כרטיסיות','nav.settings': 'הגדרות','nav.shortcuts': 'קיצורים','nav.addProduct': 'הוסף מוצר','nav.export': 'ייצוא JSON',
         'app.badge': 'ממשק ניהול מעוצב','app.welcome': 'ברוך הבא למוצרלה שלך','app.sub': '','app.logout': 'התנתק',
         'hero.title': '','hero.desc': '','hero.add': 'הוסף מוצר חדש','hero.demo': 'הכנס מוצרי דוגמה','hero.embed': 'צור קוד חיבור לאתר',
@@ -1723,7 +1722,7 @@
         'embed.title': 'חיבור האתר שלך למוצרים','embed.desc': 'יש שתי דרכי חיבור: iFrame שמציג HTML מלא עם העיצוב, או API לנתונים בלבד (JSON).','embed.copyId': 'העתק API בלי עיצוב','embed.copyCode': 'העתק קוד iFrame','embed.iframeTitle': '1. iFrame — HTML מלא מוכן לתצוגה','embed.iframeDesc': 'השתמשו בקוד הבא כדי להטמיע iFrame שמציג את כל ה-HTML והעיצוב מתוך המערכת שלכם, כולל תמונות ומבנה מלא.','embed.apiTitle': '2. API לנתונים בלבד (JSON)','embed.apiDesc': 'השתמשו בכתובת הזו כדי לקבל JSON נקי ולבנות תצוגה עצמאית באתר שלכם.','embed.devGuideTitle': 'הוראות למפתחים','embed.devGuideDesc': 'כל ההסברים כאן בעברית, אבל שמות השדות והקוד נשארים באנגלית כדי שתוכלו להעתיק אותם כמו שהם.','embed.copyFields': 'העתק את כל שמות השדות','embed.fieldLabel': 'שם שדה','embed.fieldType': 'סוג','embed.fieldMeaning': 'מתי צריך להעתיק',
         'designer.title': 'עיצוב האתר ותצוגת הכרטיס','designer.desc': '','designer.styleTitle': 'עיצוב כרטיס','designer.applyModeLabel': 'איפה להחיל את העיצוב','designer.applyAll': 'על כל הכרטיסיות','designer.applySelected': 'רק על הכרטיסייה הנבחרת','designer.applyCategory': 'על קטגוריה שלמה','designer.productSelectLabel': 'בחר כרטיסייה','designer.categorySelectLabel': 'בחר קטגוריה','designer.cartToggle': 'כפתור הוסף לסל','designer.cartToggleDesc': 'אפשר להציג או להסתיר את כפתור הפעולה כברירת מחדל.','designer.primaryColor': 'צבע ראשי','designer.cardColor': 'צבע כרטיס','designer.textColor': 'צבע טקסט','designer.buttonColor': 'צבע כפתור','designer.cardTone': 'סוג רקע לכרטיס','designer.cardShadow': 'עומק צל','designer.cardPadding': 'ריווח פנימי','designer.cardRadius': 'פינות כרטיס','designer.imageHeight': 'גובה תמונה','designer.textAlign': 'יישור טקסט','designer.save': 'שמור עיצוב','designer.reset': 'אפס לברירת מחדל','designer.previewTitle': 'תצוגה מקדימה חיה',
         'template.classic': 'כרטיס אחיד',
-        'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.platformName': 'שם הפלטפורמה','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה מופיעים כבאנר קטן עם דגלים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'Popup עם Redirect fallback וטיפול בשגיאות נפוצות.',
+        'settings.title': 'הגדרות המערכת','settings.desc': 'שליטה בשפה, בהעדפות הממשק ובמצב האימות.','settings.platformName': 'שם הפלטפורמה','settings.multiLang': 'מצב רב-לשוני','settings.multiLangDesc': 'כפתורי השפה מופיעים כבאנר קטן עם דגלים.','settings.promos': 'הצגת מבצעים מודגשת','settings.promosDesc': 'מציג תגי מבצע בצורה בולטת בכרטיסים ובהטמעה.','settings.mobile': 'התאמה למובייל','settings.mobileDesc': 'הרכיבים אורגנו מחדש למובייל ולדסקטופ בצורה נוחה יותר.','settings.authMode': 'Google Auth חלק','settings.authModeDesc': 'התחברות עם Popup בלבד, בלי Redirect ובלי מעבר כתובת.',
         'ideas.title': 'מצב המערכת','ideas.1': '• הנתונים נשמרים ב-Firestore תחת המשתמש המחובר.','ideas.2': '• כל תמונה נשמרת ב-Firebase Storage עם שיוך למוצר ותמיכה בכמה תמונות לכל מוצר.','ideas.3': '• קוד ההטמעה משתמש במזהה החשבון בלבד.','ideas.4': '• ניתן לייבא את הנתונים לכל אתר שתומך ב-HTML מותאם.','ideas.5': '• העיצוב נשמר בנפרד כדי לשרת גם את ההטמעה.','ideas.6': '• המבנה מותאם להפרדת נתונים בטוחה לפי כללי Firebase.',
         'modal.addTitle': 'הוספת מוצר','modal.editTitle': 'עריכת מוצר','modal.desc': 'מלא את פרטי המוצר, הוסף תגיות והגדר קטגוריות בחירה ללקוח.','modal.cancel': 'ביטול','modal.save': 'שמור מוצר',
         'form.name': 'שם המוצר','form.price': 'מחיר','form.shortDesc': 'תיאור קצר','form.longDesc': 'תיאור ארוך','form.tags': 'תגיות','form.image': 'תמונת מוצר','form.sitePreview': 'איך המוצר יראה באתר'
@@ -1835,7 +1834,7 @@
         'auth/email-already-in-use': 'האימייל כבר קיים במערכת',
         'auth/weak-password': 'הסיסמה חלשה מדי',
         'auth/popup-closed-by-user': 'חלון גוגל נסגר לפני סיום',
-        'auth/popup-blocked': 'הדפדפן חסם את חלון Google — מנסה Redirect מאובטח',
+        'auth/popup-blocked': 'הדפדפן חסם את חלון Google. יש לאפשר Popup עבור האתר ולנסות שוב',
         'auth/cancelled-popup-request': 'בקשת ה־Google בוטלה, נסה שוב',
         'auth/unauthorized-domain': 'הדומיין הנוכחי לא מוגדר ב־Firebase Authentication',
         'auth/network-request-failed': 'בעיה ברשת. בדוק חיבור אינטרנט ונסה שוב',
@@ -1867,37 +1866,10 @@
         status.textContent = 'התחברת דרך Google בהצלחה';
         showToast('התחברת בהצלחה עם Google');
       } catch (err) {
-        const code = err?.code || '';
-        const shouldFallbackToRedirect = [
-          'auth/popup-blocked',
-          'auth/popup-closed-by-user',
-          'auth/cancelled-popup-request',
-          'auth/operation-not-supported-in-this-environment'
-        ].includes(code);
-        if (shouldFallbackToRedirect) {
-          status.textContent = 'Popup נחסם — עובר להתחברות Redirect מאובטחת…';
-          await signInWithRedirect(auth, provider);
-          return;
-        }
+        status.textContent = 'ההתחברות עם Google נעצרה. נסה שוב בחלון קופץ מאותו דומיין.';
         showToast(formatFirebaseError(err), true);
       } finally {
         button.disabled = false;
-      }
-    }
-
-    async function handleRedirectResult() {
-      if (state.redirectHandled) return;
-      state.redirectHandled = true;
-      try {
-        const result = await getRedirectResult(auth);
-        if (result?.user) {
-          $('#googleAuthStatus').textContent = 'התחברת דרך Redirect בהצלחה';
-          showToast('התחברת בהצלחה עם Google Redirect');
-        }
-      } catch (err) {
-        showToast(formatFirebaseError(err), true);
-      } finally {
-        $('#googleLoginBtn').disabled = false;
       }
     }
 
@@ -3981,7 +3953,6 @@
         setVerificationGate(false);
         switchScreen(false);
       }
-      handleRedirectResult();
     }
     console.log(`Firebase collections in use:
 - users/{uid}
