@@ -66,10 +66,13 @@
     .auth-layout {
       width: min(1200px, 100%);
       min-height: calc(100svh - 28px);
-      display: flex;
-      align-items: center;
-      justify-content: center;
+      display: grid;
+      grid-template-columns: minmax(280px, 360px) minmax(320px, 520px);
+      align-items: start;
+      justify-content: space-between;
+      gap: clamp(18px, 4vw, 60px);
       position: relative;
+      padding-top: clamp(8px, 2vw, 22px);
     }
     .auth-showcase, .auth-card, .panel, .product-card, .stat-card, .modal-card, .template-card, .code-block {
       border: 1px solid var(--line);
@@ -682,18 +685,16 @@
     .auth-brand-panel {
       display: grid;
       gap: 14px;
-      align-content: center;
-      justify-items: center;
-      text-align: center;
-      border: 1px solid var(--line);
-      border-radius: 30px;
-      padding: 30px 22px;
-      background: linear-gradient(180deg, rgba(255,255,255,.94), rgba(238,245,255,.92));
-      box-shadow: var(--shadow);
-      position: absolute;
-      top: 0;
-      right: 0;
+      align-content: start;
+      justify-items: start;
+      text-align: right;
+      padding: 4px 2px;
+      background: transparent;
+      border: 0;
+      box-shadow: none;
       width: min(360px, 32vw);
+      max-width: 100%;
+      margin-top: 0;
     }
     .auth-brand-panel .logo-wrap, .auth-brand-panel .logo-mark { width: 138px; height: 138px; }
     .auth-brand-panel .brand-wordmark { width: min(100%, 240px); margin-bottom: 2px; }
@@ -708,7 +709,7 @@
     .auth-screen.register-mode .auth-brand-panel .logo-wrap,
     .auth-screen.register-mode .auth-brand-panel .logo-mark { width: 132px; height: 132px; }
     .auth-screen.register-mode .auth-brand-panel .brand-wordmark { width: min(100%, 220px); }
-    .auth-card { padding: 20px; border-radius: 24px; gap: 12px; justify-self: center; width: 100%; }
+    .auth-card { padding: 20px; border-radius: 24px; gap: 12px; justify-self: center; width: 100%; margin-top: clamp(48px, 8vh, 96px); }
     .auth-layout .auth-card {
       width: min(520px, 100%);
     }
@@ -1005,14 +1006,19 @@
       .template-grid { grid-template-columns: repeat(2, minmax(0, 1fr)); }
       .hero, .embed-grid { grid-template-columns: 1fr; }
       .auth-layout {
-        width: min(560px, 100%);
-        display: grid;
+        width: min(720px, 100%);
         grid-template-columns: 1fr;
-        align-items: center;
-        justify-items: center;
-        gap: 18px;
+        align-items: start;
+        justify-items: stretch;
+        gap: 14px;
       }
-      .auth-brand-panel { position: static; width: 100%; }
+      .auth-brand-panel {
+        width: 100%;
+        justify-items: center;
+        text-align: center;
+        padding: 0;
+      }
+      .auth-card { margin-top: 0; }
       .product-form-grid .field-headline { grid-template-columns: 1fr 1fr; }
     }
     @media (max-width: 960px) {
@@ -1068,8 +1074,8 @@
       .auth-showcase, .auth-card, .panel, .modal-card { padding: 16px; border-radius: 22px; }
       .auth-layout { min-height: calc(100svh - 20px); }
       .auth-brand-panel {
-        gap: 10px;
-        padding: 20px 16px;
+        gap: 8px;
+        padding: 0;
       }
       .auth-brand-panel .logo-wrap, .auth-brand-panel .logo-mark { width: 76px; height: 76px; }
       .auth-brand-panel .brand-wordmark { width: 132px; }
