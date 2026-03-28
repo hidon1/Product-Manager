@@ -126,8 +126,8 @@
       measurementId: "G-JLX2H2E69M"
     };
 
-    initializeApp(firebaseConfig);
-    const auth = getAuth();
+    const app = initializeApp(firebaseConfig);
+    const auth = getAuth(app);
 
     const params = new URLSearchParams(window.location.search);
     const oobCode = params.get('oobCode') || '';
