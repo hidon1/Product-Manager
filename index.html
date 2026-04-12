@@ -74,9 +74,13 @@
       position: relative;
       padding-top: clamp(8px, 2vw, 22px);
     }
-    .auth-showcase, .auth-card, .panel, .product-card, .stat-card, .modal-card, .template-card, .code-block {
+    .auth-showcase, .auth-card, .panel, .product-card, .stat-card, .modal-card, .template-card {
       border: 1px solid var(--line);
       box-shadow: var(--shadow);
+    }
+    .code-block {
+      border: 1px solid rgba(255,255,255,.06);
+      box-shadow: 0 8px 32px rgba(0,0,0,.22);
     }
     .auth-showcase, .auth-card { border-radius: 30px; padding: 28px; }
     .auth-showcase {
@@ -143,11 +147,13 @@
     }
     .btn:disabled { opacity: .7; cursor: not-allowed; }
     .btn:hover, .nav-btn:hover, .template-select:hover, .swatch-btn:hover { transform: translateY(-1px); }
-    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; }
-    .btn-outline { border-color: rgba(148,163,184,.24); }
-    .btn-success { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.22); color: #166534; }
-    .btn-danger { background: rgba(239,68,68,.12); border-color: rgba(239,68,68,.22); color: #991b1b; }
-    .btn-google { background: white; color: #111827; }
+    .btn-primary { background: linear-gradient(135deg, var(--primary), var(--primary-2)); color: white; box-shadow: 0 4px 14px rgba(79,70,229,.22); }
+    .btn-primary:hover { box-shadow: 0 6px 20px rgba(79,70,229,.32); }
+    .btn-outline { border-color: rgba(148,163,184,.28); background: rgba(255,255,255,.82); }
+    .btn-outline:hover { border-color: rgba(79,70,229,.3); background: rgba(79,70,229,.04); }
+    .btn-success { background: rgba(34,197,94,.12); border-color: rgba(34,197,94,.28); color: #166534; }
+    .btn-danger { background: rgba(239,68,68,.1); border-color: rgba(239,68,68,.22); color: #991b1b; }
+    .btn-google { background: white; color: #111827; border-color: rgba(148,163,184,.3); }
     .forgot-password-wrap {
       display: flex;
       justify-content: flex-start;
@@ -201,7 +207,8 @@
     .sidebar {
       position: sticky; top: 0; height: 100vh; overflow-y: auto; scrollbar-width: none;
       padding: 24px 18px; border-left: 1px solid var(--line);
-      background: rgba(255,255,255,0.86); backdrop-filter: blur(20px);
+      background: linear-gradient(180deg, rgba(255,255,255,.97) 0%, rgba(240,245,255,.96) 100%);
+      backdrop-filter: blur(24px);
     }
     .sidebar::-webkit-scrollbar { display:none; }
     .sidebar-close { display:none; width:42px; height:42px; border-radius:14px; }
@@ -221,12 +228,14 @@
       font-size: .78rem; letter-spacing: .08em; text-transform: uppercase; color: var(--muted); padding-inline: 8px; margin: 0 0 10px;
     }
     .nav-btn {
-      width: 100%; margin-bottom: 8px; border: 1px solid transparent; border-radius: 16px;
-      background: transparent; color: var(--text); cursor: pointer; padding: 14px;
+      width: 100%; margin-bottom: 6px; border: 1.5px solid transparent; border-radius: 16px;
+      background: transparent; color: var(--text); cursor: pointer; padding: 13px 14px;
       display:flex; align-items:center; justify-content:space-between; gap: 10px;
+      font-weight: 600;
     }
     .nav-btn .left { display:flex; align-items:center; gap:10px; }
-    .nav-btn.active, .nav-btn:hover { background: rgba(96,165,250,.12); border-color: rgba(96,165,250,.24); }
+    .nav-btn:hover { background: rgba(79,70,229,.07); border-color: rgba(79,70,229,.14); }
+    .nav-btn.active { background: linear-gradient(135deg, rgba(79,70,229,.13), rgba(8,145,178,.08)); border-color: rgba(79,70,229,.28); color: #3730a3; font-weight: 700; }
     .sidebar-user {
       display:grid; gap:12px; margin-top:20px; padding-top:20px; border-top:1px solid var(--line);
     }
@@ -251,6 +260,7 @@
       flex: 0 0 auto;
     }
     .topbar, .section-head, .modal-head { display:flex; align-items:center; justify-content:space-between; gap: 14px; flex-wrap: wrap; }
+    .section-head { padding-bottom: 18px; margin-bottom: 20px; border-bottom: 1px solid var(--line); }
     .hero {
       display: flex;
       justify-content: flex-end;
@@ -266,7 +276,7 @@
     }
     .stat-card .label { color: var(--muted); font-size: .9rem; margin-bottom: 8px; }
     .stat-card .value { font-size: 1.8rem; font-weight: 800; margin-bottom: 4px; }
-    .panel { background: var(--surface-grad); border-radius: 24px; padding: 18px; margin-bottom: 18px; }
+    .panel { background: linear-gradient(180deg, rgba(255,255,255,.97) 0%, rgba(243,248,255,.96) 100%); border-radius: 26px; padding: 22px; margin-bottom: 18px; }
 
     .toolbar { display:grid; grid-template-columns: minmax(260px, 1.4fr) 180px 180px 180px auto; gap:12px; margin-bottom:16px; }
     .toolbar.compact { grid-template-columns: repeat(5, minmax(0, 1fr)); }
@@ -349,7 +359,19 @@
       border:1px solid rgba(148,163,184,.22); background: rgba(255,255,255,.9); border-radius:999px; padding:8px 12px; cursor:pointer;
     }
     .addon-inline-pill.active { border-color: rgba(37,99,235,.34); background: rgba(37,99,235,.12); color: var(--primary); }
-    .cart-inline-row { display:flex; align-items:center; justify-content:space-between; gap:10px; flex-wrap:wrap; }
+    .cart-inline-row { display:flex; align-items:center; justify-content:space-between; gap:8px; flex-wrap:wrap; }
+    .store-eye-btn {
+      flex-shrink: 0;
+      width: 38px; height: 38px;
+      border: 1.5px solid rgba(148,163,184,.3);
+      border-radius: 12px;
+      background: rgba(255,255,255,.9);
+      cursor: default;
+      display: inline-flex; align-items: center; justify-content: center;
+      color: #64748b;
+      padding: 0;
+      opacity: .85;
+    }
     .product-card .store-btn {
       border: 0;
       border-radius: 12px;
@@ -423,7 +445,9 @@
 
     .settings-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap:14px; }
     .setting-card, .template-card, .embed-card {
-      border: 1px solid var(--line); border-radius: 20px; padding: 16px; background: rgba(255,255,255,.78);
+      border: 1px solid var(--line); border-radius: 22px; padding: 20px;
+      background: linear-gradient(160deg, rgba(255,255,255,.96), rgba(246,250,255,.94));
+      box-shadow: 0 2px 16px rgba(37,99,235,.06);
     }
     .switch-row {
       display:flex; align-items:center; justify-content:space-between; gap:10px; padding:11px 12px; border:1px solid var(--line);
@@ -475,7 +499,7 @@
     }
     .designer-group .modal-grid { margin-top: 0 !important; gap: 10px; }
     .designer-color-grid {
-      grid-template-columns: repeat(3, minmax(96px, 120px));
+      grid-template-columns: repeat(3, minmax(0, 120px));
       justify-content: flex-start;
       gap: 8px;
     }
@@ -626,6 +650,7 @@
     .panel, .product-card, .stat-card, .setting-card, .embed-card, .template-card, .auth-showcase, .auth-card { position: relative; }
     .panel { overflow: hidden; }
     .section-head h3, .topbar h2, .auth-showcase h2 { letter-spacing: -.02em; }
+    .section-head h3 { font-size: 1.25rem; font-weight: 800; margin-bottom: 4px; }
     .brand h1 { margin-bottom: 4px; }
     .hero .stat-card { background: var(--surface-highlight); }
     .floating-orb {
@@ -659,14 +684,65 @@
     .developer-guide .guide-step { padding:14px 16px; border-radius:16px; border:1px solid var(--line); background:rgba(255,255,255,.9); }
     .developer-guide .guide-step strong { display:block; margin-bottom:6px; }
     .field-table { display:grid; gap:10px; }
-    .field-table-head, .field-row { display:grid; grid-template-columns: 120px 160px 1fr; gap:12px; align-items:start; }
-    .field-table-head {
-      padding:0 14px; color: var(--muted); font-size:.82rem; font-weight:800;
-    }
+    .field-table-head, .field-row { display:grid; grid-template-columns: 160px 90px 1fr; gap:12px; align-items:start; }
+    .field-table-head { padding:0 14px; color: var(--muted); font-size:.82rem; font-weight:800; }
     .field-row { padding:12px 14px; border-radius:16px; background:rgba(255,255,255,.82); border:1px solid rgba(148,163,184,.18); }
     .field-row code { padding:4px 8px; border-radius:10px; background:rgba(79,70,229,.1); color:#312e81; font-weight:700; user-select: all; }
-    .field-row .type { color: var(--muted); font-size:.88rem; font-weight:700; }
+    .field-row .type { color: var(--muted); font-size:.84rem; font-weight:700; }
     .copy-fields-row { display:flex; justify-content:flex-start; }
+    /* --- method picker --- */
+    .api-method-picker { display:grid; grid-template-columns:repeat(3,1fr); gap:14px; margin-bottom:28px; }
+    .api-method-card {
+      border: 2px solid var(--line); border-radius: 24px; padding: 24px 16px 20px;
+      cursor: pointer; background: linear-gradient(160deg,rgba(255,255,255,.97),rgba(246,250,255,.95));
+      transition: border-color .18s, box-shadow .18s, background .18s, transform .12s;
+      text-align: center; user-select: none; position: relative;
+      box-shadow: 0 2px 12px rgba(37,99,235,.06);
+    }
+    .api-method-card:hover { border-color: rgba(79,70,229,.38); transform: translateY(-2px); box-shadow: 0 8px 28px rgba(79,70,229,.12); }
+    .api-method-card.active {
+      border-color: #4f46e5; background: linear-gradient(160deg,rgba(79,70,229,.09),rgba(8,145,178,.05));
+      box-shadow: 0 0 0 4px rgba(79,70,229,.12), 0 8px 28px rgba(79,70,229,.14);
+    }
+    .api-method-card.active::before {
+      content:"✓"; position:absolute; top:10px; left:12px; width:22px; height:22px; border-radius:50%;
+      background:#4f46e5; color:#fff; font-size:.78rem; font-weight:900;
+      display:grid; place-items:center;
+    }
+    .api-method-card .m-icon { font-size:2.2rem; line-height:1; margin-bottom:10px; }
+    .api-method-card .m-label { font-weight:800; font-size:1.05rem; color:var(--text); margin-bottom:6px; }
+    .api-method-card.active .m-label { color:#4f46e5; }
+    .api-method-card .m-desc { font-size:.83rem; color:var(--muted); line-height:1.58; }
+    .api-method-panel { display:none; }
+    .api-method-panel.active { display:grid; gap:16px; }
+    /* code copy */
+    .code-copy-wrap { position:relative; }
+    .code-copy-wrap .code-block { margin:0; }
+    .code-copy-btn {
+      position:absolute; top:12px; left:12px; padding:6px 14px; border-radius:10px;
+      font-size:.8rem; font-weight:700; border:none; cursor:pointer;
+      background:rgba(148,163,184,.25); color:#e2e8f0; transition:background .14s;
+    }
+    .code-copy-btn:hover { background:rgba(148,163,184,.42); }
+    /* separators & labels */
+    .embed-section-sep { border:none; border-top:1px solid var(--line); margin:32px 0 24px; }
+    .embed-section-label { font-weight:800; font-size:1.05rem; color:var(--text); margin:0 0 16px; }
+    .field-group-label { font-weight:700; font-size:.88rem; padding:7px 14px; border-radius:12px; margin-bottom:8px; display:inline-block; }
+    .field-group-content { background:rgba(16,185,129,.12); color:#065f46; border:1px solid rgba(16,185,129,.22); }
+    .field-group-design { background:rgba(79,70,229,.1); color:#3730a3; border:1px solid rgba(79,70,229,.18); }
+    .cart-event-card { background:linear-gradient(135deg,rgba(16,185,129,.08),rgba(79,70,229,.05)) !important; border:1.5px solid rgba(16,185,129,.3) !important; }
+    /* field table improvements */
+    .field-row:nth-child(even) { background:rgba(248,250,255,.95); }
+    .field-row code { letter-spacing:-.01em; }
+    @media (max-width:900px) {
+      .api-method-picker { grid-template-columns:repeat(2,1fr) !important; }
+    }
+    @media (max-width:760px) {
+      .api-method-picker { grid-template-columns:1fr !important; }
+      .field-row { grid-template-columns:1fr; }
+      .code-copy-btn { position:static; display:block; margin-top:8px; width:100%; }
+      .code-copy-wrap { position:static; }
+    }
     .animation-select-note { margin-top: 6px; color: var(--muted); font-size: .84rem; }
     .store-card[data-animation="float"] { animation: sharpFloat 3.2s cubic-bezier(.4,0,.2,1) infinite; }
     .store-card[data-animation="glow"] { animation: sharpGlow 2.8s cubic-bezier(.4,0,.2,1) infinite; }
@@ -725,8 +801,8 @@
 
     .embed-grid { display:grid; grid-template-columns: 1fr 1fr; gap: 16px; }
     .code-block {
-      background: #e2e8f0; border-radius: 18px; padding: 14px; overflow:auto; white-space: pre-wrap; word-break: break-word;
-      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .88rem;
+      background: #0f172a; color: #e2e8f0; border-radius: 18px; padding: 16px; overflow:auto; white-space: pre-wrap; word-break: break-word;
+      font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace; font-size: .86rem; line-height: 1.65;
     }
     .account-box {
       display:grid; gap:10px; border:1px dashed rgba(96,165,250,.28); border-radius: 18px; padding: 14px; background: rgba(96,165,250,.08);
@@ -780,7 +856,7 @@
     .product-form-grid .field-headline {
       grid-column: 1 / -1;
       display: grid;
-      grid-template-columns: minmax(0, 1.6fr) minmax(130px, .8fr) minmax(130px, .8fr) minmax(150px, .9fr) minmax(120px, .7fr);
+      grid-template-columns: minmax(0, 1.6fr) minmax(0, .8fr) minmax(0, .8fr) minmax(0, .9fr) minmax(0, .7fr);
       gap: 10px;
       align-items: end;
     }
@@ -843,7 +919,7 @@
       border-radius: 12px;
     }
     .modal-tag-controls {
-      grid-template-columns: minmax(0, 1.1fr) minmax(0, .85fr) minmax(0, .85fr) minmax(0, .8fr) minmax(0, .8fr) auto !important;
+      grid-template-columns: minmax(0, 1.1fr) minmax(0, .85fr) minmax(0, .85fr) minmax(0, .8fr) minmax(0, .8fr) minmax(0, auto) !important;
       gap: 8px !important;
       align-items: end;
     }
@@ -947,12 +1023,12 @@
     body.modal-open { overflow: hidden; }
     .modal {
       position: fixed; inset: 0; display:none; align-items:flex-start; justify-content:center; padding:20px; z-index:110;
-      overflow-y: auto;
+      overflow-y: auto; overflow-x: hidden;
       background: rgba(148,163,184,.35); backdrop-filter: blur(12px);
     }
     .modal.open { display:flex; }
     .modal-card {
-      width: min(1080px, 100%); max-height: 92vh; overflow:auto; border-radius: 28px; padding: 20px; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
+      width: min(1080px, 100%); max-height: 92vh; overflow-y: auto; overflow-x: hidden; border-radius: 28px; padding: 20px; background: linear-gradient(180deg, rgba(255,255,255,.98), rgba(248,250,252,.98));
       margin-block: auto;
     }
     .modal-grid { display:grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
@@ -1238,36 +1314,141 @@
           <div class="panel">
             <div class="section-head">
               <div>
-                <h3 data-i18n="embed.title">חיבור האתר שלך למוצרים</h3>
-                <p data-i18n="embed.desc">קבל מזהה חשבון וקוד הטמעה מוכן. הקוד שואב אוטומטית את המוצרים והעיצוב מהמערכת שלך.</p>
-              </div>
-              <div class="embed-toolbar">
-                <button class="btn btn-success" id="copyAccountIdBtn" data-i18n="embed.copyId">העתק קוד API</button>
-                <button class="btn btn-primary" id="copyEmbedCodeBtn" data-i18n="embed.copyCode">העתק קוד iFrame</button>
+                <h3>חיבור האתר שלך למוצרים</h3>
+                <p>בחר את שיטת החיבור המתאימה לך — שורה אחת של קוד מחברת את האתר לכל המוצרים, מנוהלים ממוצרלה.</p>
               </div>
             </div>
-            <div class="embed-grid">
-              <div style="display:grid; gap:16px;">
-                <div class="embed-card">
-                  <h4 data-i18n="embed.iframeTitle">1. iFrame — HTML מלא מוכן לתצוגה</h4>
-                  <div class="embed-help" data-i18n="embed.iframeDesc">השתמשו בקוד הבא כדי להטמיע iFrame שמציג את כל ה-HTML והעיצוב מתוך המערכת שלכם, כולל תמונות ומבנה מלא.</div>
-                  <pre class="code-block" id="embedCodeBlock"></pre>
-                </div>
-                <div class="embed-card">
-                  <h4 data-i18n="embed.apiTitle">2. API לנתונים בלבד (JSON)</h4>
-                  <div class="embed-help" data-i18n="embed.apiDesc">השתמשו בכתובת הזו כדי לקבל JSON נקי ולבנות תצוגה עצמאית באתר שלכם.</div>
-                  <pre class="code-block" id="embedDataCodeBlock"></pre>
-                </div>
+
+            <!-- בוחר שיטת חיבור -->
+            <div class="api-method-picker" style="grid-template-columns:repeat(4,1fr);">
+              <div class="api-method-card active" data-method="widget-design" role="button" tabindex="0">
+                <div class="m-icon">🎨</div>
+                <div class="m-label">ווידג׳ט עם עיצוב</div>
+                <div class="m-desc">הכרטיסיות יראו בדיוק כמו שהגדרת במוצרלה — צבעים, גופן, אנימציות.</div>
               </div>
+              <div class="api-method-card" data-method="widget-content" role="button" tabindex="0">
+                <div class="m-icon">🧩</div>
+                <div class="m-label">ווידג׳ט תוכן בלבד</div>
+                <div class="m-desc">רק הנתונים — ללא עיצוב ממוצרלה. עצב את הכרטיסיות בעצמך עם CSS.</div>
+              </div>
+              <div class="api-method-card" data-method="api-full" role="button" tabindex="0">
+                <div class="m-icon">🔗</div>
+                <div class="m-label">API מלא</div>
+                <div class="m-desc">קובץ JSON עם כל הנתונים <strong>כולל עיצוב</strong> — בנה ממשק בעצמך לגמרי.</div>
+              </div>
+              <div class="api-method-card" data-method="api-content" role="button" tabindex="0">
+                <div class="m-icon">📦</div>
+                <div class="m-label">API תוכן בלבד</div>
+                <div class="m-desc">קובץ JSON עם נתונים בלבד — <strong>ללא עיצוב</strong>. כשהעיצוב נעשה בקוד האתר שלך.</div>
+              </div>
+            </div>
+
+            <!-- פאנל ווידג׳ט עם עיצוב -->
+            <div id="apiMethodPanel-widget-design" class="api-method-panel active">
               <div class="embed-card">
-                <strong data-i18n="embed.devGuideTitle">הוראות למפתחים</strong>
-                <div class="embed-help" data-i18n="embed.devGuideDesc">כל ההסברים כאן בעברית, אבל שמות השדות והקוד נשארים באנגלית כדי שתוכלו להעתיק אותם כמו שהם.</div>
-                <div class="copy-fields-row">
-                  <button class="btn btn-outline" id="copyFieldNamesBtn" data-i18n="embed.copyFields">העתק את כל שמות השדות</button>
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                  <span style="font-size:1.3rem;">🎨</span>
+                  <h4 style="margin:0;">ווידג׳ט עם עיצוב מלא — הדבק באתר שלך</h4>
                 </div>
-                <div class="developer-guide" id="apiFieldsBlock"></div>
+                <p class="mini" style="margin:0 0 14px;">שתי שורות בלבד. הכרטיסיות מופיעות בצבעים, גופן ואנימציות שהגדרת במוצרלה. כל שינוי עיצוב שתעשה — מתעדכן אוטומטית בכל האתרים שמחוברים.</p>
+                <div class="code-copy-wrap">
+                  <pre class="code-block" id="widgetDesignCodeBlock"></pre>
+                  <button class="code-copy-btn" id="copyWidgetDesignBtn">📋 העתק</button>
+                </div>
+              </div>
+              <div class="embed-card" style="background:rgba(16,185,129,.05);border-color:rgba(16,185,129,.2);">
+                <h4 style="margin:0 0 10px;color:#065f46;">📡 קליטת אירוע הוסף לסל</h4>
+                <p class="mini" style="margin:0 0 12px;">כשמשתמש לוחץ "הוסף לסל", הווידג׳ט שולח אירוע ישירות לאתר שלך. הוסף את הקוד הבא כדי לקלוט אותו:</p>
+                <div class="code-copy-wrap">
+                  <pre class="code-block" id="widgetCartEventBlock"></pre>
+                  <button class="code-copy-btn" id="copyWidgetCartBtn">📋 העתק</button>
+                </div>
               </div>
             </div>
+
+            <!-- פאנל ווידג׳ט תוכן בלבד -->
+            <div id="apiMethodPanel-widget-content" class="api-method-panel">
+              <div class="embed-card">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                  <span style="font-size:1.3rem;">🧩</span>
+                  <h4 style="margin:0;">ווידג׳ט תוכן בלבד — הדבק באתר שלך</h4>
+                </div>
+                <p class="mini" style="margin:0 0 14px;">הכרטיסיות מופיעות עם מבנה נקי — <strong>ללא</strong> צבעים או גופן ממוצרלה. עצב אותן כרצונך עם CSS על ה-classes הבאים.</p>
+                <div class="code-copy-wrap">
+                  <pre class="code-block" id="widgetContentCodeBlock"></pre>
+                  <button class="code-copy-btn" id="copyWidgetContentBtn">📋 העתק</button>
+                </div>
+              </div>
+              <div class="embed-card" style="background:rgba(99,102,241,.04);border-color:rgba(99,102,241,.18);">
+                <h4 style="margin:0 0 8px;color:#3730a3;">🎨 עיצוב עם CSS — רשימת ה-Classes</h4>
+                <p class="mini" style="margin:0 0 12px;">כל אלמנט בווידג׳ט מקבל class קבוע — ניתן לדרוס לגמרי:</p>
+                <div class="field-table" style="margin-top:8px;">
+                  <div class="field-table-head"><div>Class</div><div>סוג</div><div>תיאור</div></div>
+                  <div class="field-row"><code>.mtz-grid</code><div class="type">div</div><div>רשת הכרטיסיות</div></div>
+                  <div class="field-row"><code>.mtz-card</code><div class="type">div</div><div>כרטיס בודד</div></div>
+                  <div class="field-row"><code>.mtz-img</code><div class="type">div</div><div>עטיפת התמונה</div></div>
+                  <div class="field-row"><code>.mtz-name</code><div class="type">div</div><div>שם המוצר</div></div>
+                  <div class="field-row"><code>.mtz-desc</code><div class="type">div</div><div>תיאור קצר</div></div>
+                  <div class="field-row"><code>.mtz-price</code><div class="type">span</div><div>מחיר (עם <code>.sale</code> למבצע)</div></div>
+                  <div class="field-row"><code>.mtz-tag</code><div class="type">span</div><div>תגית</div></div>
+                  <div class="field-row"><code>.mtz-vopt</code><div class="type">button</div><div>כפתור וריאנט (<code>.on</code> = נבחר)</div></div>
+                  <div class="field-row"><code>.mtz-btn</code><div class="type">button</div><div>כפתור הוסף לסל</div></div>
+                </div>
+              </div>
+              <div class="embed-card" style="background:rgba(16,185,129,.05);border-color:rgba(16,185,129,.2);">
+                <h4 style="margin:0 0 10px;color:#065f46;">📡 קליטת אירוע הוסף לסל</h4>
+                <p class="mini" style="margin:0 0 12px;">אותו אירוע בדיוק — עובד בשני סוגי הווידג׳ט:</p>
+                <div class="code-copy-wrap">
+                  <pre class="code-block" id="cartEventCodeBlock"></pre>
+                  <button class="code-copy-btn" id="copyCartEventBtn">📋 העתק</button>
+                </div>
+              <div style="margin-top:14px; display:grid; gap:8px;">
+                <p class="embed-section-label" style="font-size:.9rem; margin:0;">שדות שנשלחים באירוע:</p>
+                <div class="field-table">
+                  <div class="field-table-head"><div>שדה</div><div>סוג</div><div>תיאור</div></div>
+                  <div class="field-row"><code>type</code><div class="type">string</div><div>תמיד <code>"motzarella:add-to-cart"</code></div></div>
+                  <div class="field-row"><code>product</code><div class="type">object</div><div>כל שדות המוצר (שם, מחיר, תמונות, תגיות, וריאנטים ועוד)</div></div>
+                  <div class="field-row"><code>quantity</code><div class="type">number</div><div>כמות שנבחרה על ידי הלקוח</div></div>
+                  <div class="field-row"><code>selectedVariants</code><div class="type">object</div><div>הוריאנטים שנבחרו: <code>{"מידה": "L", "צבע": "שחור"}</code></div></div>
+                  <div class="field-row"><code>source</code><div class="type">string</div><div>תמיד <code>"motzarella"</code> — לאמת שהאירוע הגיע ממוצרלה</div></div>
+                </div>
+              </div>
+            </div>
+
+            <!-- פאנל API מלא -->
+            <div id="apiMethodPanel-api-full" class="api-method-panel">
+              <div class="embed-card">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                  <span style="font-size:1.3rem;">🔗</span>
+                  <h4 style="margin:0;">API מלא — JSON עם נתונים ועיצוב</h4>
+                </div>
+                <p class="mini" style="margin:0 0 14px;">מחזיר JSON מלא: נתוני תוכן + צבעים, גופן, אנימציה. מתאים למפתח שרוצה לבנות ממשק מותאם לגמרי ולשמר את הגדרות העיצוב ממוצרלה.</p>
+                <div class="code-copy-wrap">
+                  <pre class="code-block" id="embedDataCodeBlock"></pre>
+                  <button class="code-copy-btn" id="copyApiFullBtn">📋 העתק</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- פאנל API תוכן בלבד -->
+            <div id="apiMethodPanel-api-content" class="api-method-panel">
+              <div class="embed-card">
+                <div style="display:flex;align-items:center;gap:10px;margin-bottom:6px;">
+                  <span style="font-size:1.3rem;">📦</span>
+                  <h4 style="margin:0;">API תוכן בלבד — JSON ללא עיצוב</h4>
+                </div>
+                <p class="mini" style="margin:0 0 14px;">מחזיר שם, מחיר, תיאורים, תמונות, תגיות, וריאנטים ותוספות — <strong>ללא</strong> צבעים, גופן או אנימציה. הוסף <code style="background:rgba(79,70,229,.1);padding:2px 7px;border-radius:6px;color:#3730a3;">&fields=content</code> לכתובת.</p>
+                <div class="code-copy-wrap">
+                  <pre class="code-block" id="embedDataContentBlock"></pre>
+                  <button class="code-copy-btn" id="copyApiContentBtn">📋 העתק</button>
+                </div>
+              </div>
+            </div>
+
+            <!-- טבלת שדות -->
+            <hr class="embed-section-sep">
+            <p class="embed-section-label">מדריך שדות — הסבר לכל שדה</p>
+            <div id="apiFieldsBlock" style="display:grid; gap:20px;"></div>
           </div>
         </section>
 
@@ -1402,67 +1583,59 @@
                 <select class="select" id="embedProductSelect"></select>
               </div>
             </div>
-            <div class="tabs" style="max-width:400px;margin-bottom:18px;">
-              <button class="tab active" id="embedTabStyledApi">iFrame (HTML מלא)</button>
-              <button class="tab" id="embedTabRawApi">API בלי עיצוב</button>
+            <div class="tabs" style="max-width:520px;margin-bottom:18px;">
+              <button class="tab active" id="embedTabStyledApi">iFrame (עיצוב מלא)</button>
+              <button class="tab" id="embedTabRawApi">API מלא (JSON)</button>
+              <button class="tab" id="embedTabContentApi">API תוכן בלבד</button>
             </div>
 
             <div id="embedPanelStyledApi">
               <div class="embed-card" style="margin-bottom:16px;">
-                <h4>🖼️ iFrame עם HTML מלא</h4>
-                <p class="mini">הטמעה דרך iFrame מציגה את כל ה-HTML והעיצוב מתוך המערכת, כולל התמונה, בלי לפתח תצוגה ידנית בצד האתר שלכם.</p>
+                <h4>iFrame — תצוגה מוכנה עם עיצוב מלא</h4>
+                <p class="mini">שורה אחת שמציגה את הכרטיס עם כל העיצוב שהגדרתם. ללא פיתוח נוסף.</p>
                 <pre class="code-block" id="singleStyledApiUrl" style="margin:12px 0;"></pre>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;">
                   <button class="btn btn-primary" id="copySingleStyledApiBtn">📋 העתק קוד iFrame</button>
-                  <button class="btn btn-outline" id="openSingleStyledApiBtn">🔗 פתח מקור iFrame</button>
+                  <button class="btn btn-outline" id="openSingleStyledApiBtn">🔗 פתח מקור</button>
                 </div>
               </div>
               <div class="embed-card">
-                <h4>👁️ תצוגה מקדימה</h4>
+                <h4>תצוגה מקדימה</h4>
                 <div id="singleStyledApiPreview" style="border:1px solid var(--line);border-radius:18px;overflow:hidden;min-height:300px;background:#fff;"></div>
               </div>
             </div>
 
             <div id="embedPanelRawApi" class="hidden">
               <div class="embed-card" style="margin-bottom:16px;">
-                <h4>🔌 API Endpoint</h4>
-                <p class="mini">השתמש ב-URL הבא כדי לקבל JSON נקי של המוצר. התגובה כוללת רק נתונים ציבוריים.</p>
+                <h4>API מלא — JSON עם כל השדות כולל עיצוב</h4>
+                <p class="mini">מחזיר את כל שדות המוצר: תוכן, עיצוב, אנימציה, וריאנטים ותוספות. מתאים למי שרוצה לבנות תצוגה ידנית ולשמר את הגדרות העיצוב.</p>
                 <pre class="code-block" id="singleRawApiUrl" style="margin:12px 0;"></pre>
                 <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
                   <button class="btn btn-primary" id="copySingleRawApiUrlBtn">📋 העתק URL</button>
                   <button class="btn btn-outline" id="openSingleRawApiBtn">🔗 פתח בחלון חדש</button>
                 </div>
               </div>
-              <div class="embed-card" style="margin-bottom:16px;">
-                <h4>📦 JSON לדוגמה</h4>
+              <div class="embed-card">
+                <h4>JSON לדוגמה</h4>
                 <pre class="code-block" id="singleApiJsonExample" style="max-height:400px;overflow:auto;"></pre>
                 <button class="btn btn-outline" id="copySingleApiJsonBtn" style="margin-top:10px;">📋 העתק JSON</button>
               </div>
-              <div class="embed-card">
-                <h4>📖 פירוט שדות API</h4>
-                <div class="field-table" id="apiFieldsDocBlock">
-                  <div class="field-table-head"><span>שדה</span><span>סוג</span><span>תיאור</span></div>
-                  <div class="field-row"><code>id</code><span class="type">string</span><span>מזהה מוצר</span></div>
-                  <div class="field-row"><code>ownerId</code><span class="type">string</span><span>מזהה בעל החשבון</span></div>
-                  <div class="field-row"><code>name</code><span class="type">string</span><span>שם מוצר</span></div>
-                  <div class="field-row"><code>price</code><span class="type">number</span><span>מחיר</span></div>
-                  <div class="field-row"><code>currency</code><span class="type">string</span><span>מטבע המחיר (למשל ILS / USD)</span></div>
-                  <div class="field-row"><code>description</code><span class="type">string</span><span>תיאור קצר (לתאימות לאחור)</span></div>
-                  <div class="field-row"><code>shortDescription</code><span class="type">string</span><span>תיאור קצר להצגה מהירה</span></div>
-                  <div class="field-row"><code>longDescription</code><span class="type">string</span><span>תיאור ארוך ומפורט</span></div>
-                  <div class="field-row"><code>categoryId</code><span class="type">string</span><span>מזהה קטגוריית מוצר</span></div>
-                  <div class="field-row"><code>categoryLabel</code><span class="type">string</span><span>שם הקטגוריה להצגה</span></div>
-                  <div class="field-row"><code>imageUrl</code><span class="type">string</span><span>תמונה ראשית</span></div>
-                  <div class="field-row"><code>imageUrls</code><span class="type">array</span><span>גלריית תמונות</span></div>
-                  <div class="field-row"><code>tags</code><span class="type">array</span><span>תגיות</span></div>
-                  <div class="field-row"><code>colors</code><span class="type">array</span><span>צבעים</span></div>
-                  <div class="field-row"><code>addons</code><span class="type">array</span><span>תוספות</span></div>
-                  <div class="field-row"><code>upgrades</code><span class="type">array</span><span>שדרוגים</span></div>
-                  <div class="field-row"><code>animation</code><span class="type">object</span><span>הגדרות אנימציה (enabled, type, duration, delay)</span></div>
-                  <div class="field-row"><code>theme</code><span class="type">object</span><span>הגדרות עיצוב (cardStyle, primaryColor)</span></div>
-                  <div class="field-row"><code>published</code><span class="type">boolean</span><span>האם ציבורי</span></div>
-                  <div class="field-row"><code>updatedAt</code><span class="type">timestamp</span><span>עדכון אחרון</span></div>
+            </div>
+
+            <div id="embedPanelContentApi" class="hidden">
+              <div class="embed-card" style="margin-bottom:16px;">
+                <h4>API תוכן בלבד — JSON ללא שדות עיצוב</h4>
+                <p class="mini">מחזיר שם, מחיר, תיאורים, תמונות, תגיות, וריאנטים ותוספות — ללא צבעים, גופן או אנימציה. מוסיפים <code>&amp;fields=content</code> לכתובת.</p>
+                <pre class="code-block" id="singleContentApiUrl" style="margin:12px 0;"></pre>
+                <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:12px;">
+                  <button class="btn btn-primary" id="copySingleContentApiUrlBtn">📋 העתק URL</button>
+                  <button class="btn btn-outline" id="openSingleContentApiBtn">🔗 פתח בחלון חדש</button>
                 </div>
+              </div>
+              <div class="embed-card">
+                <h4>JSON לדוגמה (תוכן בלבד)</h4>
+                <pre class="code-block" id="singleApiContentJsonExample" style="max-height:400px;overflow:auto;"></pre>
+                <button class="btn btn-outline" id="copySingleContentApiJsonBtn" style="margin-top:10px;">📋 העתק JSON</button>
               </div>
             </div>
           </div>
@@ -1511,6 +1684,8 @@
           <div class="field field-image"><label for="productImage" data-i18n="form.image">תמונות מוצר</label><input class="input" id="productImage" type="file" accept="image/*" multiple /><div id="imageManager" class="image-manager"></div></div>
           <div class="field field-button-shape"><label for="productButtonStyle">צורת כפתור הוסף לסל</label><select class="select" id="productButtonStyle"><option value="rounded">עגול רך</option><option value="pill">גלולה</option><option value="square">מרובע</option><option value="soft">רך ומודגש</option></select></div>
           <div class="field field-button-text"><label for="productCartButtonText">טקסט לכפתור הוסף לסל</label><input class="input" id="productCartButtonText" placeholder="הוספה לסל" value="הוספה לסל" /></div>
+          <div class="field full"><label for="productExtendedDetails">פירוט מורחב <span style="font-weight:400;color:var(--muted);font-size:.84rem;">(נצפה רק כאשר פותחים את המוצר)</span></label><textarea class="textarea" id="productExtendedDetails" placeholder="מפרט טכני, הוראות שימוש, פרטים נוספים...&#10;&#10;הכפתור יופיע אוטומטית לצד ׳הוסף לסל׳ כשיש תוכן."></textarea></div>
+          <div class="field field-button-shape"><label for="productQuickViewSide">מיקום כפתור הפירוט</label><select class="select" id="productQuickViewSide"><option value="left">שמאל (ברירת מחדל)</option><option value="right">ימין</option></select></div>
         </div>
 
         <div class="section-head" style="margin-top:18px;">
@@ -1924,36 +2099,66 @@
     // --- Public Products helpers ---
     function publicProductDoc(id) { return doc(db, 'publicProducts', id); }
 
+    // שדות עיצוב שנמחקים ב-fields=content
+    const DESIGN_FIELDS = ['animation','theme','cardGradient','accentColor','textColor','font','buttonStyle','template','imageSwitchMode','imageSwitchSeconds'];
+
+    function stripDesignFields(data) {
+      const result = { ...data };
+      DESIGN_FIELDS.forEach(k => delete result[k]);
+      return result;
+    }
+
     function buildPublicProductPayload(item) {
       const shortDescription = item.shortDescription || item.description || '';
       const longDescription = item.longDescription || '';
       return {
+        // זהות
         id: item.id || item.productId,
         ownerId: item.uid || '',
+        // מחיר
         name: item.name || '',
         price: Number(item.price || 0),
         currency: item.currency || 'ILS',
         saleActive: !!item.saleActive,
         salePrice: Number(item.salePrice || 0),
+        // תיאורים
         description: shortDescription,
         shortDescription,
         longDescription,
+        freeText: item.freeText || '',
+        // תמונות
         imageUrl: item.imageUrl || '',
         imageUrls: productImageUrls(item),
-        imageSwitchMode: item.imageSwitchMode || 'auto',
-        imageSwitchSeconds: Number(item.imageSwitchSeconds || 3),
-        tags: (item.tags || []).map(t => typeof t === 'string' ? { label: t } : { label: t?.label || '', color: t?.color || '', shape: t?.shape || 'pill' }),
-        colors: item.colors || [],
-        addons: (item.addons || []).map(a => ({ type: a?.style || a?.type || 'text', label: a?.value || a?.label || '' })),
-        upgrades: (item.variants || []).map(v => ({ name: v?.name || '', options: (v?.options || []).map(o => o?.label || o?.value || '') })),
+        // קטגוריה ותגיות
         categoryId: getProductCategoryId(item.categoryLabel || item.categoryId || item.category),
         categoryLabel: getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category),
+        tags: (item.tags || []).map(t => typeof t === 'string' ? { label: t } : { label: t?.label || '', color: t?.color || '', shape: t?.shape || 'pill' }),
+        tagStyles: item.tagStyles || {},
+        // וריאנטים ותוספות (נתונים מלאים)
+        colors: item.colors || [],
+        variants: (item.variants || []),
+        addons: (item.addons || []),
+        // כפתור וסל
+        cartButtonText: item.cartButtonText || '',
+        showCart: item.showCart || 'default',
+        // עיצוב כרטיס
+        template: item.template || 'classic',
+        buttonStyle: item.buttonStyle || 'rounded',
+        accentColor: item.accentColor || '',
+        cardBackground: item.cardBackground || '',
+        cardGradient: item.cardGradient || '',
+        textColor: item.textColor || '',
+        font: item.font || 'Inter',
+        // אנימציה
+        imageSwitchMode: item.imageSwitchMode || 'auto',
+        imageSwitchSeconds: Number(item.imageSwitchSeconds || 3),
         animation: {
           enabled: !!(item.animationStyle && item.animationStyle !== 'none'),
           type: item.animationStyle || 'none',
           duration: Number(item.animationDuration || 0.8),
           delay: Number(item.animationDelay || 0.1)
         },
+        // ערכת נושא (תאימות לאחור)
         theme: {
           cardStyle: item.buttonStyle || 'rounded',
           primaryColor: item.accentColor || '#60a5fa',
@@ -2009,6 +2214,27 @@
       };
       await setDoc(userDoc(), { uid: state.currentUser.uid, email: state.currentUser.email || '', displayName: state.currentUser.displayName || '', updatedAt: serverTimestamp() }, { merge: true });
       await setDoc(themeDocRef(), payload, { merge: true });
+      // סנכרון עיצוב לאוסף ציבורי — נקרא על ידי הווידג׳ט
+      await syncPublicTheme(payload);
+    }
+
+    async function syncPublicTheme(themePayload = state.theme) {
+      if (!state.currentUser?.uid) return;
+      const uid = state.currentUser.uid;
+      const publicFields = [
+        'primaryColor','buttonColor','cardBackground','cardGradient','textColor',
+        'borderRadius','cardPadding','imageHeight','textAlign','buttonStyle',
+        'animationStyle','animationDuration','animationDelay',
+        'imageSwitchMode','imageSwitchSeconds','cardShadow','cardTone','font','applyMode',
+        'desktopColumns','mobileColumns'
+      ];
+      const pub = { uid, updatedAt: serverTimestamp() };
+      publicFields.forEach(k => { if (themePayload[k] !== undefined) pub[k] = themePayload[k]; });
+      try {
+        await setDoc(doc(db, 'publicThemes', uid), pub, { merge: true });
+      } catch (err) {
+        console.warn('syncPublicTheme warning:', err);
+      }
     }
 
     function applyThemeToPreview() {
@@ -2582,6 +2808,9 @@
         const selected = !isPreview && getSelectedVariant(productId, group.name) === option.label;
         return `<button class="addon-inline-pill ${selected ? 'active' : ''}" type="button" data-action="select-variant" data-product-id="${esc(productId)}" data-group="${esc(group.name)}" data-option="${esc(option.label)}">${esc(option.label)}</button>`;
       }).join('')}</div></div>`).join('');
+      const qvSide = item.quickViewButtonSide || 'left';
+      const eyeSvgPrev = `<svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>`;
+      const eyeBtnPrev = `<button class="store-eye-btn" type="button" disabled title="פירוט המוצר">${eyeSvgPrev}</button>`;
       const cartHtml = showCart ? `
         <div class="cart-inline-row">
           <div class="qty-stepper">
@@ -2589,7 +2818,11 @@
             <span class="qty-value">${isPreview ? 1 : getCartQuantity(productId)}</span>
             <button type="button" data-action="qty-up" data-product-id="${esc(productId)}">+</button>
           </div>
-          <button class="store-btn btn-style-${esc(item.buttonStyle || theme.buttonStyle || 'rounded')}" type="button" data-action="add-cart" data-product-id="${esc(productId)}" style="background:${esc(theme.buttonColor)};color:${getReadableTextColor(theme.buttonColor)};">${esc(item.cartButtonText || theme.cartButtonText || 'הוספה לסל')}</button>
+          <div style="display:flex;gap:6px;align-items:center;">
+            ${qvSide === 'right' ? eyeBtnPrev : ''}
+            <button class="store-btn btn-style-${esc(item.buttonStyle || theme.buttonStyle || 'rounded')}" type="button" data-action="add-cart" data-product-id="${esc(productId)}" style="background:${esc(theme.buttonColor)};color:${getReadableTextColor(theme.buttonColor)};">${esc(item.cartButtonText || theme.cartButtonText || 'הוספה לסל')}</button>
+            ${qvSide !== 'right' ? eyeBtnPrev : ''}
+          </div>
         </div>` : '';
       const content = `
         ${template === 'split' ? image : ''}
@@ -2895,6 +3128,8 @@
         $('#productCategory').value = getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category);
         $('#productButtonStyle').value = item.buttonStyle || 'rounded';
         $('#productCartButtonText').value = item.cartButtonText || 'הוספה לסל';
+        $('#productExtendedDetails').value = item.extendedDetails || '';
+        $('#productQuickViewSide').value = item.quickViewButtonSide || 'left';
         (item.variants || []).forEach(addVariantGroup);
       } else {
         state.modalTags = [];
@@ -2905,6 +3140,8 @@
         $('#productCategory').value = DEFAULT_PRODUCT_CATEGORY;
         $('#productButtonStyle').value = state.theme.buttonStyle || 'rounded';
         $('#productCartButtonText').value = state.theme.cartButtonText || 'הוספה לסל';
+        $('#productExtendedDetails').value = '';
+        $('#productQuickViewSide').value = 'left';
         addVariantGroup();
       }
       renderTagEditor();
@@ -3064,6 +3301,8 @@
           imageSwitchSeconds: Number(state.theme.imageSwitchSeconds || 3),
             buttonStyle: $('#productButtonStyle').value || 'rounded',
             cartButtonText: $('#productCartButtonText').value.trim() || 'הוספה לסל',
+            extendedDetails: $('#productExtendedDetails').value.trim() || '',
+            quickViewButtonSide: $('#productQuickViewSide').value || 'left',
           active: existingProduct ? (existingProduct.active !== false) : true,
           status: existingProduct ? (existingProduct.status || 'active') : 'active',
           published: true,
@@ -3307,58 +3546,126 @@
     }
 
     function updateEmbedCode() {
-      const styledApiEndpoint = `${window.location.origin}${window.location.pathname}?api=styled&uid=${state.currentUser?.uid || 'YOUR_ACCOUNT_UID'}&embed=1`;
-      const jsonApiEndpoint = `${window.location.origin}${window.location.pathname}?api=json&uid=${state.currentUser?.uid || 'YOUR_ACCOUNT_UID'}`;
-      const code = `<iframe
-  src="${styledApiEndpoint}"
-  width="100%"
-  height="900"
-  style="border:0;overflow:hidden;"
-  loading="lazy">
-</iframe>`;
-      const dataCode = `fetch('${jsonApiEndpoint}')
-  .then((response) => response.json())
-  .then((productManagerData) => {
-    const activeProducts = productManagerData.products.filter((product) => product.active !== false);
-    console.log(activeProducts);
+      const uid = state.currentUser?.uid || 'YOUR_ACCOUNT_UID';
+      const base = `${window.location.origin}${window.location.pathname}`;
+      const widgetBase = `${window.location.origin}${window.location.pathname.replace(/\/[^/]*$/, '')}`;
+      const jsonEndpoint    = `${base}?api=json&uid=${uid}`;
+      const contentEndpoint = `${base}?api=json&uid=${uid}&fields=content`;
+
+      const fullApiCode =
+`fetch('${jsonEndpoint}')
+  .then(res => res.json())
+  .then(({ theme, products }) => {
+    // theme    — הגדרות עיצוב גלובליות (צבעים, גופן)
+    // products — מערך מוצרים עם נתוני תוכן ועיצוב
+    console.log(products);
   });`;
-      const apiFields = [
-        ['id', 'string', 'להעתיק אם צריך מזהה קבוע למוצר, עגלה, או state פנימי.'],
-        ['productId', 'string', 'לא חובה ברוב האתרים. להעתיק רק אם אתם מסנכרנים מערכת חיצונית או צריכים מזהה מקור.'],
-        ['name', 'string', 'להעתיק תמיד כשמציגים שם מוצר ללקוח.'],
-        ['price', 'number', 'להעתיק תמיד אם מציגים מחיר בכרטיס, בסל, או בסיכום הזמנה.'],
-        ['currency', 'string', 'להעתיק תמיד יחד עם price כדי להציג את המטבע הנכון (למשל ILS, USD, EUR).'],
-        ['saleActive', 'boolean', 'לא חובה. מסמן אם למוצר יש מחיר מבצע פעיל.'],
-        ['salePrice', 'number', 'לא חובה. המחיר המוזל להצגה כשמבצע פעיל.'],
-        ['description', 'string', 'שדה תאימות לאחור: בדרך כלל משקף את התיאור הקצר.'],
-        ['shortDescription', 'string', 'להעתיק להצגת תקציר קצר של המוצר בכרטיס.'],
-        ['longDescription', 'string', 'להעתיק אם רוצים להציג פירוט מורחב של המוצר.'],
-        ['imageUrl', 'string', 'להעתיק אם מציגים תמונת מוצר באתר.'],
-        ['imageUrls', 'array', 'להעתיק אם רוצים גלריית תמונות עם כמה תמונות לכל מוצר.'],
-        ['imageSwitchMode', 'string', 'לא חובה. שולט אם הגלריה אוטומטית, בריחוף, או עם חיצים.'],
-        ['imageSwitchSeconds', 'number', 'לא חובה. מהירות החלפת התמונות בשניות.'],
-        ['tags', 'array', 'להעתיק רק אם מציגים תגיות כמו חדש, מבצע, או מהדורה מיוחדת.'],
-        ['tagStyles', 'object', 'לא חובה. להעתיק רק אם אתם רוצים לשחזר עיצוב מותאם של תגיות.'],
-        ['variants', 'array', 'להעתיק אם יש בחירת מידה, צבע, חומר, או חבילה.'],
-        ['accentColor', 'string', 'לא חובה. להעתיק רק אם משתמשים בצבע הדגשה מתוך הנתונים.'],
-        ['cardBackground', 'string', 'לא חובה. להעתיק אם אתם בונים כרטיס מוצר עם צבע רקע קבוע.'],
-        ['bodyGradient', 'string', 'לא חובה. להעתיק אם רוצים רקע גרדיאנט; אם לא, אפשר להישאר עם <code>cardBackground</code>.'],
-        ['buttonStyle', 'string', 'לא חובה. להעתיק רק אם הכפתור באתר שלכם אמור לקבל סגנון מתוך המערכת.'],
-        ['animationStyle', 'string', 'לא חובה. להעתיק אם רוצים להציג את האנימציה החדה שהוגדרה למוצר גם באתר הלקוח.'],
-        ['active', 'boolean', 'להעתיק תמיד אם רוצים להציג רק מוצרים פעילים.']
+
+      const contentApiCode =
+`fetch('${contentEndpoint}')
+  .then(res => res.json())
+  .then(({ products }) => {
+    // products — תוכן בלבד: שם, מחיר, תיאורים, תמונות,
+    //            תגיות, וריאנטים, תוספות — ללא עיצוב
+    console.log(products);
+  });`;
+
+      const widgetDesignCode =
+`<!-- שלב 1: מקם איפה שרוצים שהחנות תופיע -->
+<div id="motzarella-store" data-uid="${uid}"></div>
+
+<!-- שלב 2: הדבק לפני סוף תגית </body> -->
+<script src="${widgetBase}/widget.js"><\/script>`;
+
+      const widgetContentCode =
+`<!-- שלב 1: הוסף data-mode="content" לתגית ה-div -->
+<div id="motzarella-store" data-uid="${uid}" data-mode="content"></div>
+
+<!-- שלב 2: הדבק לפני סוף תגית </body> -->
+<script src="${widgetBase}/widget.js"><\/script>`;
+
+      const cartEventCode =
+`// קליטת אירוע "הוסף לסל" מהווידג׳ט
+window.addEventListener('motzarella:add-to-cart', (event) => {
+  const { product, quantity, selectedVariants, cart } = event.detail;
+
+  console.log('מוצר נוסף לסל:', product.name);
+  console.log('מחיר:', product.price, product.currency);
+  console.log('כמות:', quantity);
+  console.log('וריאנטים שנבחרו:', selectedVariants);
+  console.log('סל מלא:', cart);
+
+  // כאן תוסיף את לוגיקת הסל שלך
+});`;
+
+      // שדות הנתונים
+      const contentFields = [
+        ['id',              'string',   'מזהה ייחודי של המוצר — לסל קניות, ניווט, state'],
+        ['name',            'string',   'שם המוצר'],
+        ['price',           'number',   'מחיר רגיל'],
+        ['currency',        'string',   'קוד מטבע: ILS, USD, EUR'],
+        ['saleActive',      'boolean',  'האם פעיל מבצע'],
+        ['salePrice',       'number',   'מחיר מבצע — להציג רק כש-saleActive הוא true'],
+        ['shortDescription','string',   'תיאור קצר — להצגה בכרטיס'],
+        ['longDescription', 'string',   'תיאור ארוך — לדף מוצר מורחב'],
+        ['freeText',        'string',   'שדה טקסט חופשי'],
+        ['imageUrl',        'string',   'תמונה ראשית'],
+        ['imageUrls',       'array',    'כל תמונות המוצר — לגלריה'],
+        ['categoryId',      'string',   'מזהה קטגוריה — לסינון'],
+        ['categoryLabel',   'string',   'שם הקטגוריה להצגה'],
+        ['tags',            'array',    'תגיות: label, color, shape'],
+        ['variants',        'array',    'וריאנטים: name + options[]'],
+        ['addons',          'array',    'תוספות: type, label ועוד'],
+        ['cartButtonText',  'string',   'טקסט כפתור הסל'],
+        ['ownerId',         'string',   'מזהה בעל החשבון'],
+        ['published',       'boolean',  'האם המוצר ציבורי'],
       ];
-      const allFieldNames = apiFields.map(([key]) => key).join('\n');
-      $('#embedCodeBlock').textContent = code;
-      $('#embedDataCodeBlock').textContent = dataCode;
+
+      const designFields = [
+        ['buttonStyle',       'string', '"rounded" / "pill" / "square"'],
+        ['accentColor',       'string', 'צבע הדגשה ממוצרלה'],
+        ['cardBackground',    'string', 'צבע רקע הכרטיס'],
+        ['cardGradient',      'string', 'גרדיאנט רקע (CSS gradient)'],
+        ['textColor',         'string', 'צבע הטקסט'],
+        ['font',              'string', 'גופן'],
+        ['imageSwitchMode',   'string', '"auto" / "hover"'],
+        ['imageSwitchSeconds','number', 'מהירות מעבר תמונות (שניות)'],
+        ['animation',         'object', 'enabled, type, duration, delay'],
+      ];
+
+      $('#widgetDesignCodeBlock').textContent  = widgetDesignCode;
+      $('#widgetContentCodeBlock').textContent = widgetContentCode;
+      $('#widgetCartEventBlock').textContent   = cartEventCode;
+      $('#cartEventCodeBlock').textContent     = cartEventCode;
+      $('#embedDataCodeBlock').textContent     = fullApiCode;
+      $('#embedDataContentBlock').textContent  = contentApiCode;
+
+      const makeTr = ([key, type, desc]) =>
+        `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${esc(desc)}</div></div>`;
+
       $('#apiFieldsBlock').innerHTML = `
-        <div class="guide-step"><strong>שלב 1 — בחירה בין iFrame לבין API</strong><span><strong>iFrame:</strong> משתמש ב-<code>api=styled</code> בתוך תגית <code>&lt;iframe&gt;</code>, ומציג את כל ה-HTML והעיצוב כמו שהם, כולל תמונות ופריסת כרטיסים. <strong>API JSON:</strong> משתמש ב-<code>api=json</code> ומחזיר נתונים בלבד לבנייה ידנית של ה-UI.</span></div>
-        <div class="guide-step"><strong>שלב 2 — כל השדות כבר מופיעים כאן באתר</strong><span>לא רק ככפתור העתקה: כל שדה מוצג בטבלה, עם סוג הנתון, הסבר בעברית ודוגמה למה משתמשים בו. אפשר לראות, לסמן, ולהעתיק ישירות מהמסך.</span></div>
-        <div class="guide-step"><strong>שלב 3 — טבלת שמות השדות המלאה</strong><span>כל השמות בטבלה נשארים באנגלית כדי שתוכלו להדביק אותם כמו שהם בקוד. השדות מופיעים כאן במלואם כדי שלא יהיה צורך לעבוד רק עם העתקה עיוורת.</span></div>
-        <div class="guide-step"><strong>שמות השדות המלאים על המסך</strong><span><strong>העתקה מהירה:</strong> אפשר ללחוץ על כפתור ההעתקה, אבל מיד מתחתיו כל השמות מופיעים גם על הדף עצמו כדי שיהיה קל לבדוק, להבין, ולהשוות בין השדות בלי לצאת מהעמוד.</span><pre class="code-block">${esc(allFieldNames)}</pre></div>
-        <div class="field-table"><div class="field-table-head"><div>${esc(text('embed.fieldLabel'))}</div><div>${esc(text('embed.fieldType'))}</div><div>${esc(text('embed.fieldMeaning'))}</div></div>${apiFields.map(([key,type,desc]) => `<div class="field-row"><code>${esc(key)}</code><div class="type">${esc(type)}</div><div>${desc}</div></div>`).join('')}</div>
-        <div class="guide-step"><strong>שלב 4 — מתי לבחור כל שיטה</strong><span>בחרו <strong>iFrame</strong> כשצריך הטמעה מהירה שמציגה מייד HTML + עיצוב בלי פיתוח נוסף. בחרו <strong>API JSON</strong> כשצריך שליטה מלאה ב-DOM, ב-CSS, בביצועים, או בהתנהגות עסקית מותאמת אישית.</span></div>
+        <div>
+          <div class="field-group-label field-group-content">שדות נתונים — מגיעים בשני סוגי הווידג׳ט</div>
+          <div class="field-table" style="margin-top:8px;">
+            <div class="field-table-head"><div>שדה</div><div>סוג</div><div>תיאור</div></div>
+            ${contentFields.map(makeTr).join('')}
+          </div>
+        </div>
+        <div>
+          <div class="field-group-label field-group-design">שדות עיצוב — זמינים רק ב-API מלא (לא ב-API תוכן)</div>
+          <div class="field-table" style="margin-top:8px;">
+            <div class="field-table-head"><div>שדה</div><div>סוג</div><div>תיאור</div></div>
+            ${designFields.map(makeTr).join('')}
+          </div>
+        </div>
       `;
-      $('#copyFieldNamesBtn').onclick = () => copyText(allFieldNames, 'כל שמות השדות הועתקו');
+
+      $('#copyWidgetDesignBtn')?.addEventListener('click',  () => copyText(widgetDesignCode,  'קוד ווידג׳ט עיצוב הועתק'));
+      $('#copyWidgetContentBtn')?.addEventListener('click', () => copyText(widgetContentCode, 'קוד ווידג׳ט תוכן הועתק'));
+      $('#copyWidgetCartBtn')?.addEventListener('click',    () => copyText(cartEventCode,     'קוד אירוע הסל הועתק'));
+      $('#copyCartEventBtn')?.addEventListener('click',     () => copyText(cartEventCode,     'קוד אירוע הסל הועתק'));
+      $('#copyApiFullBtn')?.addEventListener('click',       () => copyText(fullApiCode,       'קוד API מלא הועתק'));
+      $('#copyApiContentBtn')?.addEventListener('click',    () => copyText(contentApiCode,    'קוד API תוכן הועתק'));
     }
 
     function goToView(view) {
@@ -3411,7 +3718,14 @@
       rawApiUrl.searchParams.set('productId', productId);
       $('#singleRawApiUrl').textContent = rawApiUrl.toString();
 
-      // JSON example
+      const contentApiUrl = new URL(base);
+      contentApiUrl.searchParams.set('api', 'json');
+      contentApiUrl.searchParams.set('productId', productId);
+      contentApiUrl.searchParams.set('fields', 'content');
+      $('#singleContentApiUrl').textContent = contentApiUrl.toString();
+
+      // JSON example — מלא
+      const shortDesc = item.shortDescription || item.description || '';
       const exampleJson = {
         id: productId,
         ownerId: item.uid || '',
@@ -3420,17 +3734,30 @@
         currency: item.currency || 'ILS',
         saleActive: !!item.saleActive,
         salePrice: Number(item.salePrice || 0),
-        description: item.shortDescription || item.description || '',
-        shortDescription: item.shortDescription || item.description || '',
+        description: shortDesc,
+        shortDescription: shortDesc,
         longDescription: item.longDescription || '',
+        freeText: item.freeText || '',
         imageUrl: item.imageUrl || '',
         imageUrls: productImageUrls(item),
+        categoryId: getProductCategoryId(item.categoryLabel || item.categoryId || item.category),
+        categoryLabel: getProductCategoryLabel(item.categoryLabel || item.categoryId || item.category),
+        tags: (item.tags || []).map(t => typeof t === 'string' ? { label: t } : { label: t?.label || '', color: t?.color || '', shape: t?.shape || 'pill' }),
+        tagStyles: item.tagStyles || {},
+        colors: item.colors || [],
+        variants: item.variants || [],
+        addons: item.addons || [],
+        cartButtonText: item.cartButtonText || '',
+        showCart: item.showCart || 'default',
+        template: item.template || 'classic',
+        buttonStyle: item.buttonStyle || 'rounded',
+        accentColor: item.accentColor || '',
+        cardBackground: item.cardBackground || '',
+        cardGradient: item.cardGradient || '',
+        textColor: item.textColor || '',
+        font: item.font || 'Inter',
         imageSwitchMode: item.imageSwitchMode || 'auto',
         imageSwitchSeconds: Number(item.imageSwitchSeconds || 3),
-        tags: (item.tags || []).map(t => typeof t === 'string' ? t : (t?.label || '')),
-        colors: item.colors || [],
-        addons: (item.addons || []).map(a => ({ type: a?.style || 'text', label: a?.value || '' })),
-        upgrades: [],
         animation: {
           enabled: !!(item.animationStyle && item.animationStyle !== 'none'),
           type: item.animationStyle || 'none',
@@ -3439,12 +3766,19 @@
         },
         theme: {
           cardStyle: item.buttonStyle || 'rounded',
-          primaryColor: item.accentColor || '#60a5fa'
+          primaryColor: item.accentColor || '#60a5fa',
+          cardBackground: item.cardBackground || '#ffffff',
+          textColor: item.textColor || '',
+          font: item.font || 'Inter'
         },
         published: true,
         updatedAt: new Date().toISOString()
       };
       $('#singleApiJsonExample').textContent = JSON.stringify(exampleJson, null, 2);
+
+      // JSON example — תוכן בלבד
+      const exampleContentJson = stripDesignFields({ ...exampleJson });
+      $('#singleApiContentJsonExample').textContent = JSON.stringify(exampleContentJson, null, 2);
 
       // Populate product selector
       const select = $('#embedProductSelect');
@@ -3508,8 +3842,9 @@
       $('#closeSidebarBtn').addEventListener('click', closeSidebar);
       $('#sidebarBackdrop')?.addEventListener('click', closeSidebar);
       $('.main').addEventListener('click', closeSidebar);
-      $('#copyEmbedCodeBtn').addEventListener('click', () => copyText($('#embedCodeBlock').textContent, 'קוד iFrame הועתק'));
-      $('#copyAccountIdBtn').addEventListener('click', () => copyText($('#embedDataCodeBlock').textContent, 'קוד API ללא עיצוב הועתק'));
+      // כפתורי העתקה ב-view-embed — fallback
+      $('#copyWidgetDesignBtn')?.addEventListener('click',  () => copyText($('#widgetDesignCodeBlock').textContent,  'קוד ווידג׳ט עיצוב הועתק'));
+      $('#copyWidgetContentBtn')?.addEventListener('click', () => copyText($('#widgetContentCodeBlock').textContent, 'קוד ווידג׳ט תוכן הועתק'));
       $('#toggleCartButton').addEventListener('click', (e) => { e.currentTarget.classList.toggle('active'); state.theme.showCart = e.currentTarget.classList.contains('active'); applyThemeToPreview(); });
       ['themeBackgroundColor','themeTextColor','themeButtonColor','themeCardPadding','themeBorderRadius','themeImageHeight','themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode','themeAnimationDuration','themeAnimationDelay','themeImageSwitchSeconds'].forEach((id) => $("#"+id).addEventListener(['themeTextAlign','themeCardShadow','themeAnimationStyle','themeImageSwitchMode'].includes(id) ? 'change' : 'input', () => {
         state.theme.cardBackground = getColorInputCssValue($('#themeBackgroundColor'), '#ffffff');
@@ -3676,18 +4011,28 @@
       $('#addProductTagBtn').addEventListener('click', addTagFromInput);
       $('#productTagInput').addEventListener('keydown', (e) => { if (e.key === 'Enter') { e.preventDefault(); addTagFromInput(); } });
       $$('.nav-btn[data-view]').forEach(btn => btn.addEventListener('click', () => goToView(btn.dataset.view)));
-      // Product embed panel events
-      $('#embedTabStyledApi')?.addEventListener('click', () => {
-        $('#embedTabStyledApi').classList.add('active');
-        $('#embedTabRawApi').classList.remove('active');
-        $('#embedPanelStyledApi').classList.remove('hidden');
-        $('#embedPanelRawApi').classList.add('hidden');
+      // Method picker — view-embed
+      $$('.api-method-card').forEach(card => {
+        const activate = () => {
+          $$('.api-method-card').forEach(c => c.classList.remove('active'));
+          card.classList.add('active');
+          const method = card.dataset.method;
+          $$('.api-method-panel').forEach(p => p.classList.remove('active'));
+          const panel = $(`#apiMethodPanel-${method}`);
+          if (panel) panel.classList.add('active');
+        };
+        card.addEventListener('click', activate);
+        card.addEventListener('keydown', e => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); activate(); } });
       });
-      $('#embedTabRawApi')?.addEventListener('click', () => {
-        $('#embedTabRawApi').classList.add('active');
-        $('#embedTabStyledApi').classList.remove('active');
-        $('#embedPanelRawApi').classList.remove('hidden');
-        $('#embedPanelStyledApi').classList.add('hidden');
+      // Product embed panel events
+      const productEmbedTabs = ['StyledApi', 'RawApi', 'ContentApi'];
+      productEmbedTabs.forEach(name => {
+        $(`#embedTab${name}`)?.addEventListener('click', () => {
+          productEmbedTabs.forEach(n => {
+            $(`#embedTab${n}`)?.classList.toggle('active', n === name);
+            $(`#embedPanel${n}`)?.classList.toggle('hidden', n !== name);
+          });
+        });
       });
       $('#embedProductSelect')?.addEventListener('change', () => updateSingleProductEmbed());
       $('#copySingleStyledApiBtn')?.addEventListener('click', () => copyText($('#singleStyledApiUrl').textContent, 'קוד iFrame הועתק'));
@@ -3700,7 +4045,7 @@
         base.searchParams.set('productId', item.id);
         window.open(base.toString(), '_blank');
       });
-      $('#copySingleRawApiUrlBtn')?.addEventListener('click', () => copyText($('#singleRawApiUrl').textContent, 'כתובת API הועתקה'));
+      $('#copySingleRawApiUrlBtn')?.addEventListener('click', () => copyText($('#singleRawApiUrl').textContent, 'כתובת API מלא הועתקה'));
       $('#copySingleApiJsonBtn')?.addEventListener('click', () => copyText($('#singleApiJsonExample').textContent, 'JSON הועתק'));
       $('#openSingleRawApiBtn')?.addEventListener('click', () => {
         const item = getSelectedEmbedProduct();
@@ -3711,10 +4056,22 @@
         base.searchParams.set('productId', item.id);
         window.open(base.toString(), '_blank');
       });
+      $('#copySingleContentApiUrlBtn')?.addEventListener('click', () => copyText($('#singleContentApiUrl').textContent, 'כתובת API תוכן הועתקה'));
+      $('#copySingleContentApiJsonBtn')?.addEventListener('click', () => copyText($('#singleApiContentJsonExample').textContent, 'JSON תוכן הועתק'));
+      $('#openSingleContentApiBtn')?.addEventListener('click', () => {
+        const item = getSelectedEmbedProduct();
+        if (!item) return showToast('בחר מוצר מפורסם', true);
+        const base = new URL(window.location.href);
+        base.search = '';
+        base.searchParams.set('api', 'json');
+        base.searchParams.set('productId', item.id);
+        base.searchParams.set('fields', 'content');
+        window.open(base.toString(), '_blank');
+      });
       ['toggleLang','togglePromos','toggleMobile','toggleGoogleAuthInfo'].forEach((id) => $('#'+id).addEventListener('click', (e) => e.currentTarget.classList.toggle('active')));
     }
 
-    async function renderEmbedMode(uid, mode = 'styled') {
+    async function renderEmbedMode(uid, mode = 'styled', fieldsMode = '') {
       let theme = { ...DEFAULT_THEME };
       try {
         const themeSnap = await getDoc(themeDocRef(uid));
@@ -3738,7 +4095,9 @@
           qy,
           (snapshot) => {
             const items = snapshot.docs.map((d) => ({ id: d.id, ...d.data() })).filter(productIsActive).sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
-            document.body.textContent = JSON.stringify({ theme, products: items }, null, 2);
+            const mapped = fieldsMode === 'content' ? items.map(stripDesignFields) : items;
+            const payload = fieldsMode === 'content' ? { products: mapped } : { theme, products: mapped };
+            document.body.textContent = JSON.stringify(payload, null, 2);
           },
           (err) => {
             if (err?.code === 'permission-denied') {
@@ -3755,14 +4114,15 @@
       document.documentElement.dir = 'ltr';
       document.documentElement.lang = 'en';
       const host = document.getElementById('embedRuntime');
+      let embedProducts = [];
       onSnapshot(
         qy,
         (snapshot) => {
-          const items = snapshot.docs
+          embedProducts = snapshot.docs
             .map((d) => ({ id: d.id, ...d.data() }))
             .filter(productIsActive)
             .sort((a, b) => (b?.createdAt?.seconds || 0) - (a?.createdAt?.seconds || 0));
-          host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'המוצרים שלנו')}</h2><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.embedColumns || 3))};">${items.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false)).join('')}</div></div>`;
+          host.innerHTML = `<div class="embed-runtime-shell"><h2 style="margin:0">${esc(state.theme.embedTitle || 'המוצרים שלנו')}</h2><div class="embed-runtime-grid" style="--embed-columns:${Math.max(1, Number(state.theme.embedColumns || 3))};">${embedProducts.map((item) => buildStoreCardHTML({ ...state.theme, ...item }, false)).join('')}</div></div>`;
           initializeImageGalleries(host);
         },
         (err) => {
@@ -3784,8 +4144,21 @@
         if (action === 'qty-down') setCartQuantity(productId, Math.max(1, getCartQuantity(productId) - 1));
         if (action === 'select-variant') setSelectedVariant(productId, actionEl.dataset.group || '', actionEl.dataset.option || '');
         if (action === 'add-cart') {
-          const variants = Object.entries(state.selectedVariants?.[productId] || {}).filter(([, value]) => value).map(([group, value]) => `${group}: ${value}`);
-          showToast(`נוסף לסל: ${getCartQuantity(productId)} יח׳${variants.length ? ` + ${variants.join(', ')}` : ''}`);
+          const qty = getCartQuantity(productId);
+          const selected = state.selectedVariants?.[productId] || {};
+          const variantLabels = Object.entries(selected).filter(([, v]) => v).map(([g, v]) => `${g}: ${v}`);
+          showToast(`נוסף לסל: ${qty} יח׳${variantLabels.length ? ` + ${variantLabels.join(', ')}` : ''}`);
+          // שליחת כל פרטי המוצר לאתר ההורה
+          const product = embedProducts.find(p => p.id === productId) || { id: productId };
+          try {
+            window.parent.postMessage({
+              type: 'motzarella:add-to-cart',
+              source: 'motzarella',
+              product,
+              quantity: qty,
+              selectedVariants: Object.fromEntries(Object.entries(selected).filter(([, v]) => v))
+            }, '*');
+          } catch (e) { /* same-origin, no parent */ }
         }
         const activeSnapshot = [...document.querySelectorAll(`[data-product-id="${CSS.escape(productId)}"]`)];
         activeSnapshot.forEach((el) => {
@@ -3798,7 +4171,7 @@
       });
     }
 
-    async function renderApiMode(productId) {
+    async function renderApiMode(productId, fieldsMode = '') {
       document.body.style.margin = '0';
       document.body.style.padding = '0';
       document.body.style.background = '#fff';
@@ -3809,7 +4182,8 @@
           document.body.textContent = JSON.stringify({ error: 'Product not found or not published' }, null, 2);
           return;
         }
-        document.body.textContent = JSON.stringify(snap.data(), null, 2);
+        const data = snap.data();
+        document.body.textContent = JSON.stringify(fieldsMode === 'content' ? stripDesignFields(data) : data, null, 2);
       } catch (err) {
         document.body.textContent = JSON.stringify({ error: 'Failed to load product', message: err.message }, null, 2);
       }
@@ -3919,11 +4293,11 @@
     const singleProductId = params.get('productId') || '';
 
     if (apiMode === 'json' && singleProductId) {
-      renderApiMode(singleProductId);
+      renderApiMode(singleProductId, params.get('fields') || '');
     } else if (apiMode === 'styled' && singleProductId) {
       renderSingleProductEmbed(singleProductId);
     } else if (apiMode === 'json' && state.embedUid) {
-      renderEmbedMode(state.embedUid, 'json');
+      renderEmbedMode(state.embedUid, 'json', params.get('fields') || '');
     } else if ((apiMode === 'styled' || state.embedMode || (isInIframe && state.embedUid)) && state.embedUid) {
       renderEmbedMode(state.embedUid, 'styled');
     } else if (isInIframe) {
