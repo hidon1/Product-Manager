@@ -1,0 +1,76 @@
+{
+  "version": "2026-04-15",
+  "stores": [
+    {
+      "storeId": "demo-store-he",
+      "storeName": "מוצרלה דמו",
+      "currency": "ILS",
+      "locale": "he-IL",
+      "products": [
+        {
+          "id": "mz-1001",
+          "name": "סט סכיני שף מקצועי",
+          "price": 349.9,
+          "image": "https://images.unsplash.com/photo-1590794056470-2208254f1b58?auto=format&fit=crop&w=640&q=80",
+          "description": "סט 5 סכינים מנירוסטה עם ידית ארגונומית לשימוש יומיומי.",
+          "buttonText": "הוספה לסל",
+          "availability": "in_stock",
+          "category": "מטבח",
+          "sku": "KNF-5P-01"
+        },
+        {
+          "id": "mz-1002",
+          "name": "מארז אחסון מזון זכוכית",
+          "price": 189,
+          "image": "https://images.unsplash.com/photo-1506368083636-6defb67639a7?auto=format&fit=crop&w=640&q=80",
+          "description": "סט 10 קופסאות זכוכית עמידות בחום, מתאים למיקרוגל ולמדיח.",
+          "buttonText": "הוספה לסל",
+          "availability": "in_stock",
+          "category": "מטבח",
+          "sku": "BOX-GL-10"
+        },
+        {
+          "id": "mz-1003",
+          "name": "מחבת נון-סטיק 28 ס״מ",
+          "price": 229,
+          "image": "https://images.unsplash.com/photo-1584990347449-0f6f33d4f95f?auto=format&fit=crop&w=640&q=80",
+          "description": "מחבת אלומיניום יצוק עם ציפוי איכותי ופיזור חום אחיד.",
+          "buttonText": "הוספה לסל",
+          "availability": "in_stock",
+          "category": "בישול",
+          "sku": "PAN-28-NST"
+        }
+      ]
+    },
+    {
+      "storeId": "demo-store-en",
+      "storeName": "Mozarela Global",
+      "currency": "USD",
+      "locale": "en-US",
+      "products": [
+        {
+          "id": "mg-2001",
+          "name": "Portable Espresso Maker",
+          "price": 79,
+          "image": "https://images.unsplash.com/photo-1509042239860-f550ce710b93?auto=format&fit=crop&w=640&q=80",
+          "description": "Compact espresso machine for travel and office use.",
+          "buttonText": "Add to cart",
+          "availability": "in_stock",
+          "category": "Coffee",
+          "sku": "ESP-PRO-01"
+        },
+        {
+          "id": "mg-2002",
+          "name": "Coffee Bean Sampler Box",
+          "price": 42.5,
+          "image": "https://images.unsplash.com/photo-1495474472287-4d71bcdd2085?auto=format&fit=crop&w=640&q=80",
+          "description": "Six specialty roasts from boutique farms around the world.",
+          "buttonText": "Add to cart",
+          "availability": "in_stock",
+          "category": "Coffee",
+          "sku": "BEAN-BOX-6"
+        }
+      ]
+    }
+  ]
+}
